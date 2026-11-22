@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Badge, Kpi, LinkButton, LinkChips, PageHeader, Panel, ProgressLine } from '../components/ui'
-import { Icon, type IconName } from '../components/Icon'
+import { Icon } from '../components/Icon'
+import { ShotFrame, Waveform } from '../components/Visuals'
 import { gates, productionModes, sourceModes } from '../data/sample'
 
 type WorkbenchTab = 'analysis' | 'production' | 'revision'
@@ -11,21 +12,6 @@ type Revision = {
   detail: string
 }
 
-const modeIcons: Record<string, IconName> = {
-  live: 'target',
-  short_form: 'video',
-  film: 'studio',
-  video: 'video',
-  animation: 'layers',
-  motion: 'bolt',
-}
-
-const sourceIcons: Record<string, IconName> = {
-  generate_new: 'plus',
-  transform_source: 'layers',
-  composite: 'link',
-}
-
 const modeGateNote: Record<string, string> = {
   live: '샷사이즈 / 3D 조명 스키마 / 저해상도 / 샷 단위 렌더',
   short_form: '9:16 재구도 / 세이프존 / 자막 확인 / 샷 단위 렌더',
@@ -34,6 +20,12 @@ const modeGateNote: Record<string, string> = {
   animation: '키프레임 / 키프레임 시트 / 타이밍 / 샷 단위 렌더',
   motion: '레이어 / 모션 스펙 / 이징 확인 / 샷 단위 렌더',
 }
+
+const timelineTracks = [
+  { label: '영상', bars: [{ left: 0, width: 34, tone: 'ink' }, { left: 35, width: 30, tone: 'ink' }] },
+  { label: '자막', bars: [{ left: 6, width: 18, tone: 'red' }, { left: 38, width: 22, tone: 'red' }] },
+  { label: '오디오', bars: [{ left: 2, width: 62, tone: 'rule' }] },
+] as const
 
 export function S8VideoWorkbench() {
   const [tab, setTab] = useState<WorkbenchTab>('production')
@@ -101,7 +93,7 @@ export function S8VideoWorkbench() {
         eyebrow="영상 제작"
         icon="video"
         title="영상 워크벤치"
-        description="유형을 먼저 선택하고 4개 승인 게이트를 순서대로 통과합니다. 실제 렌더와 외부 전송은 없습니다."
+        description="샷과 타임코드를 먼저 고정하고 네 개의 승인 게이트를 순서대로 통과합니다. 실제 렌더와 외부 전송은 없습니다."
         badges={[
           <Badge key="dry" tone="dry">DryRender / 외부 렌더 0건</Badge>,
           <Badge key="sample" tone="sample">샘플 시나리오 1개</Badge>,
@@ -123,10 +115,10 @@ export function S8VideoWorkbench() {
 
       <div className="tabs" role="tablist" aria-label="S8 작업 단계">
         {([
-          ['analysis', '분석', 'reference'],
-          ['production', '제작', 'video'],
-          ['revision', '수정', 'bolt'],
-        ] as [WorkbenchTab, string, IconName][]).map(([id, label, icon]) => (
+          ['analysis', '유형 선택', 'reference'],
+          ['production', '제작 데스크', 'video'],
+          ['revision', '샷 수정', 'bolt'],
+        ] as [WorkbenchTab, string, string][]).map(([id, label, icon]) => (
           <button
             key={id}
             type="button"
@@ -135,37 +127,32 @@ export function S8VideoWorkbench() {
             className={`tab${tab === id ? ' tab--active' : ''}`}
             onClick={() => setTab(id)}
           >
-            <Icon name={icon} size={13} /> {label}
+            <Icon name={icon as 'reference' | 'video' | 'bolt'} size={13} /> {label}
           </button>
         ))}
       </div>
 
       {tab === 'analysis' && (
         <>
-          <Panel
-            title="제작 유형 선택"
-            icon="target"
-            aside={<Badge tone={modeReady ? 'ok' : 'warn'}>기본값: 미선택</Badge>}
-          >
-            <p className="hint">유형을 고르기 전에는 분석과 제작 게이트가 잠깁니다. 자동 추정하지 않습니다.</p>
-            <div className="mode-grid">
-              {productionModes.map((item) => (
+          <Panel title="제작 포맷 선택" icon="target" aside={<Badge tone={modeReady ? 'ok' : 'warn'}>기본값: 미선택</Badge>}>
+            <p className="hint">포맷을 고르기 전에는 분석과 제작 게이트가 잠깁니다. 자동 추정하지 않습니다.</p>
+            <div className="format-grid">
+              {productionModes.map((item, index) => (
                 <button
                   key={item.id}
                   type="button"
                   aria-pressed={mode === item.id}
-                  className={`mode-card${mode === item.id ? ' mode-card--active' : ''}`}
+                  className={`format-card${mode === item.id ? ' format-card--active' : ''}`}
                   onClick={() => selectMode(item.id)}
                 >
-                  <span className="mode-card__icon">
-                    <Icon name={modeIcons[item.id]} size={16} />
-                  </span>
-                  {item.label}
+                  <ShotFrame index={index} active={mode === item.id} />
+                  <strong>{item.label}</strong>
+                  <small>{modeGateNote[item.id].split(' / ')[0]}</small>
                 </button>
               ))}
             </div>
           </Panel>
-          <Panel title="서드파티 레퍼런스" icon="shield" aside={<Badge>메타데이터 전용</Badge>}>
+          <Panel title="서드파티 메타데이터" icon="shield" aside={<Badge>원문 링크만 보관</Badge>}>
             <ul className="plain-list">
               <li>원문 URL과 썸네일 URL, 타임코드만 보관합니다.</li>
               <li>프레임 다운로드, 프레임 분석, 미디어 바이트 저장을 하지 않습니다.</li>
@@ -177,8 +164,53 @@ export function S8VideoWorkbench() {
 
       {tab === 'production' && (
         <>
+          <Panel title="제작 데스크" icon="video" aside={<Badge tone="dry">SH-01 / 미리보기 이미지</Badge>}>
+            <div className="video-desk">
+              <div className="video-desk__monitor">
+                <div className="monitor-screen">
+                  <ShotFrame index={0} active />
+                  <span className="monitor-timecode">{timecode}</span>
+                </div>
+                <Waveform />
+                <div className="monitor-foot">
+                  <span>현재 샷 {shotId}</span>
+                  <span>{currentModeLabel ?? '포맷 미선택'}</span>
+                </div>
+              </div>
+              <div className="video-desk__shots">
+                <div className="desk-label">샷 목록</div>
+                <div className="shot-strip">
+                  {[0, 1, 2, 3].map((index) => (
+                    <ShotFrame key={index} index={index} active={index === 0} />
+                  ))}
+                </div>
+                <p className="hint">샷을 선택하면 해당 타임코드만 재승인 대상이 됩니다.</p>
+              </div>
+            </div>
+            <div className="timeline" aria-label="타임라인 샘플">
+              <div className="timeline__ruler">
+                <span>트랙</span><span>00:00</span><span>00:01</span><span>00:02</span><span>00:03</span>
+              </div>
+              {timelineTracks.map((track) => (
+                <div className="timeline__row" key={track.label}>
+                  <span className="timeline__label">{track.label}</span>
+                  <div className="timeline__lane">
+                    {track.bars.map((bar, i) => (
+                      <span
+                        key={i}
+                        className={`timeline__bar timeline__bar--${bar.tone}`}
+                        style={{ left: `${bar.left}%`, width: `${bar.width}%` }}
+                      />
+                    ))}
+                    <span className="timeline__playhead" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
           <Panel title="소스 모드" icon="layers" aside={<Badge tone={rightsRequired ? 'warn' : 'neutral'}>3가지 입력 모드</Badge>}>
-            <div className="mode-grid">
+            <div className="source-modes">
               {sourceModes.map((item) => (
                 <button
                   key={item.id}
@@ -187,20 +219,15 @@ export function S8VideoWorkbench() {
                   className={`mode-card${sourceMode === item.id ? ' mode-card--active' : ''}`}
                   onClick={() => selectSourceMode(item.id)}
                 >
-                  <span className="mode-card__icon">
-                    <Icon name={sourceIcons[item.id]} size={16} />
-                  </span>
                   {item.label}
                 </button>
               ))}
             </div>
-            <p className="hint">
-              변환과 합성 모드는 rights_flag와 rights_confirmed_by가 확인되기 전 실행 버튼이 비활성입니다.
-            </p>
+            <p className="hint">변환과 합성 모드는 rights_flag와 rights_confirmed_by가 확인되기 전 실행 버튼이 비활성입니다.</p>
             {rightsRequired && (
               <div className="row">
                 <button type="button" className="button" onClick={() => setRightsDialogOpen(true)}>
-                  <Icon name="shield" size={14} /> 권리 확인 열기
+                  권리 확인 열기
                 </button>
                 <LinkButton from="s5" to="s8" icon="link">S5 자산을 소스로 참조</LinkButton>
               </div>
@@ -213,8 +240,8 @@ export function S8VideoWorkbench() {
             aside={<Badge tone="dry">PRE-0a/0b 사전 확인 / 게이트 수 미포함</Badge>}
           >
             <p className="hint">
-              선택 유형: {currentModeLabel ?? '미선택'} /
-              {mode ? ` ${modeGateNote[mode]}` : ' 유형을 먼저 선택하세요.'}
+              선택 포맷: {currentModeLabel ?? '미선택'} /
+              {mode ? ` ${modeGateNote[mode]}` : ' 포맷을 먼저 선택하세요.'}
             </p>
             <div className="row" style={{ marginTop: 12 }}>
               <label className="field">
@@ -226,7 +253,6 @@ export function S8VideoWorkbench() {
                 />
               </label>
               <Badge tone={rightsReady ? 'ok' : 'warn'}>
-                <Icon name={rightsReady ? 'check' : 'shield'} size={12} />
                 {rightsReady ? '사전 확인 통과' : 'PRE-0b 권한 미확인'}
               </Badge>
             </div>
@@ -237,9 +263,7 @@ export function S8VideoWorkbench() {
                 const locked = !canApprove(index)
                 return (
                   <div className={`gate-step${approvedBy ? ' gate-step--done' : ''}`} key={gate.id}>
-                    <span className="gate-step__num">
-                      {approvedBy ? '확인' : gate.id}
-                    </span>
+                    <span className="gate-step__num">{approvedBy ? '확인' : gate.id}</span>
                     <div className="gate-step__body">
                       <strong>{gate.id} {gate.label}</strong>
                       <small>
@@ -267,41 +291,36 @@ export function S8VideoWorkbench() {
               Composition3D 스키마로 동일 게이트를 통과합니다.
             </p>
           </Panel>
-
-          <Panel title="DryRender 미리보기" icon="video" aside={<Badge tone="dry">샘플 1개 / SH-01</Badge>}>
-            <p className="hint">현재는 플레이스홀더입니다. 렌더 API 호출, 파일 생성, 과금은 0건입니다.</p>
-            <div className="kv">
-              <span>샷 ID</span><strong>{shotId}</strong>
-              <span>타임코드</span><strong>{timecode}</strong>
-              <span>게이트 통과</span><strong>{approvedCount} / 4</strong>
-            </div>
-            <ProgressLine label="DryRender 준비도" value={(approvedCount / 4) * 100} />
-          </Panel>
         </>
       )}
 
       {tab === 'revision' && (
         <>
-          <Panel title="샷 단위 수정 요청" icon="bolt" aside={<Badge tone="sample">targeted revision</Badge>}>
-            <div className="row">
-              <label className="field">
-                shot_id
-                <input value={shotId} onChange={(event) => setShotId(event.target.value)} />
-              </label>
-              <label className="field">
-                타임코드 구간
-                <input value={timecode} onChange={(event) => setTimecode(event.target.value)} />
-              </label>
-            </div>
-            <label className="field field--wide">
-              수정 지시
-              <input value={revision} onChange={(event) => setRevision(event.target.value)} />
-            </label>
-            <div className="row" style={{ marginTop: 14 }}>
-              <button type="button" className="button button--primary" onClick={addRevision}>
-                <Icon name="plus" size={14} /> 수정 요청 추가
-              </button>
-              <span className="hint">전체 영상 자동 재생성 없음. 해당 샷만 재승인 대상</span>
+          <Panel title="샷 지정 수정" icon="bolt" aside={<Badge tone="sample">targeted revision</Badge>}>
+            <div className="revision-desk">
+              <div className="revision-desk__preview"><ShotFrame index={0} active /></div>
+              <div className="revision-desk__form">
+                <div className="row">
+                  <label className="field">
+                    shot_id
+                    <input value={shotId} onChange={(event) => setShotId(event.target.value)} />
+                  </label>
+                  <label className="field">
+                    타임코드 구간
+                    <input value={timecode} onChange={(event) => setTimecode(event.target.value)} />
+                  </label>
+                </div>
+                <label className="field field--wide">
+                  수정 지시
+                  <input value={revision} onChange={(event) => setRevision(event.target.value)} />
+                </label>
+                <div className="row" style={{ marginTop: 14 }}>
+                  <button type="button" className="button button--primary" onClick={addRevision}>
+                    수정 요청 추가
+                  </button>
+                  <span className="hint">전체 영상 자동 재생성 없음. 해당 샷만 재승인 대상</span>
+                </div>
+              </div>
             </div>
           </Panel>
           <Panel title="수정 이력" icon="clock" aside={<Badge>{revisions.length}건</Badge>}>
@@ -313,7 +332,7 @@ export function S8VideoWorkbench() {
                       <strong>{item.shotId}</strong>
                       <Badge>{item.timecode}</Badge>
                     </div>
-                    <Icon name="check" size={15} />
+                    <span className="revision-done">기록됨</span>
                   </div>
                   <p className="hint">{item.detail}</p>
                 </li>
@@ -337,9 +356,7 @@ export function S8VideoWorkbench() {
             aria-labelledby="s8-rights-title"
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <h2>
-              <Icon name="shield" size={18} /> 권리 확인 (PRE-0b)
-            </h2>
+            <h2>권리 확인 (PRE-0b)</h2>
             <p>업로드한 사람이 직접 확인합니다. 시스템은 확인 여부만 검증하고 권리를 판정하지 않습니다.</p>
             <label className="dialog__check">
               <input
@@ -364,7 +381,7 @@ export function S8VideoWorkbench() {
                 disabled={!rightsFlag || !confirmedBy.trim()}
                 onClick={() => setRightsDialogOpen(false)}
               >
-                <Icon name="check" size={14} /> 확인 기록
+                확인 기록
               </button>
               <button type="button" className="button" onClick={() => setRightsDialogOpen(false)}>
                 취소

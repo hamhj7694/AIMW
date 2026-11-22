@@ -1,10 +1,10 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useModuleLinks } from './useModuleLinks'
 
 const modules = [
   { to: '/s0', code: 'S0', label: '수집' },
-  { to: '/s1', code: 'S1', label: '분석' },
-  { to: '/s2', code: 'S2', label: '브리프' },
+  { to: '/s1', code: 'S1', label: '레퍼런스' },
+  { to: '/s2', code: 'S2', label: '글쓰기' },
   { to: '/s3', code: 'S3', label: '발행' },
   { to: '/s4', code: 'S4', label: '인사이트' },
   { to: '/s5', code: 'S5', label: '콘텐츠' },
@@ -16,9 +16,11 @@ const modules = [
 
 export function AppShell() {
   const { links, disconnect } = useModuleLinks()
+  const location = useLocation()
+  const current = location.pathname.split('/')[1] || 's0'
 
   return (
-    <div className="shell">
+    <div className={`shell shell--${current}`}>
       <header className="site-head">
         <div className="site-head__brand">
           <strong>AIMW</strong>

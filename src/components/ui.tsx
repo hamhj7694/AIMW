@@ -1,8 +1,22 @@
 import type { ReactNode } from 'react'
 import { useModuleLinks } from '../app/useModuleLinks'
 import type { IconName } from './Icon'
+import { ToolGlyph } from './Visuals'
 
 type Tone = 'neutral' | 'sample' | 'dry' | 'forecast' | 'warn' | 'ok' | 'info'
+
+const toolInfo: Record<string, { kind: string; role: string }> = {
+  s0: { kind: '자료 수집함', role: '공개 범위 소스를 모으고 분류합니다' },
+  s1: { kind: '레퍼런스 보드', role: '이미지와 영상 참고 자료를 비교합니다' },
+  s2: { kind: '글쓰기 데스크', role: '브리프, 카피, 검수를 한 문서에서 다룹니다' },
+  s3: { kind: '발행 스케줄러', role: 'Dry-run 예약과 상태를 확인합니다' },
+  s4: { kind: '성과 리포트', role: '샘플 지표를 읽고 개선안을 남깁니다' },
+  s5: { kind: '콘텐츠 라이브러리', role: '우리 자산과 아이디어를 정리합니다' },
+  s6: { kind: '예측 대시보드', role: '시계열과 신뢰도를 함께 봅니다' },
+  s7: { kind: '세그먼트 빌더', role: '식별자 없는 잠재고객 변수를 설계합니다' },
+  s8: { kind: '영상 제작 스위트', role: '샷, 타임코드, 게이트를 순서대로 관리합니다' },
+  s9: { kind: '검색 성장 콘솔', role: '진단, 키워드, 예산을 한곳에서 시뮬레이션합니다' },
+}
 
 export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: Tone }) {
   return <span className={`badge badge--${tone}`}>{children}</span>
@@ -22,15 +36,23 @@ export function PageHeader({
   icon?: IconName
   eyebrow?: string
 }) {
+  const tool = toolInfo[code.toLowerCase()] ?? { kind: '작업 모듈', role: '' }
   return (
     <header className="page-head">
-      <div className="page-head__kicker">
-        <span className="module-tag">{code}</span>
-        {eyebrow && <span className="page-head__eyebrow">{eyebrow}</span>}
+      <div className="page-head__identity">
+        <ToolGlyph code={code} />
+        <div className="page-head__text">
+          <div className="page-head__kicker">
+            <span className="module-tag">{code}</span>
+            <span className="page-head__role">{tool.kind}</span>
+            {eyebrow && <span className="page-head__eyebrow">{eyebrow}</span>}
+          </div>
+          <h1>{title}</h1>
+          <p>{description}</p>
+          <p className="page-head__role-note">{tool.role}</p>
+          <div className="badge-row">{badges}</div>
+        </div>
       </div>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <div className="badge-row">{badges}</div>
     </header>
   )
 }
