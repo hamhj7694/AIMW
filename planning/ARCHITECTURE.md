@@ -10,7 +10,7 @@
 
 1. **캡처 자산은 참고만, 코드는 클린룸에서 재작성한다.** 7개 공개 서비스의 렌더링 산출물(HTML/CSS/이미지)은 라이선스 미확인이므로 복제하지 않는다. 이 저장소는 그 경로에 의존하지 않는다.
 2. **AI 추론은 서버사이드 프록시 경유.** 브라우저에 API 키를 노출하지 않는다. 기본 Provider는 이미 설치·검증된 로컬 Ollama(`qwen3.8-local:latest`, `127.0.0.1:11434`)다.
-3. **외부 발행·과금은 MVP에서 Dry-run.** 실제 게시/API 호출/결제는 하지 않고, 상태와 UI만 재현한다.
+3. **외부 발행·과금은 MVP에서 Dry-run.** 실제 게시/API 호출/결제는 하지 않고, 상태와 UI만 재현한다. 계정 연동은 **사용자가 직접 로그인/OAuth로** 수행하고, 실제 비용·비딩·예산 변경은 **매번 명시 동의 후**에만 실행한다(임계값 초과 시 2차 확인 팝업, NFR-26~28).
 4. **상태를 화면에 노출한다.** 모든 AI 작업은 `Job` 엔티티로 추적하고, 프런트는 폴링으로 상태를 표시한다.
 5. **단일 노드, 단일 DB.** SQLite + 로컬 파일 스토리지로 배포 복잡도를 최소화한다.
 6. **교체 가능한 Provider/Connector.** 추론·발행·분석·수집은 인터페이스로 추상화해 후속 연동 시 구현체만 교체한다.
@@ -59,6 +59,8 @@
   ├─ /api/v1/seo/keywords         S9: 키워드 갭·검색 의도 매핑(공식/공개 데이터 한정)
   ├─ /api/v1/seo/forecast         S9: 투자비용↔성과 추정·예산 배분 추천(예측 배지)
   ├─ /api/v1/seo/rounds           S9: 취합·개선 라운드(actual/delta/improvements)
+  ├─ /api/v1/connections/oauth/start  사용자가 직접 로그인/OAuth 승인하는 연동 시작(대리 로그인 없음)
+  ├─ /api/v1/cost-approvals       실제 비용·비딩 사전 동의, 2차 확인, 승인 이력·지출 상한
   ├─ /api/v1/module-links         명시적 연결 생성/해제/목록 (자동 연결 없음)
   ├─ /api/v1/projects, /brands, /references, /boards
   ├─ /api/v1/jobs                 AI 작업 생성·상태·취소
@@ -82,6 +84,7 @@
     ├─ [SegmentService]     S7: 전처리 → KMeans → 프로필 (독립)
     ├─ [VideoWorkbench]     S8: 소스선택·권한→유형선택→레퍼런스→분석→해석→콘티→3D→애니매틱→단계렌더→타겟수정 (독립)
     ├─ [SeoGrowthService]   S9: 진단→키워드/의도→개선안→예측/예산→취합→개선 (독립)
+    ├─ [CostApprovalService] 횡단 승인 게이트: 상한·임계값·동의·2차 확인·이력 (승인 없이는 실행 불가)
     └─ [KnowledgeService]   S8/S9: planning/knowledge/** 읽기 전용 청크 검색·인용 조립
              (여섯 서비스는 DB 테이블을 공유하지 않고 ModuleLink로만 참조)
             │
@@ -174,7 +177,7 @@
 - **StoryboardService** (S8): `build_intent(confirmed_mappings)` → `VideoIntent{shots[], timing, tone, platform}`. `generate_storyboard(intent)` → `Storyboard{shots[{shot_id, timecode, visual, copy, audio, transition, camera, lighting}]}`. `generate_composition3d(storyboard)` → `Composition3D` **스키마**(카메라 위치·FOV·피사체 배치·조명 리그·모션 경로). MVP는 SVG/와이어프레임 시뮬레이션이며 실제 3D 렌더가 아님을 배지로 명시. `generate_animatic(storyboard)` → 저해상도 타임라인 미리보기(스텁).
 - **ShotRenderService** (S8): `estimate(stage)` → 예상 시간/비용. `advance_stage(project_id, stage, approved_by)` → **사용자 승인 시에만** 다음 단계 실행. `render_shot(shot_id, quality)` → 샷 단위 산출물 + `ShotVersion`. MVP는 `DryRenderAdapter`(플레이스홀더/샘플), Phase B에서 저해상도→최종 렌더 어댑터 교체. 부분 실패 시 성공 샷은 유지하고 실패 샷만 재시도.
 - **RevisionService** (S8): `plan(target)` → `{shot_ids[], elements[], estimated_cost, affected_scopes}` 미리보기. `apply(revision_id)` → 승인된 범위에만 패치(Phase A는 요청·미리보기 UI, Phase B 실제 diff 재렌더). 자동 전체 재생성 경로 없음.
-- **SeoGrowthService** (S9): `diagnose(url_or_manual)` → `SeoDiagnosis{findings[]}`(기술/온페이지/콘텐츠, Phase A 룰 엔진 + 수동 입력). `find_keyword_gaps(...)` → `KeywordGap[]` + `SearchIntentMap[]`. `optimize_content(...)` → `ContentOptimization{title_proposal, meta_description_proposal, structural_notes, rationale}`(기존 문구는 `source_phrase`로 보존, 자동 덮어쓰기 금지). `forecast(budget, options)` → `SeoInvestment{forecast[], method, confidence, model, is_forecast=true}`. `recommend_budget(...)` → `BudgetRecommendation[]`. Phase B에서 소유 확인 계정의 공식 데이터와 공개 검색 API를 연동하고, 회귀 모형으로 예측을 교체한다. SERP 스크래핑·로그인 우회·유료벽 우회 경로는 제공하지 않는다. 순위 보장을 표현하는 응답 문구를 golden test로 차단한다.
+- **SeoGrowthService** (S9): `diagnose(url_or_manual)` → `SeoDiagnosis{findings[]}`(기술/온페이지/콘텐츠, Phase A 룰 엔진 + 수동 입력). `find_keyword_gaps(...)` → `KeywordGap[]` + `SearchIntentMap[]`. `optimize_content(...)` → `ContentOptimization{title_proposal, meta_description_proposal, structural_notes, rationale}`(기존 문구는 `source_phrase`로 보존, 자동 덮어쓰기 금지). `forecast(budget, options)` → `SeoInvestment{forecast[], method, confidence, model, is_forecast=true}`. `recommend_budget(...)` → `BudgetRecommendation[]`. Phase B에서 소유 확인 계정의 공식 데이터와 공개 검색 API를 연동하고, 회귀 모형으로 예측을 교체한다. SERP 스크래핑·로그인 우회·유료벽 우회 경로는 제공하지 않는다. 순위 보장을 표현하는 응답 문구를 golden test로 차단한다. 실제 비용이 발생하는 동작은 `CostApprovalService.request()`로 승인을 요청하고, 승인 토큰이 없으면 `execute()`가 거부한다. 계정 연동도 사용자가 직접 OAuth를 완료해야 활성화되며 시스템은 대리 로그인하지 않는다.
 - **보안**: API 키는 서버 환경변수/`.env`에 보관, `/connections` 응답은 마스킹(`sk-****abcd`)만 반환. S7 업로드 파일은 처리 후 즉시 삭제 정책(Phase B) 적용. S8 업로드 영상은 자기 콘텐츠로 한정, 얼굴·번호판 블러 권고, 보유기간 명시.
 
 ### 4-3. 데이터 계층
@@ -227,6 +230,12 @@ SeoRound(1) ──< ContentOptimization(*)   # 제안은 source_phrase와 별도
 SeoRound(1) ──< SeoInvestment(*) ──< BudgetRecommendation(*)
 SeoInvestment(*) ──< SerpObservation(*)  # 공식 출처만, 예측/신뢰도/모델 배지
 # 개선안 → S2/S5 전달은 ModuleLink(s9→s2|s5) 클릭 시에만
+
+# 비용 승인 (횡단 게이트, 승인 없이는 실행 불가)
+ProviderConnection(linked_by_user, connected_at)   # 사용자가 직접 OAuth 완료
+CostApproval(id, amount, item, provider, period, requested_by, approved_by, approved_at, second_confirmation)
+SpendCap(scope, limit, period, changed_by, changed_at)
+ConsentRecord(approval_id, action, amount, outcome)
 
 # 유일한 모듈 간 연결 경로 (사용자 클릭만)
 ModuleLink(source_module, source_id, target_module, target_id, created_by, created_at)
@@ -330,7 +339,7 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 
 **SEO 성장 흐름(S9, 클릭 기반 개선 루프)**
 
-1. S9 진입 → 진단 탭에서 URL 또는 수동 입력을 받아 `SeoDiagnosis` 표시(Phase A 룰 엔진 + 샘플). 소유 확인 계정 연동은 Phase B, 여기서는 실제 계정 호출·과금 없음.
+1. S9 진입 → 진단 탭에서 URL 또는 수동 입력을 받아 `SeoDiagnosis` 표시(Phase A 룰 엔진 + 샘플). **계정은 사용자가 직접 로그인/OAuth로 연동**(Phase B), 시스템 대리 로그인 없음. 여기서는 실제 계정 호출·과금 없음.
 2. 키워드·콘텐츠 탭에서 `KeywordGap[]`·`SearchIntentMap[]`·`ContentOptimization` 제안을 표시. 기존 문구는 `source_phrase`로 보존하고 제안을 별도 필드에 저장(자동 덮어쓰기 금지).
 3. 예산·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지, `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
 4. 취합·개선 탭에서 실제값(`actual`)과 예측값(`delta`)을 라운드 단위로 취합하고 개선안을 만든다. 개선안을 S2 브리프/S5 콘텐츠로 보내려면 "브리프로 보내기" 클릭 시에만 `ModuleLink(s9→s2|s5)` 생성 — 자동 반영·자동 동기화 없음.
@@ -381,6 +390,7 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 | 수집 준수 | robots/ToS/레이트리밋 100% 통과, 차단 건 0건 저장 | 4-4 체크리스트, CollectAdapter 게이트, provenance 로그 |
 | 수집 성능 | 파트별 1회 수집 30초 내(공식 API 기준) | 비동기 Job, 캐시, 동시성 제한 |
 | 모듈 격리 | S0/S5/S6/S7/S8/S9·KnowledgeService 간 자동 데이터 로드 0건 | 10개 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
+| 비용 승인 | 실제 과금·비딩·예산 변경 100%에서 사전 동의 + 승인 이력, 임계값 초과 2차 팝업 | 자동 결제·자동 입찰 0건, 상한 초과 시 하드 스톱 |
 | 연결 감사 | 모든 모듈 링크에 `created_by` 기록 | `ModuleLinkService.link()`만 생성 경로 |
 | 예측 투명성 | S6 결과 100%에 `예측/신뢰도/모델` 배지 | `Forecast` 렌더링 규칙 |
 | 개인정보 | S7 원본 식별자 저장 0건 | 업로드 시 제거, 보유기간 명시, 삭제 요청 정책 |
@@ -400,7 +410,8 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 - YouTube `search.list` 100/day 버킷, 네이버 25,000/day 등 외부 할당량은 변동 가능 → Job에 quota 게이지를 두고 초과 시 대기 상태로 전환한다.
 - **모듈 엉킴 리스크**: S5~S9·KnowledgeService를 핵심 흐름(F1~F7)에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
 - **SEO 오인 리스크**: 예측치를 실제 순위·성과로 오해하거나 "최상위 노출 보장"으로 과장 → `예측/신뢰도/모델` 배지, 공식 가이드 근거(S23/A), 순위 보장 문구 차단 테스트.
-- **S9 계정·권리 리스크**: 소유 확인되지 않은 계정·SERP 스크래핑·유료벽 우회 → 공식 API/공개 데이터/수동 입력만 허용, 계정 연결은 Phase B 이후 사용자 승인.
+- **S9 계정·권리 리스크**: 시스템 대리 로그인·소유 확인되지 않은 계정·SERP 스크래핑·유료벽 우회 → 사용자가 직접 OAuth로 연동한 계정 + 공식 API/공개 데이터/수동 입력만 허용.
+- **비용·비딩 오남용 리스크**: 자동 결제·자동 입찰·자동 예산 변경 → `CostApprovalService`가 승인 토큰 없이 실행 거부, 임계값 초과 시 2차 팝업, 상한 초과 시 하드 스톱(NFR-27·28).
 - **지식베이스 저작권 리스크**: ASC·StudioBinder·Rosco·CreativeHut 등은 저작권 보호 문서이며 CreativeHut는 복제·번역·각색에 서면 허가를 요구 → 개념 자체 서술 + 출처 ID만 저장. 저장소에 포함되지 않는 로컬 캡처 자료는 라이선스 미확인이자 경로 의존으로 KB 근거에서 제외. 플랫폼 픽셀 수치는 공식 원칙(A)과 제3자 추정(C)을 분리해 단정 금지.
 - **예측 오인 리스크**: 이동평균 결과를 실제 성과로 오해 → 예측 배지·신뢰도·샘플 배지 상시 노출.
 - **개인정보 리스크**: S7 고객데이터 과수집 → 식별자 제거, 최소 변수, 보유기간·삭제 정책. 법률 검토 전 실제 CRM 연동 금지.
