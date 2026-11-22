@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<style>
+  :root{
+    --paper:#E8E9E2; --ink:#202722; --signal:#B8371B; --ink-70:#59625B;
+    --rule:#C9CCC3; --signal-soft:#EFD9D2; --paper-alt:#DCDDD5;
+    --font:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;font-family:var(--font);font-size:13px;line-height:20px;color:var(--ink);background:var(--paper);word-break:keep-all}
+  h1{font-size:18px;line-height:26px;margin:0 0 2px}
+  .sub{color:var(--ink-70);font-size:12px;margin-bottom:16px}
+  .btn{height:40px;padding:0 18px;border:0;border-radius:0;font:inherit;font-weight:600;cursor:pointer;background:var(--signal);color:var(--paper)}
+  .btn:hover{text-decoration:underline}
+  .btn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.ghost{background:transparent;color:var(--ink);font-weight:400}
+  .row{display:flex;gap:8px;align-items:center}
+  .notice{border-left:2px solid var(--signal);padding:8px 12px;font-size:12px;margin:14px 0;background:var(--signal-soft)}
+  .warn{border-left:2px solid var(--signal);padding:8px 12px;font-size:12px;margin:8px 0}
+  .err{border-left:2px solid var(--signal);padding:8px 12px;font-size:12px;margin:8px 0;color:var(--signal)}
+  .panel{border-top:1px solid var(--rule);margin-top:14px;padding-top:10px}
+  .panel h2{font-size:13px;margin:0 0 8px}
+  .log{max-height:180px;overflow:auto;font-size:11px;line-height:18px;color:var(--ink-70)}
+  .log div{border-bottom:1px solid var(--rule);padding:2px 0}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule)}
+  th{color:var(--ink-70);font-weight:400}
+  .ok{color:var(--ink);font-weight:600}
+  .bad{color:var(--signal);font-weight:600}
+  .foot{margin-top:14px;color:var(--ink-70);font-size:11px}
+  .mono{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+  <h1>AIMW v3.1 생성기</h1>
+  <div class="sub">The Work Order · 3색 작업 지시서를 문서값 그대로 Figma에 옮깁니다.</div>
+
+  <div class="row">
+    <button class="btn" id="generate">디자인 생성</button>
+    <button class="btn ghost" id="close">닫기</button>
+  </div>
+
+  <div class="notice">순서: 폰트 프로브 → 3색 토큰 → 텍스트 스타일 → 기초 보드 → 컴포넌트 16종 → 화면 → 수치 검증 → 핸드오프</div>
+  <div id="messages"></div>
+
+  <div class="panel">
+    <h2>진행 로그</h2>
+    <div class="log" id="log">대기 중…</div>
+  </div>
+
+  <div class="panel" id="reportPanel" style="display:none">
+    <h2>수치 검증</h2>
+    <div id="report"></div>
+  </div>
+
+  <div class="foot">Figma Starter: 페이지 3개(01 Design System / 02 Screens / 03 Handoff). 기존 페이지는 재사용합니다. 숫자 통과는 시각 합격이 아닙니다.</div>
+
+<script>
+  const log = document.getElementById('log');
+  const messages = document.getElementById('messages');
+  const reportPanel = document.getElementById('reportPanel');
+  const report = document.getElementById('report');
+  const btn = document.getElementById('generate');
+  let started = false;
+
+  function addLog(text){
+    if(log.textContent === '대기 중…') log.textContent = '';
+    const line = document.createElement('div');
+    line.textContent = text;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+  function msg(kind, text){
+    const el = document.createElement('div');
+    el.className = kind;
+    el.textContent = text;
+    messages.appendChild(el);
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function cell(label, value, bad){
+    return '<tr><td>'+escapeHtml(label)+'</td><td class="'+(bad?'bad':'ok')+'">'+escapeHtml(value)+'</td></tr>';
+  }
+
+  document.getElementById('generate').addEventListener('click', function(){
+    if(started) return;
+    started = true;
+    btn.disabled = true;
+    btn.textContent = '생성 중…';
+    log.textContent = '';
+    messages.innerHTML = '';
+    reportPanel.style.display = 'none';
+    parent.postMessage({ pluginMessage: { type: 'generate' } }, '*');
+  });
+  document.getElementById('close').addEventListener('click', function(){
+    parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+  });
+
+  window.onmessage = function(event){
+    const m = event.data.pluginMessage;
+    if(!m) return;
+    if(m.type === 'progress') addLog(m.text);
+    if(m.type === 'warn') msg('warn', '경고: ' + m.text);
+    if(m.type === 'error'){ msg('err', '오류: ' + m.text); btn.disabled = false; btn.textContent = '다시 시도'; started = false; }
+    if(m.type === 'done'){
+      addLog('완료');
+      const r = m.report || {};
+      const audit = m.audit || [];
+      const overflow = r.overflow || [];
+      const actions = r.primaryActions || [];
+      const f = r.fonts || {};
+      msg('notice', '생성 완료. 화면 ' + audit.length + '장. 확인표를 먼저 보세요.');
+      reportPanel.style.display = 'block';
+      let html = '<table><tbody>';
+      html += cell('산세리프 폰트', f.sans || '-', false);
+      html += cell('도장 세리프', f.stamp || '-', false);
+      html += cell('프레임 넘침', overflow.length + '건' + (overflow.length ? ' — ' + overflow.join(', ') : ''), overflow.length > 0);
+      html += cell('주 액션 이상', actions.length + '건' + (actions.length ? ' — ' + actions.join(', ') : ''), actions.length > 0);
+      html += cell('미바인딩 fill', (r.unbound || 0) + '건', (r.unbound || 0) > 0);
+      html += cell('하드코딩 hex', (r.hardcodedHex || 0) + '건', (r.hardcodedHex || 0) > 0);
+      html += cell('경고', (r.warnings || []).length + '건', (r.warnings || []).length > 0);
+      html += '</tbody></table>';
+      html += '<table style="margin-top:10px"><thead><tr><th>화면</th><th>넘침</th><th>주 액션</th></tr></thead><tbody>' + audit.map(a =>
+        '<tr><td>'+escapeHtml(a.name)+'</td><td class="'+(a.overflow?'bad':'ok')+'">'+a.overflow+'</td><td class="'+(a.actions===1?'ok':'bad')+'">'+a.actions+'</td></tr>').join('') + '</tbody></table>';
+      report.innerHTML = html;
+      btn.disabled = false;
+      btn.textContent = '다시 생성';
+      started = false;
+    }
+  };
+</script>
+</body>
+</html>

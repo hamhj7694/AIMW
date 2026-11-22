@@ -1,4 +1,6 @@
-# 제작 유형 명세 (Production Mode Specs)
+> **보관 문서(deprecated, 2026-11-22)** — v3에서는 `design-v3/02-IA-AND-FLOWS.md`와 `planning/PRD.md`를 참조하세요.
+
+# 제작 유형 명세 (Production Mode Specs, 구)
 
 S8 Video Workbench의 **프로젝트 단위 제작 유형** 선택 체계. 기존 11개 기획 문서의 S8 확장 문서이며, 캡처 서비스 점수와 무관한 자체 설계다. 이 문서는 10개 독립 화면 중 S8의 제작 유형·소스 모드 규칙을 다룬다. S9 SEO & Search Growth의 상세 명세는 `SEO-GROWTH-SPECS.md`에 있으며 여기서는 화면 수에만 포함한다. 새 설계 근거는 공개적으로 관찰된 패턴을 자체 원칙으로 재서술하거나 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한다.
 

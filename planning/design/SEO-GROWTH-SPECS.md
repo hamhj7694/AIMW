@@ -1,4 +1,6 @@
-# SEO-GROWTH-SPECS — S9 SEO & Search Growth 화면·컴포넌트 명세
+> **보관 문서(deprecated, 2026-11-22)** — v3에서는 `planning/PRD.md`와 `design-v3/03-SCREEN-SPECS.md`를 참조하세요.
+
+# SEO-GROWTH-SPECS (구) — S9 SEO & Search Growth 화면·컴포넌트 명세
 
 작성일: 2026-11-22  
 범위: S9 모듈의 4개 탭, 화면 상태, 컴포넌트, 데이터 계약, 수용 기준.  

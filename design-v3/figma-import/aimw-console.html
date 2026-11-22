@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>AIMW — 새 운영 콘솔</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0D12; --panel:#F7F5EE; --panel2:#151922; --panel3:#1D2330;
+  --line:#2A3140; --line2:#C7C4B8; --fg:#F7F5EE; --fg2:#0B0D12;
+  --muted:#7C8493; --muted2:#5A6478; --acc:#FF5A36; --accsoft:#2A1814;
+}
+body{background:var(--bg);color:var(--fg);font-family:Inter,Pretendard,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;font-size:15px;line-height:24px}
+.screen{width:1440px;height:936px;border-bottom:1px solid #333;overflow:hidden}
+.slabel{height:36px;background:#000;color:var(--acc);font-size:13px;font-weight:800;letter-spacing:2px;display:flex;align-items:center;padding:0 34px;gap:14px}
+.slabel span{color:var(--muted);font-weight:500;letter-spacing:0}
+.top{height:64px;background:var(--panel);color:var(--fg2);display:flex;align-items:center;padding:0 34px;gap:18px}
+.logo{font-size:22px;font-weight:800;letter-spacing:5px;color:var(--fg2)}
+.logobar{width:6px;height:28px;background:var(--acc)}
+.topname{font-size:14px;font-weight:700;color:var(--fg2)}
+.topmeta{font-size:13px;color:var(--muted2);margin-left:26px}
+.topright{margin-left:auto;display:flex;gap:24px;font-size:13px;color:var(--muted2)}
+.shell{display:flex;height:836px}
+
+/* 숫자 레일 */
+.rail{width:104px;background:var(--panel2);border-right:1px solid var(--line);padding-top:24px;flex-shrink:0}
+.railcap{font-size:11px;color:var(--muted);letter-spacing:2px;padding:0 0 14px 20px}
+.railitem{height:62px;line-height:62px;padding-left:20px;font-size:20px;font-weight:800;color:var(--muted)}
+.railitem.on{color:var(--acc);border-left:4px solid var(--acc);padding-left:16px;background:var(--panel3)}
+.railfoot{margin:34px 20px 0;padding-top:14px;border-top:1px solid var(--line);font-size:11px;line-height:18px;color:var(--muted)}
+
+/* 공통 작업 영역 */
+.work{flex:1;padding:36px 40px;min-width:0}
+.eyebrow{font-size:13px;color:var(--acc);letter-spacing:2px;font-weight:700}
+.hero{font-size:54px;line-height:60px;font-weight:800;letter-spacing:-1px;margin-top:6px}
+.sec{display:flex;align-items:center;gap:14px;margin-top:30px;margin-bottom:8px}
+.secno{font-size:14px;font-weight:800;color:var(--acc)}
+.sectitle{font-size:19px;font-weight:700}
+.secrule{flex:1;height:1px;background:var(--line)}
+.row{height:58px;display:flex;align-items:center;border-bottom:1px solid var(--line);gap:16px}
+.rowkey{width:190px;font-size:15px;font-weight:700;flex-shrink:0}
+.rowval{flex:1;font-size:15px;color:#C3CAD7}
+.rowmeta{width:140px;text-align:right;font-size:13px;color:var(--muted);flex-shrink:0}
+.rowidx{width:56px;font-size:22px;font-weight:800;color:var(--acc);flex-shrink:0}
+.bar{width:110px;height:4px;background:var(--line);flex-shrink:0}
+.bar i{display:block;height:4px;background:var(--acc)}
+
+/* S0 포커스 카드 */
+.focus{background:var(--panel);color:var(--fg2);height:184px;display:flex;align-items:center;padding:28px 34px;margin-top:26px}
+.focusnum{font-size:104px;line-height:104px;font-weight:800;color:var(--acc);width:160px;flex-shrink:0}
+.focusbody{flex:1}
+.focustitle{font-size:34px;line-height:42px;font-weight:800}
+.focussub{font-size:15px;color:var(--muted2);margin-top:2px}
+.focusline{height:6px;background:var(--fg2);width:200px;margin-top:16px}
+.focusmeta{font-size:12px;color:var(--muted2);margin-top:8px;letter-spacing:1px}
+.focusbtn{width:132px;height:50px;background:var(--acc);color:var(--panel);font-size:15px;font-weight:800;line-height:50px;text-align:center;flex-shrink:0}
+
+/* 우측 패널 */
+.side{width:312px;background:var(--panel);color:var(--fg2);padding:30px 26px;flex-shrink:0}
+.sidecap{font-size:12px;color:var(--muted2);letter-spacing:2px}
+.sidetitle{font-size:24px;line-height:32px;font-weight:800;margin-top:10px}
+.sidesub{font-size:14px;color:var(--muted2);margin-top:4px}
+.sidebig{font-size:82px;line-height:86px;font-weight:800;color:var(--acc);margin-top:20px}
+.sidebar{height:6px;background:var(--acc);margin:14px 0}
+.sidelink{font-size:14px;font-weight:800;color:var(--acc);border-bottom:2px solid var(--acc);padding-bottom:4px;display:inline-block;margin-top:18px}
+.sideev{margin-top:28px;padding-top:16px;border-top:1px solid var(--line2)}
+.evrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted2);padding:7px 0}
+.evrow b{color:var(--fg2)}
+
+/* S1 스와이프 파일 */
+.searchbar{height:52px;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;padding:0 16px;margin-top:24px;gap:14px}
+.searchbar .ph{font-size:15px;color:var(--muted)}
+.searchbar .go{margin-left:auto;background:var(--acc);color:var(--panel);height:34px;padding:0 18px;line-height:34px;font-size:13px;font-weight:800}
+.chips{display:flex;gap:8px;margin-top:14px}
+.chip{border:1px solid var(--line);padding:7px 14px;font-size:13px;color:var(--muted)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:var(--panel);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.card{background:var(--panel2);border:1px solid var(--line)}
+.thumb{height:128px;position:relative;overflow:hidden}
+.thumb.a{background:repeating-linear-gradient(135deg,#1E2636,#1E2636 12px,#263044 12px,#263044 24px)}
+.thumb.b{background:radial-gradient(circle at 30% 40%,#3A2330 0,#1A1420 60%)}
+.thumb.c{background:linear-gradient(90deg,#1B2A2A 0%,#253B3B 50%,#1B2A2A 100%)}
+.thumb em{position:absolute;top:10px;left:10px;font-style:normal;font-size:11px;font-weight:800;background:var(--acc);color:var(--panel);padding:3px 8px}
+.thumb i{position:absolute;right:12px;bottom:10px;font-style:normal;font-size:34px;font-weight:800;color:rgba(247,245,238,.18)}
+.cbody{padding:12px 14px}
+.ctitle{font-size:14px;font-weight:700;color:var(--fg)}
+.cmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+
+/* S2 스튜디오 */
+.studio{display:flex;gap:18px;margin-top:24px;height:560px}
+.inputpane{width:280px;background:var(--panel2);border:1px solid var(--line);padding:20px;flex-shrink:0}
+.panehead{font-size:12px;color:var(--acc);letter-spacing:2px;font-weight:700}
+.textbox{height:130px;background:var(--bg);border:1px solid var(--line);margin-top:12px;padding:14px;font-size:14px;color:var(--muted)}
+.opts{margin-top:18px}
+.opt{height:38px;display:flex;align-items:center;border-bottom:1px solid var(--line);font-size:14px;color:#C3CAD7}
+.opt:first-child{color:var(--acc);font-weight:700}
+.gen{height:48px;background:var(--acc);color:var(--panel);font-size:14px;font-weight:800;line-height:48px;text-align:center;margin-top:22px}
+.canvas{flex:1;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;min-width:0}
+.canvasinner{width:82%;height:74%;border:2px solid var(--acc);background:repeating-linear-gradient(0deg,#10141D,#10141D 26px,#151B27 26px,#151B27 28px);display:flex;align-items:center;justify-content:center;position:relative}
+.canvasinner span{font-size:13px;color:var(--muted);background:var(--bg);padding:8px 14px}
+.variants{width:210px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.var{background:var(--panel2);border:1px solid var(--line);height:180px;padding:12px}
+.var.on{border-color:var(--acc)}
+.varthumb{height:118px;background:repeating-linear-gradient(45deg,#1C2432,#1C2432 10px,#232D3E 10px,#232D3E 20px);margin-bottom:10px}
+.var cap{font-size:12px;color:var(--muted)}
+.var b{font-size:13px;color:var(--fg)}
+
+/* S4 캘린더 */
+.calhead{display:flex;align-items:center;margin-top:22px}
+.calmonth{font-size:26px;font-weight:800}
+.calmeta{margin-left:auto;font-size:13px;color:var(--muted)}
+.calweek{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:18px}
+.calweek div{padding:10px;font-size:12px;color:var(--muted);border-right:1px solid var(--line)}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:96px}
+.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;font-size:12px;color:var(--muted)}
+.cell b{font-size:13px;color:var(--fg)}
+.pill{display:inline-block;background:var(--acc);color:var(--panel);font-size:11px;font-weight:700;padding:3px 7px;margin-top:12px}
+.pill.line{background:transparent;border:1px solid var(--acc);color:var(--acc)}
+.queue{margin-top:20px}
+
+/* S5 분석 */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+.metric{background:var(--panel2);border:1px solid var(--line);padding:18px}
+.metric .v{font-size:42px;line-height:46px;font-weight:800;color:var(--acc)}
+.metric .l{font-size:13px;color:var(--muted);margin-top:4px}
+.chart{height:230px;background:var(--panel2);border:1px solid var(--line);margin-top:18px;display:flex;align-items:flex-end;padding:20px 24px;gap:14px}
+.chart i{display:block;flex:1;background:var(--panel3);border-top:4px solid var(--acc)}
+.insight{margin-top:18px}
+</style>
+</head>
+<body>
+
+<!-- S0 홈 -->
+<div class="screen">
+  <div class="slabel">AIMW · S0 홈 <span>새 운영 콘솔 · 다크 캔버스 + 종이 패널</span></div>
+  <div class="top">
+    <div class="logo">AIMW</div><div class="logobar"></div><div class="topname">운영 콘솔</div>
+    <div class="topmeta">로컬 AI 연결됨</div>
+    <div class="topright"><span>자동 연결 0건</span><span>비용 0원</span></div>
+  </div>
+  <div class="shell">
+    <div class="rail">
+      <div class="railcap">모듈</div>
+      <div class="railitem on">01</div><div class="railitem">02</div><div class="railitem">03</div><div class="railitem">04</div>
+      <div class="railitem">05</div><div class="railitem">06</div><div class="railitem">07</div><div class="railitem">08</div>
+      <div class="railfoot">링크는 클릭으로만<br>생성됩니다</div>
+    </div>
+    <div class="work">
+      <div class="eyebrow">운영 현황</div>
+      <div class="hero">지금 처리할 작업</div>
+      <div class="focus">
+        <div class="focusnum">01</div>
+        <div class="focusbody">
+          <div class="focustitle">수집 결과 확인</div>
+          <div class="focussub">새 결과가 도착했어요.</div>
+          <div class="focusline"></div>
+          <div class="focusmeta">확인 대기 1건 · 예상 1분</div>
+        </div>
+        <div class="focusbtn">열기</div>
+      </div>
+      <div class="sec"><span class="secno">02</span><span class="sectitle">진행 중</span><div class="secrule"></div></div>
+      <div class="row"><div class="rowkey">수집</div><div class="rowval">진행 중</div><div class="bar"><i></i></div><div class="rowmeta">대기</div></div>
+      <div class="row"><div class="rowkey">스튜디오</div><div class="rowval">초안</div><div class="bar"><i></i></div><div class="rowmeta">검수 대기</div></div>
+      <div class="row"><div class="rowkey">영상</div><div class="rowval">게이트 2</div><div class="bar"><i></i></div><div class="rowmeta">승인 대기</div></div>
+      <div class="sec"><span class="secno">03</span><span class="sectitle">최근 결과</span><div class="secrule"></div></div>
+      <div class="row"><div class="rowidx">v2</div><div class="rowkey" style="width:auto;flex:1">결과 01</div><div class="rowmeta" style="width:220px;text-align:left">카피와 이미지 초안</div><div class="rowmeta" style="width:70px">14:01</div></div>
+      <div class="row"><div class="rowidx">v2</div><div class="rowkey" style="width:auto;flex:1">결과 02</div><div class="rowmeta" style="width:220px;text-align:left">카피와 이미지 초안</div><div class="rowmeta" style="width:70px">14:01</div></div>
+      <div class="row"><div class="rowidx">v1</div><div class="rowkey" style="width:auto;flex:1">결과 03</div><div class="rowmeta" style="width:220px;text-align:left">카피와 이미지 초안</div><div class="rowmeta" style="width:70px">13:54</div></div>
+    </div>
+    <div class="side">
+      <div class="sidecap">다음 작업</div>
+      <div class="sidetitle">수집 결과 확인</div>
+      <div class="sidesub">새 결과가 도착했어요.</div>
+      <div class="sidebig">01</div>
+      <div class="sidecap">확인 대기 · 출처 1건</div>
+      <div class="sidebar"></div>
+      <div class="sidecap">예상 시간 1분 · 로컬 실행</div>
+      <div class="sidelink">작업으로 이동</div>
+      <div class="sideev">
+        <div class="evrow"><span>근거 A</span><b>확인됨</b></div>
+        <div class="evrow"><span>근거 B</span><b>대기</b></div>
+        <div class="evrow"><span>근거 C</span><b>대기</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S1 수집 — 스와이프 파일 -->
+<div class="screen">
+  <div class="slabel">AIMW · S1 수집 <span>Foreplay / Snipit 스와이프 파일 구조</span></div>
+  <div class="top">
+    <div class="logo">AIMW</div><div class="logobar"></div><div class="topname">수집</div>
+    <div class="topmeta">출처 메타 보존 · 재호스팅 없음</div>
+    <div class="topright"><span>자동 연결 0건</span><span>비용 0원</span></div>
+  </div>
+  <div class="shell">
+    <div class="rail">
+      <div class="railcap">모듈</div>
+      <div class="railitem">01</div><div class="railitem on">02</div><div class="railitem">03</div><div class="railitem">04</div>
+      <div class="railitem">05</div><div class="railitem">06</div><div class="railitem">07</div><div class="railitem">08</div>
+      <div class="railfoot">링크는 클릭으로만<br>생성됩니다</div>
+    </div>
+    <div class="work">
+      <div class="eyebrow">레퍼런스 수집</div>
+      <div class="hero" style="font-size:46px">스와이프 파일</div>
+      <div class="searchbar"><div class="ph">키워드 또는 도메인</div><div class="go">수집 시작</div></div>
+      <div class="chips"><div class="chip on">전체</div><div class="chip">영상</div><div class="chip">이미지</div><div class="chip">문서</div><div class="chip">저장됨</div></div>
+      <div class="grid">
+        <div class="card"><div class="thumb a"><em>영상</em><i>01</i></div><div class="cbody"><div class="ctitle">레퍼런스 01</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+        <div class="card"><div class="thumb b"><em>이미지</em><i>02</i></div><div class="cbody"><div class="ctitle">레퍼런스 02</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+        <div class="card"><div class="thumb c"><em>문서</em><i>03</i></div><div class="cbody"><div class="ctitle">레퍼런스 03</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+        <div class="card"><div class="thumb b"><em>영상</em><i>04</i></div><div class="cbody"><div class="ctitle">레퍼런스 04</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+        <div class="card"><div class="thumb a"><em>이미지</em><i>05</i></div><div class="cbody"><div class="ctitle">레퍼런스 05</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+        <div class="card"><div class="thumb c"><em>문서</em><i>06</i></div><div class="cbody"><div class="ctitle">레퍼런스 06</div><div class="cmeta"><span>저장됨</span><span>분석 대기</span></div></div></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidecap">선택한 출처</div>
+      <div class="sidetitle">레퍼런스 01</div>
+      <div class="sidesub">영상 · 저장됨</div>
+      <div class="sidebig">01</div>
+      <div class="sidecap">출처 메타 · 공개 범위만</div>
+      <div class="sidebar"></div>
+      <div class="sidecap">근거 A/B/C 함께 저장</div>
+      <div class="sidelink">브리프로 보내기</div>
+      <div class="sideev">
+        <div class="evrow"><span>근거 A</span><b>확인됨</b></div>
+        <div class="evrow"><span>근거 B</span><b>대기</b></div>
+        <div class="evrow"><span>근거 C</span><b>대기</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2 스튜디오 -->
+<div class="screen">
+  <div class="slabel">AIMW · S2 스튜디오 <span>Ocoya / Creatify / Predis 생성 스튜디오 구조</span></div>
+  <div class="top">
+    <div class="logo">AIMW</div><div class="logobar"></div><div class="topname">스튜디오</div>
+    <div class="topmeta">01 브리프 완료 · 02 콘셉트 현재 · 03 결과 대기</div>
+    <div class="topright"><span>자동 연결 0건</span><span>비용 0원</span></div>
+  </div>
+  <div class="shell">
+    <div class="rail">
+      <div class="railcap">모듈</div>
+      <div class="railitem">01</div><div class="railitem">02</div><div class="railitem on">03</div><div class="railitem">04</div>
+      <div class="railitem">05</div><div class="railitem">06</div><div class="railitem">07</div><div class="railitem">08</div>
+      <div class="railfoot">링크는 클릭으로만<br>생성됩니다</div>
+    </div>
+    <div class="work">
+      <div class="eyebrow">콘셉트 선택</div>
+      <div class="hero" style="font-size:46px">만들기</div>
+      <div class="studio">
+        <div class="inputpane">
+          <div class="panehead">브리프</div>
+          <div class="textbox">요청 문장</div>
+          <div class="opts">
+            <div class="opt"> AN 01 첫 번째 구성</div>
+            <div class="opt"> AN 02 두 번째 구성</div>
+            <div class="opt"> AN 03 세 번째 구성</div>
+          </div>
+          <div class="gen">결과 만들기</div>
+        </div>
+        <div class="canvas"><div class="canvasinner"><span>미리보기 · 시연</span></div></div>
+        <div class="variants">
+          <div class="var on"><div class="varthumb"></div><b>안 1</b><cap>첫 번째 구성</cap></div>
+          <div class="var"><div class="varthumb"></div><b>안 2</b><cap>두 번째 구성</cap></div>
+          <div class="var"><div class="varthumb"></div><b>안 3</b><cap>세 번째 구성</cap></div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="sidecap">현재 단계</div>
+      <div class="sidetitle">콘셉트 선택</div>
+      <div class="sidesub">검수 대기</div>
+      <div class="sidebig">02</div>
+      <div class="sidecap">브리프 → 콘셉트 → 결과</div>
+      <div class="sidebar"></div>
+      <div class="sidecap">근거 A/B/C 첨부 가능</div>
+      <div class="sidelink">결과로 이동</div>
+      <div class="sideev">
+        <div class="evrow"><span>근거 A</span><b>확인됨</b></div>
+        <div class="evrow"><span>근거 B</span><b>대기</b></div>
+        <div class="evrow"><span>근거 C</span><b>대기</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 발행 -->
+<div class="screen">
+  <div class="slabel">AIMW · S4 발행 <span>Postiz / Buffer 캘린더·승인 구조</span></div>
+  <div class="top">
+    <div class="logo">AIMW</div><div class="logobar"></div><div class="topname">발행</div>
+    <div class="topmeta">시연 화면 · 실제 발행 없음</div>
+    <div class="topright"><span>자동 연결 0건</span><span>비용 0원</span></div>
+  </div>
+  <div class="shell">
+    <div class="rail">
+      <div class="railcap">모듈</div>
+      <div class="railitem">01</div><div class="railitem">02</div><div class="railitem">03</div><div class="railitem on">04</div>
+      <div class="railitem">05</div><div class="railitem">06</div><div class="railitem">07</div><div class="railitem">08</div>
+      <div class="railfoot">링크는 클릭으로만<br>생성됩니다</div>
+    </div>
+    <div class="work">
+      <div class="eyebrow">발행 큐</div>
+      <div class="hero" style="font-size:46px">예약과 승인</div>
+      <div class="calhead"><div class="calmonth">이번 주</div><div class="calmeta">승인 대기 3건 · 시연</div></div>
+      <div class="calweek"><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div></div>
+      <div class="calgrid">
+        <div class="cell"><b>01</b></div><div class="cell"><b>02</b></div>
+        <div class="cell"><b>03</b><div class="pill">예약 1건</div></div><div class="cell"><b>04</b></div>
+        <div class="cell"><b>05</b><div class="pill line">검수 대기</div></div><div class="cell"><b>06</b></div><div class="cell"><b>07</b></div>
+        <div class="cell"><b>08</b></div><div class="cell"><b>09</b></div><div class="cell"><b>10</b></div>
+        <div class="cell"><b>11</b><div class="pill">예약 1건</div></div><div class="cell"><b>12</b></div>
+        <div class="cell"><b>13</b></div><div class="cell"><b>14</b></div>
+        <div class="cell"><b>15</b></div><div class="cell"><b>16</b></div><div class="cell"><b>17</b></div>
+        <div class="cell"><b>18</b></div><div class="cell"><b>19</b></div><div class="cell"><b>20</b></div><div class="cell"><b>21</b></div>
+      </div>
+      <div class="queue sec"><span class="secno">01</span><span class="sectitle">승인 대기</span><div class="secrule"></div></div>
+      <div class="row"><div class="rowkey">채널 A</div><div class="rowval">연결됨</div><div class="rowmeta">연결됨</div></div>
+      <div class="row"><div class="rowkey">채널 B</div><div class="rowval">연결됨</div><div class="rowmeta">연결됨</div></div>
+    </div>
+    <div class="side">
+      <div class="sidecap">승인 상태</div>
+      <div class="sidetitle">발행 큐</div>
+      <div class="sidesub">시연 · 실제 전송 없음</div>
+      <div class="sidebig">—</div>
+      <div class="sidecap">연동 대기 · 직접 로그인</div>
+      <div class="sidebar"></div>
+      <div class="sidecap">비용 발생 전 매번 확인</div>
+      <div class="sidelink">승인하고 큐에 넣기</div>
+      <div class="sideev">
+        <div class="evrow"><span>근거 A</span><b>확인됨</b></div>
+        <div class="evrow"><span>근거 B</span><b>대기</b></div>
+        <div class="evrow"><span>근거 C</span><b>대기</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 성과 -->
+<div class="screen" style="border-bottom:0">
+  <div class="slabel">AIMW · S5 성과 <span>Motion / Pencil 분석 대시보드 구조</span></div>
+  <div class="top">
+    <div class="logo">AIMW</div><div class="logobar"></div><div class="topname">성과</div>
+    <div class="topmeta">CSV 또는 샘플 · 예측은 배지 없이 표현</div>
+    <div class="topright"><span>자동 연결 0건</span><span>비용 0원</span></div>
+  </div>
+  <div class="shell">
+    <div class="rail">
+      <div class="railcap">모듈</div>
+      <div class="railitem">01</div><div class="railitem">02</div><div class="railitem">03</div><div class="railitem">04</div>
+      <div class="railitem on">05</div><div class="railitem">06</div><div class="railitem">07</div><div class="railitem">08</div>
+      <div class="railfoot">링크는 클릭으로만<br>생성됩니다</div>
+    </div>
+    <div class="work">
+      <div class="eyebrow">성과</div>
+      <div class="hero" style="font-size:46px">측정과 해석</div>
+      <div class="metrics">
+        <div class="metric"><div class="v">—</div><div class="l">노출</div></div>
+        <div class="metric"><div class="v">—</div><div class="l">클릭</div></div>
+        <div class="metric"><div class="v">—</div><div class="l">전환</div></div>
+        <div class="metric"><div class="v">—</div><div class="l">비용</div></div>
+      </div>
+      <div class="chart">
+        <i style="height:34%"></i><i style="height:58%"></i><i style="height:42%"></i><i style="height:72%"></i>
+        <i style="height:50%"></i><i style="height:66%"></i><i style="height:38%"></i><i style="height:80%"></i>
+        <i style="height:54%"></i><i style="height:62%"></i><i style="height:44%"></i><i style="height:70%"></i>
+      </div>
+      <div class="insight sec"><span class="secno">01</span><span class="sectitle">해석 · 예측입니다</span><div class="secrule"></div></div>
+      <div class="row"><div class="rowidx">A</div><div class="rowkey" style="width:auto;flex:1">이동평균 기준</div><div class="rowmeta" style="width:180px;text-align:left">신뢰도 보통</div></div>
+      <div class="row"><div class="rowidx">B</div><div class="rowkey" style="width:auto;flex:1">변동 구간 확인</div><div class="rowmeta" style="width:180px;text-align:left">신뢰도 보통</div></div>
+      <div class="row"><div class="rowidx">C</div><div class="rowkey" style="width:auto;flex:1">원문 보존 제안</div><div class="rowmeta" style="width:180px;text-align:left">검증 필요</div></div>
+    </div>
+    <div class="side">
+      <div class="sidecap">데이터</div>
+      <div class="sidetitle">성과</div>
+      <div class="sidesub">순위 보장 없음</div>
+      <div class="sidebig">—</div>
+      <div class="sidecap">업로드 또는 샘플</div>
+      <div class="sidebar"></div>
+      <div class="sidecap">예측 배지 없이 문장으로 표현</div>
+      <div class="sidelink">개선안 브리프로 보내기</div>
+      <div class="sideev">
+        <div class="evrow"><span>근거 A</span><b>확인됨</b></div>
+        <div class="evrow"><span>근거 B</span><b>대기</b></div>
+        <div class="evrow"><span>근거 C</span><b>대기</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

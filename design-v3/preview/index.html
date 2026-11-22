@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AIMW v3.2 — The Work Order</title>
+<style>
+  :root{
+    --paper:#E8E9E2; --ink:#202722; --signal:#B8371B;
+    --ink-70:#59625B; --rule:#C9CCC3; --signal-soft:#EFD9D2; --paper-alt:#DCDDD5;
+    --sans:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --serif:'Nanum Myeongjo','Noto Serif KR','Batang',serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:24px;word-break:keep-all}
+  button{font:inherit;color:inherit}
+  button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  .hide{display:none!important}
+
+  /* 타이포 스케일 — 9종 */
+  .display{font-size:40px;line-height:48px;font-weight:700;letter-spacing:-.02em}
+  .h1{font-size:28px;line-height:36px;font-weight:700;letter-spacing:-.01em}
+  .h2{font-size:22px;line-height:30px;font-weight:600}
+  .h3{font-size:18px;line-height:26px;font-weight:600}
+  .body{font-size:15px;line-height:24px}
+  .strong{font-size:15px;line-height:24px;font-weight:600}
+  .cap{font-size:13px;line-height:18px;color:var(--ink-70)}
+  .num{font-family:var(--serif);font-size:40px;line-height:44px;font-weight:700;color:var(--signal);font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
+  .tab{font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
+
+  /* ── 상단 검토 바 ───────────────────────────── */
+  .chrome{display:flex;align-items:stretch;border-bottom:1px solid var(--ink);max-width:1440px;margin:0 auto;min-height:54px}
+  .chrome .mark{display:flex;align-items:center;gap:12px;padding:0 20px;border-right:1px solid var(--rule)}
+  .chrome .mark b{font-size:15px;letter-spacing:.16em}
+  .chrome .mark span{font-size:12px;color:var(--ink-70)}
+  .modes{display:flex}
+  .modes button{border:0;border-right:1px solid var(--rule);background:transparent;padding:0 18px;color:var(--ink-70);font-size:13px;cursor:pointer}
+  .modes button:hover{color:var(--ink);background:var(--paper-alt)}
+  .modes button.on{background:var(--ink);color:var(--paper);font-weight:600}
+  .chrome .meta{margin-left:auto;display:flex;align-items:center;gap:18px;padding:0 20px;font-size:12px;color:var(--ink-70)}
+
+  /* ── 앱 셸 ─────────────────────────────────── */
+  .app{display:grid;grid-template-columns:200px 1fr 300px;grid-template-rows:60px 1fr 30px;min-height:calc(100vh - 54px);max-width:1440px;margin:0 auto;border-left:1px solid var(--rule);border-right:1px solid var(--rule)}
+  .topbar{grid-column:1/-1;display:flex;align-items:center;gap:32px;padding:0 26px;border-bottom:1px solid var(--ink)}
+  .topbar .brand{font-weight:700;letter-spacing:.1em;font-size:15px}
+  .topbar .meta{color:var(--ink-70);font-size:13px}
+  .topbar .cost{margin-left:auto;color:var(--ink-70);font-size:13px}
+  .nav{border-right:1px solid var(--rule);padding:28px 0}
+  .nav .navlabel{padding:0 22px 12px;font-size:12px;color:var(--ink-70);letter-spacing:.08em}
+  .nav button{display:block;width:100%;height:46px;padding:0 22px;border:0;background:transparent;text-align:left;color:var(--ink-70);font-size:14px;cursor:pointer}
+  .nav button.active{color:var(--signal);font-weight:600;box-shadow:inset 3px 0 0 var(--signal)}
+  .nav button:hover:not(.active){color:var(--ink);text-decoration:underline}
+  .nav .foot{margin:40px 22px 0;padding-top:16px;border-top:1px solid var(--rule);font-size:12px;line-height:20px;color:var(--ink-70)}
+  .work{padding:32px;min-width:0}
+  .right{border-left:1px solid var(--rule);padding:26px}
+  .status{grid-column:1/-1;border-top:1px solid var(--rule);display:flex;align-items:center;padding:0 26px;color:var(--ink-70);font-size:12px}
+  .status span:last-child{margin-left:auto}
+  .screen{display:none}
+  .screen.on{display:block}
+
+  /* 섹션 헤더 — 번호 + 긴 규칙 */
+  .sechead{display:flex;align-items:baseline;gap:12px;margin:0 0 4px}
+  .sechead .no{font-family:var(--serif);font-size:16px;color:var(--signal);font-weight:700}
+  .sechead .ln{flex:1;height:1px;background:var(--rule);align-self:center}
+  .block{margin-bottom:28px}
+
+  /* 먹색 작업 띠 */
+  .hero{position:relative;background:var(--ink);color:var(--paper);padding:26px 32px 24px;margin:-32px -32px 32px}
+  .hero:before,.hero:after{content:'';position:absolute;width:14px;height:14px;border-color:var(--paper-alt);opacity:.5}
+  .hero:before{top:12px;left:12px;border-top:1px solid;border-left:1px solid}
+  .hero:after{bottom:12px;right:12px;border-bottom:1px solid;border-right:1px solid}
+  .hero .band-top{display:flex;align-items:baseline;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--ink-70);font-size:13px;color:var(--paper-alt);letter-spacing:.06em}
+  .hero .band-top em{font-family:var(--serif);font-style:normal;color:var(--signal);font-weight:700;font-size:16px}
+  .hero .band-main{display:grid;grid-template-columns:84px 1fr auto;align-items:center;gap:24px;margin:20px 0 18px}
+  .hero .stampbox{width:84px;height:84px;border:1px solid var(--paper-alt);display:flex;align-items:center;justify-content:center}
+  .hero .stampbox span{font-family:var(--serif);font-size:52px;line-height:52px;color:var(--signal);font-weight:700}
+  .hero .ttl{font-size:28px;line-height:36px;font-weight:700}
+  .hero .sub{font-size:15px;line-height:24px;color:var(--paper-alt);margin-top:4px}
+  .hero .band-foot{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--paper-alt)}
+  .hero .bar{height:2px;background:var(--signal);flex:1;max-width:220px}
+
+  .action{height:42px;padding:0 20px;border:0;background:var(--signal);color:var(--paper);cursor:pointer;font-weight:600;font-size:14px}
+  .action:hover{background:var(--ink)}
+  .quiet{height:38px;padding:0 8px;border:0;background:transparent;color:var(--ink);cursor:pointer;font-size:14px}
+  .quiet:hover{color:var(--signal);text-decoration:underline}
+  .lineinput{width:100%;max-width:380px;height:44px;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:0;font:inherit}
+  .lineinput:focus{outline:0;border-bottom:2px solid var(--signal)}
+  .textinput{width:100%;max-width:600px;min-height:80px;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:10px 0;font:inherit;resize:vertical}
+
+  /* 행 */
+  .taskrow{display:grid;grid-template-columns:190px 1fr 140px;align-items:center;gap:14px;min-height:64px;border-bottom:1px solid var(--rule)}
+  .taskrow:hover{background:var(--paper-alt)}
+  .taskrow.current{box-shadow:inset 3px 0 0 var(--signal);padding-left:14px;background:var(--paper-alt)}
+  .taskrow .m{text-align:right;color:var(--ink-70);font-size:13px}
+  .resultrow{display:grid;grid-template-columns:64px 1fr 1fr 80px;align-items:center;gap:14px;min-height:60px;border-bottom:1px solid var(--rule)}
+  .resultrow:hover{background:var(--paper-alt)}
+  .resultrow .v{font-family:var(--serif);font-size:22px;color:var(--signal)}
+  .resultrow .m,.resultrow .t{font-size:13px;color:var(--ink-70)}
+
+  .tabs{display:flex;gap:32px;border-bottom:1px solid var(--rule);margin-bottom:26px}
+  .tabs button{border:0;background:transparent;padding:0 0 13px;color:var(--ink-70);font-size:14px;cursor:pointer}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.active{color:var(--signal);font-weight:600;box-shadow:inset 0 -2px 0 var(--signal)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--rule)}
+  th{font-size:13px;font-weight:400;color:var(--ink-70)}
+  tbody tr:hover{background:var(--paper-alt)}
+  .metrics{display:flex;border-bottom:1px solid var(--rule);margin:18px 0}
+  .metrics div{flex:1;padding:14px 0}
+  .metrics .big{font-family:var(--serif);font-size:44px;line-height:48px;color:var(--signal)}
+  .metrics .lb{font-size:13px;color:var(--ink-70)}
+  .notice{border-left:3px solid var(--signal);background:var(--signal-soft);padding:12px 16px;margin-bottom:24px;font-size:13px}
+  .gate{display:flex;border-bottom:1px solid var(--rule);margin-bottom:24px}
+  .gate span{flex:1;padding:10px 0;font-size:13px;color:var(--ink-70)}
+  .gate span.done{color:var(--ink)}
+  .gate span.on{color:var(--signal);font-weight:600;box-shadow:inset 0 -2px 0 var(--signal)}
+  .preview-box{background:var(--ink);color:var(--paper);height:150px;display:flex;align-items:center;padding:0 26px;margin:18px 0;position:relative}
+  .preview-box:after{content:'＋';margin-left:auto;font-family:var(--serif);font-size:32px;color:var(--signal)}
+  .preview-box .tag{position:absolute;top:12px;left:26px;font-size:12px;color:var(--paper-alt)}
+
+  /* 우측 독 */
+  .dock-top{font-size:13px;color:var(--ink-70);letter-spacing:.06em}
+  .dock-title{font-size:22px;line-height:30px;font-weight:600;margin:12px 0 6px}
+  .dock-rule{height:1px;background:var(--rule);margin:20px 0}
+  .dock-stamp{width:72px;height:72px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;margin:12px 0}
+  .dock-stamp span{font-family:var(--serif);font-size:40px;line-height:44px;color:var(--signal);font-weight:700}
+  .dock-bar{height:2px;background:var(--signal);margin:12px 0 18px}
+  .dock-link{display:inline-block;color:var(--signal);text-decoration:none;font-size:13px;border-bottom:1px solid var(--signal);padding-bottom:3px}
+  .dock-link:hover{color:var(--ink);border-color:var(--ink)}
+  .dock-evidence{border-top:1px solid var(--rule);padding-top:14px;margin-top:22px}
+  .dock-evidence div{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-70);padding:5px 0}
+
+  /* 게시판 */
+  .board{max-width:1440px;margin:0 auto;padding:36px 32px 80px}
+  .board h1{margin:0 0 8px}
+  .board .lead{color:var(--ink-70);margin-bottom:30px}
+  .board h2{display:flex;align-items:baseline;gap:12px;margin:40px 0 16px;font-size:22px;line-height:30px;font-weight:600}
+  .board h2 .no{font-family:var(--serif);font-size:16px;color:var(--signal)}
+  .swatches{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--rule)}
+  .swatch{padding-right:12px}
+  .swatch .chip{height:92px;border-right:1px solid var(--rule)}
+  .swatch .nm{font-size:13px;margin-top:8px}
+  .swatch .hx{font-size:12px;color:var(--ink-70)}
+  .specrow{display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:baseline;border-bottom:1px solid var(--rule);padding:10px 0}
+  .specrow .lb{font-size:13px;color:var(--ink-70)}
+  .comprow{display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:center;border-bottom:1px solid var(--rule);padding:16px 0}
+
+  .gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;border-top:1px solid var(--rule);padding-top:28px}
+  .gitem{border:1px solid var(--rule);background:var(--paper)}
+  .gitem .gh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+  .gitem .gh .no{font-family:var(--serif);color:var(--signal);font-size:15px;font-weight:700}
+  .gitem .gh .nm{font-weight:600;font-size:14px}
+  .gitem .gh .tag{margin-left:auto;font-size:12px;color:var(--ink-70)}
+  .gitem .gm{height:220px;padding:14px;display:grid;grid-template-columns:48px 1fr 64px;grid-template-rows:18px 1fr;gap:8px;overflow:hidden}
+  .gitem .mini-top{grid-column:1/-1;border-bottom:1px solid var(--ink);font-size:8px;color:var(--ink-70);letter-spacing:.06em}
+  .gitem .mini-nav{border-right:1px solid var(--rule);font-size:8px;color:var(--ink-70);line-height:15px}
+  .gitem .mini-nav b{display:block;color:var(--signal);box-shadow:inset 2px 0 0 var(--signal);padding-left:4px}
+  .gitem .mini-work{min-width:0}
+  .gitem .mini-work .band{background:var(--ink);color:var(--paper);padding:9px 10px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+  .gitem .mini-work .band i{font-family:var(--serif);font-style:normal;color:var(--signal);font-size:24px;line-height:24px}
+  .gitem .mini-work .band span{font-size:10px;font-weight:600}
+  .gitem .mini-work .ln{height:1px;background:var(--rule);margin:9px 0}
+  .gitem .mini-work .row{height:15px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:6px;font-size:8px;color:var(--ink-70)}
+  .gitem .mini-work .row b{color:var(--ink);font-weight:600;min-width:44px}
+  .gitem .mini-work .row em{margin-left:auto;font-style:normal;color:var(--signal)}
+  .gitem .mini-side{border-left:1px solid var(--rule);padding-left:8px;font-size:8px;color:var(--ink-70)}
+  .gitem .mini-side .big{font-family:var(--serif);font-size:24px;color:var(--signal);line-height:26px}
+
+  .mobilewrap{display:flex;justify-content:center;padding:36px 16px 80px}
+  .mobile{width:390px;min-height:844px;border:1px solid var(--rule);background:var(--paper);padding:0 22px}
+  .mobile .mtop{height:60px;display:flex;align-items:center;border-bottom:1px solid var(--ink);font-weight:700;letter-spacing:.1em}
+  .mobile .msec{display:flex;align-items:baseline;gap:10px;padding:22px 0 12px;font-size:13px;color:var(--ink-70)}
+  .mobile .msec i{font-family:var(--serif);font-style:normal;color:var(--signal);font-weight:700}
+  .mobile .mhero{background:var(--ink);color:var(--paper);padding:20px;margin:0 -22px 22px}
+  .mobile .mhero .box{width:64px;height:64px;border:1px solid var(--paper-alt);display:flex;align-items:center;justify-content:center}
+  .mobile .mhero .box span{font-family:var(--serif);font-size:40px;color:var(--signal)}
+  .mobile .mhero .t{font-size:22px;font-weight:700;margin:14px 0 18px}
+  .mobile .mtask{border-bottom:1px solid var(--rule);padding:14px 0;display:flex;align-items:center}
+  .mobile .mtask .k{font-weight:600;font-size:14px}
+  .mobile .mtask .m{font-size:13px;color:var(--ink-70);margin-left:auto}
+  .mobile .mtabs{position:sticky;bottom:0;display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding:16px 0 4px;margin-top:36px;font-size:13px;color:var(--ink-70);background:var(--paper)}
+  .mobile .mtabs span:first-child{color:var(--signal);font-weight:700}
+
+  @media(max-width:980px){
+    .app{grid-template-columns:1fr;grid-template-rows:60px auto 1fr 30px}
+    .nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--rule);padding:0}
+    .nav .navlabel,.nav .foot{display:none}
+    .nav button{width:auto;white-space:nowrap;padding:0 14px}
+    .work{padding:20px}
+    .right{border-left:0;border-top:1px solid var(--rule)}
+    .hero{margin:-20px -20px 20px;padding:20px}
+    .hero .band-main{grid-template-columns:60px 1fr auto;gap:14px}
+    .hero .stampbox{width:60px;height:60px}
+    .hero .stampbox span{font-size:38px}
+    .hero .ttl{font-size:22px}
+    .taskrow{grid-template-columns:110px 1fr 90px}
+    .resultrow{grid-template-columns:44px 1fr 66px}
+    .resultrow .m{display:none}
+    .swatches{grid-template-columns:repeat(4,1fr)}
+    .gallery{grid-template-columns:1fr}
+    .chrome .meta{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="mark"><b>AIMW</b><span>작업 지시서 · v3.2</span></div>
+  <div class="modes" id="modes">
+    <button class="on" data-mode="app">화면</button>
+    <button data-mode="all">전체 화면</button>
+    <button data-mode="system">디자인 시스템</button>
+    <button data-mode="mobile">모바일</button>
+  </div>
+  <div class="meta"><span>로컬 AI 연결됨</span><span>자동 연결 0건</span><span>비용 0원</span></div>
+</div>
+
+<div class="app" id="appView">
+  <header class="topbar">
+    <div class="brand">워크스페이스</div>
+    <div class="meta">작업 지시서</div>
+    <div class="meta">로컬 AI 연결됨</div>
+    <div class="cost tab">비용 0원</div>
+  </header>
+
+  <nav class="nav" id="nav">
+    <div class="navlabel">모듈</div>
+    <button data-s="s0" class="active">홈</button>
+    <button data-s="s1">수집</button>
+    <button data-s="s2">스튜디오</button>
+    <button data-s="s3">영상</button>
+    <button data-s="s4">발행</button>
+    <button data-s="s5">성과</button>
+    <button data-s="s6">성장</button>
+    <button data-s="s7">설정</button>
+    <div class="foot">자동 연결 0건<br>모든 링크는 클릭으로 생성</div>
+  </nav>
+
+  <main class="work">
+    <section class="screen on" id="s0">
+      <div class="hero">
+        <div class="band-top"><em>01</em> 지금 할 일</div>
+        <div class="band-main">
+          <div class="stampbox"><span>1</span></div>
+          <div><div class="ttl">수집 결과 확인</div><div class="sub">새 결과가 도착했어요.</div></div>
+          <button class="action" data-go="s1">열기</button>
+        </div>
+        <div class="band-foot"><div class="bar"></div><span>확인 대기 1건 · 예상 1분</span></div>
+      </div>
+
+      <div class="block">
+        <div class="sechead"><span class="no">02</span><span class="h2">진행 중</span><span class="ln"></span></div>
+        <div class="taskrow"><span class="strong">수집</span><span class="body">진행 중</span><span class="m tab">대기</span></div>
+        <div class="taskrow"><span class="strong">스튜디오</span><span class="body">초안</span><span class="m">검수 대기</span></div>
+        <div class="taskrow"><span class="strong">영상</span><span class="body">게이트 2</span><span class="m">승인 대기</span></div>
+      </div>
+
+      <div class="block">
+        <div class="sechead"><span class="no">03</span><span class="h2">최근 결과</span><span class="ln"></span></div>
+        <div class="resultrow"><span class="v">v2</span><span class="strong">결과 01</span><span class="m">카피와 이미지 초안</span><span class="t tab">14:01</span></div>
+        <div class="resultrow"><span class="v">v2</span><span class="strong">결과 02</span><span class="m">카피와 이미지 초안</span><span class="t tab">14:01</span></div>
+        <div class="resultrow"><span class="v">v1</span><span class="strong">결과 03</span><span class="m">카피와 이미지 초안</span><span class="t tab">13:54</span></div>
+        <div class="resultrow"><span class="v">v1</span><span class="strong">결과 04</span><span class="m">카피와 이미지 초안</span><span class="t tab">13:40</span></div>
+      </div>
+    </section>
+
+    <section class="screen" id="s1">
+      <div class="tabs" data-tabs><button class="active">수집</button><button>참고</button><button>우리 콘텐츠</button></div>
+      <h1 class="h1">레퍼런스 수집</h1>
+      <input class="lineinput" placeholder="키워드 또는 도메인" aria-label="키워드 또는 도메인" />
+      <button class="action" data-act="수집 시작" style="margin-left:12px">수집 시작</button>
+      <div class="dock-rule"></div>
+      <table><thead><tr><th>이름</th><th>형식</th><th>출처</th><th>상태</th></tr></thead><tbody>
+        <tr><td>레퍼런스 01</td><td>영상</td><td>저장됨</td><td>분석 대기</td></tr>
+        <tr><td>레퍼런스 02</td><td>영상</td><td>저장됨</td><td>분석 대기</td></tr>
+        <tr><td>레퍼런스 03</td><td>이미지</td><td>저장됨</td><td>분석 대기</td></tr>
+        <tr><td>레퍼런스 04</td><td>문서</td><td>저장됨</td><td>분석 대기</td></tr>
+      </tbody></table>
+      <p class="cap" style="margin-top:18px">출처 메타가 함께 저장돼요. 미디어는 재호스팅하지 않아요.</p>
+    </section>
+
+    <section class="screen" id="s2">
+      <div class="gate"><span class="done">01 브리프 완료</span><span class="on">02 콘셉트 현재</span><span>03 결과 대기</span></div>
+      <h1 class="h1">콘셉트 선택</h1>
+      <div class="taskrow"><span class="strong">안 1</span><span class="body">첫 번째 구성</span><span class="m"><button class="quiet" data-act="선택">선택</button></span></div>
+      <div class="taskrow current"><span class="strong">안 2</span><span class="body">두 번째 구성</span><span class="m">선택됨</span></div>
+      <div class="taskrow"><span class="strong">안 3</span><span class="body">세 번째 구성</span><span class="m"><button class="quiet" data-act="선택">선택</button></span></div>
+      <div style="margin-top:26px"><button class="action" data-act="결과 만들기">결과 만들기</button></div>
+    </section>
+
+    <section class="screen" id="s3">
+      <h1 class="h1">영상 요청</h1>
+      <textarea class="textinput" placeholder="요청 문장" aria-label="요청 문장"></textarea>
+      <div style="margin:18px 0"><button class="quiet" data-act="해석">해석해 보기</button></div>
+      <div class="dock-rule"></div>
+      <div class="sechead"><span class="no">01</span><span class="h2">해석 확인</span><span class="ln"></span></div>
+      <table><thead><tr><th>원문</th><th>표준 용어</th><th>근거</th><th>신뢰도</th></tr></thead><tbody>
+        <tr><td>요청 01</td><td>표준 용어 01</td><td>KB A</td><td>높음</td></tr>
+        <tr><td>요청 02</td><td>표준 용어 02</td><td>KB B</td><td>높음</td></tr>
+        <tr><td>요청 03</td><td>표준 용어 03</td><td>KB C</td><td>검증 필요</td></tr>
+      </tbody></table>
+      <div class="gate" style="margin-top:26px"><span class="done">G1 콘티 완료</span><span class="on">G2 구도 현재</span><span>G3 애니매틱</span><span>G4 렌더 시연</span></div>
+      <div class="preview-box"><span class="tag">구도 미리보기 · 시연</span></div>
+      <p class="cap">예상 2분, 시연. 실제 렌더 없음.</p>
+      <button class="action" data-act="다음 단계" style="margin-top:14px">다음 단계 진행</button>
+    </section>
+
+    <section class="screen" id="s4">
+      <div class="notice">시연 화면입니다. 실제 발행은 일어나지 않아요.</div>
+      <h1 class="h1">발행 큐</h1>
+      <div class="taskrow"><span class="strong">채널 A</span><span class="body">연결됨</span><span class="m">연결됨</span></div>
+      <div class="taskrow"><span class="strong">채널 B</span><span class="body">연결됨</span><span class="m">연결됨</span></div>
+      <div class="taskrow"><span class="strong">채널 C</span><span class="body">연동 대기</span><span class="m">연동 대기</span></div>
+      <div class="sechead" style="margin-top:28px"><span class="no">01</span><span class="h2">이번 주 예약</span><span class="ln"></span></div>
+      <table><thead><tr><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th><th>일</th></tr></thead>
+      <tbody><tr><td>—</td><td>—</td><td>예약 1건</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
+      <div style="margin-top:26px"><button class="action" data-act="승인">승인하고 큐에 넣기</button></div>
+    </section>
+
+    <section class="screen" id="s5">
+      <div class="tabs" data-tabs><button class="active">성과</button><button>예측</button><button>오디언스</button></div>
+      <h1 class="h1">성과</h1>
+      <p class="cap">CSV를 올리거나 샘플로 둘러보세요.</p>
+      <div class="metrics">
+        <div><div class="big">—</div><div class="lb">노출</div></div>
+        <div><div class="big">—</div><div class="lb">클릭</div></div>
+        <div><div class="big">—</div><div class="lb">전환</div></div>
+      </div>
+      <p class="cap">예측입니다. 신뢰도 보통. 이동평균 기준.</p>
+      <button class="action" data-act="개선안" style="margin-top:16px">개선안 브리프로 보내기</button>
+    </section>
+
+    <section class="screen" id="s6">
+      <div class="tabs" data-tabs><button class="active">진단</button><button>키워드와 콘텐츠</button><button>예산과 예측</button><button>취합과 개선</button></div>
+      <h1 class="h1">개선안</h1>
+      <div class="taskrow"><span class="strong">원문 01</span><span class="body">제안 01</span><span class="m">원문 보존</span></div>
+      <div class="taskrow"><span class="strong">원문 02</span><span class="body">제안 02</span><span class="m">원문 보존</span></div>
+      <div class="taskrow"><span class="strong">원문 03</span><span class="body">제안 03</span><span class="m">원문 보존</span></div>
+      <p class="cap" style="margin-top:22px">예측입니다. 신뢰도 보통. 룰 기반. 시연.</p>
+      <button class="action" data-act="개선안 적용" style="margin-top:14px">개선안 적용</button>
+    </section>
+
+    <section class="screen" id="s7">
+      <h1 class="h1">연결과 비용 한도</h1>
+      <div class="sechead"><span class="no">01</span><span class="h2">연결 상태</span><span class="ln"></span></div>
+      <div class="taskrow"><span class="strong">로컬 AI</span><span class="body">연결됨</span><span class="m">연결됨</span></div>
+      <div class="taskrow"><span class="strong">계정 연동</span><span class="body">연결 안 함</span><span class="m">직접 로그인</span></div>
+      <div class="taskrow"><span class="strong">모듈 링크</span><span class="body">클릭으로 생성</span><span class="m">자동 연결 0건</span></div>
+      <div class="sechead" style="margin-top:28px"><span class="no">02</span><span class="h2">비용</span><span class="ln"></span></div>
+      <p class="cap">기본 상한 0원. 실제 비용이 발생하는 동작은 매번 확인을 받아요.</p>
+      <button class="action" data-act="한도 저장" style="margin-top:16px">한도 저장</button>
+    </section>
+  </main>
+
+  <aside class="right">
+    <div class="dock-top">다음 작업</div>
+    <div class="dock-title">수집 결과 확인</div>
+    <div class="cap">새 결과가 도착했어요.</div>
+    <div class="dock-rule"></div>
+    <div class="dock-top">근거</div>
+    <div class="dock-stamp"><span>1</span></div>
+    <div class="cap">확인 대기 · 출처 1건</div>
+    <div class="dock-bar"></div>
+    <div class="cap tab">예상 시간 1분 · 로컬 실행</div>
+    <a href="#" class="dock-link" data-go="s1">작업으로 이동</a>
+    <div class="dock-evidence">
+      <div><span>근거 A</span><span>확인됨</span></div>
+      <div><span>근거 B</span><span>대기</span></div>
+      <div><span>근거 C</span><span>대기</span></div>
+    </div>
+  </aside>
+
+  <footer class="status">
+    <span>시연 화면입니다. 실제 발행은 일어나지 않아요.</span>
+    <span>자동 연결 0건 · 링크는 클릭으로만 생성</span>
+  </footer>
+</div>
+
+<!-- 전체 화면 -->
+<div class="board hide" id="allView">
+  <h1 class="display">전체 화면 <span class="num" style="font-size:26px">8</span></h1>
+  <div class="lead">모듈은 독립적으로 동작하고, 화면 사이 이동은 사용자가 만든 링크로만 일어납니다.</div>
+  <div class="gallery">
+    <div class="gitem"><div class="gh"><span class="no">S0</span><span class="nm">홈</span><span class="tag">주 액션 1개</span></div><div class="gm">
+      <div class="mini-top">워크스페이스 · 작업 지시서 · 비용 0원</div>
+      <div class="mini-nav"><b>홈</b>수집<br>스튜디오<br>영상<br>발행<br>성과<br>성장<br>설정</div>
+      <div class="mini-work"><div class="band"><i>1</i><span>수집 결과 확인</span></div><div class="ln"></div><div class="row"><b>수집</b>진행 중<em>대기</em></div><div class="row"><b>스튜디오</b>초안<em>검수 대기</em></div><div class="row"><b>영상</b>게이트 2<em>승인 대기</em></div><div class="ln"></div><div class="row"><b>결과 01</b>카피와 이미지 초안<em>14:01</em></div></div>
+      <div class="mini-side">다음 작업<br>수집 결과 확인<div class="big">1</div>확인 대기<br>예상 1분</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S1</span><span class="nm">수집</span><span class="tag">출처 메타 보존</span></div><div class="gm">
+      <div class="mini-top">수집 · 참고 · 우리 콘텐츠</div><div class="mini-nav"><b>수집</b>참고<br>우리 콘텐츠</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:8px">레퍼런스 수집</div><div style="border-bottom:1px solid var(--rule);height:16px;font-size:8px;color:var(--ink-70)">키워드 또는 도메인</div><div style="background:var(--signal);color:var(--paper);font-size:8px;padding:4px 8px;width:54px;margin-top:8px">수집 시작</div><div class="ln"></div><div class="row"><b>이름</b>형식<em>상태</em></div><div class="row"><b>레퍼런스 01</b>영상<em>분석 대기</em></div><div class="row"><b>레퍼런스 02</b>이미지<em>분석 대기</em></div></div>
+      <div class="mini-side">선택한 출처<br><div class="big">4</div>저장됨<br>공개 범위만</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S2</span><span class="nm">스튜디오</span><span class="tag">안 3개 중 선택</span></div><div class="gm">
+      <div class="mini-top">01 브리프 완료 · 02 콘셉트 현재 · 03 결과 대기</div><div class="mini-nav"><b>스튜디오</b>브리프<br>결과</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:10px">콘셉트 선택</div><div class="row"><b>안 1</b>첫 번째 구성<em>선택</em></div><div style="box-shadow:inset 2px 0 0 var(--signal);padding-left:6px" class="row"><b>안 2</b>두 번째 구성<em>선택됨</em></div><div class="row"><b>안 3</b>세 번째 구성<em>선택</em></div><div style="background:var(--signal);color:var(--paper);font-size:8px;padding:4px 8px;width:62px;margin-top:12px">결과 만들기</div></div>
+      <div class="mini-side">단계<br><div class="big">2</div>콘셉트<br>검수 대기</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S3</span><span class="nm">영상</span><span class="tag">S8 4게이트</span></div><div class="gm">
+      <div class="mini-top">G1 콘티 · G2 구도 · G3 애니매틱 · G4 렌더</div><div class="mini-nav"><b>영상</b>요청<br>게이트</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:8px">영상 요청</div><div style="border-bottom:1px solid var(--rule);height:16px;font-size:8px;color:var(--ink-70)">요청 문장</div><div class="ln"></div><div class="row"><b>요청 01</b>표준 용어 01<em>KB A</em></div><div class="row"><b>요청 02</b>표준 용어 02<em>KB B</em></div><div style="background:var(--ink);color:var(--paper);height:36px;display:flex;align-items:center;padding:0 8px;font-size:8px;margin-top:8px">구도 미리보기 · 시연</div></div>
+      <div class="mini-side">현재 게이트<br><div class="big">2</div>G2 구도<br>승인 대기</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S4</span><span class="nm">발행</span><span class="tag">시연만</span></div><div class="gm">
+      <div class="mini-top">시연 화면 · 실제 발행 없음</div><div class="mini-nav"><b>발행</b>큐<br>연결</div>
+      <div class="mini-work"><div style="background:var(--signal-soft);border-left:2px solid var(--signal);padding:5px 7px;font-size:8px;margin-bottom:10px">시연 화면입니다.</div><div style="font-size:13px;font-weight:700;margin-bottom:8px">발행 큐</div><div class="row"><b>채널 A</b>연결됨<em>연결됨</em></div><div class="row"><b>채널 B</b>연결됨<em>연결됨</em></div><div class="row"><b>채널 C</b>연동 대기<em>대기</em></div><div class="ln"></div><div class="row"><b>수</b>예약 1건<em>—</em></div></div>
+      <div class="mini-side">승인 상태<br><div class="big">—</div>대기 중<br>자동 연결 0건</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S5</span><span class="nm">성과</span><span class="tag">예측 배지 없음</span></div><div class="gm">
+      <div class="mini-top">성과 · 예측 · 오디언스</div><div class="mini-nav"><b>성과</b>예측<br>오디언스</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:8px">성과</div><div style="display:flex;border-bottom:1px solid var(--rule);margin-bottom:8px"><div style="flex:1"><div style="font-family:var(--serif);font-size:24px;color:var(--signal)">—</div><div style="font-size:8px;color:var(--ink-70)">노출</div></div><div style="flex:1"><div style="font-family:var(--serif);font-size:24px;color:var(--signal)">—</div><div style="font-size:8px;color:var(--ink-70)">클릭</div></div><div style="flex:1"><div style="font-family:var(--serif);font-size:24px;color:var(--signal)">—</div><div style="font-size:8px;color:var(--ink-70)">전환</div></div></div><div style="font-size:8px;color:var(--ink-70)">예측입니다. 신뢰도 보통.</div><div style="background:var(--signal);color:var(--paper);font-size:8px;padding:4px 8px;width:92px;margin-top:12px">개선안 브리프로 보내기</div></div>
+      <div class="mini-side">업로드<br><div class="big">—</div>CSV 또는 샘플<br>순위 보장 없음</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S6</span><span class="nm">성장</span><span class="tag">원문 보존</span></div><div class="gm">
+      <div class="mini-top">진단 · 키워드와 콘텐츠 · 예산과 예측 · 취합과 개선</div><div class="mini-nav"><b>성장</b>진단<br>키워드<br>예산<br>취합</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:10px">개선안</div><div class="row"><b>원문 01</b>제안 01<em>원문 보존</em></div><div class="row"><b>원문 02</b>제안 02<em>원문 보존</em></div><div class="row"><b>원문 03</b>제안 03<em>원문 보존</em></div><div style="font-size:8px;color:var(--ink-70);margin-top:10px">예측입니다. 신뢰도 보통. 룰 기반.</div></div>
+      <div class="mini-side">적용 전 확인<br><div class="big">3</div>제안 건수<br>자동 반영 없음</div>
+    </div></div>
+    <div class="gitem"><div class="gh"><span class="no">S7</span><span class="nm">설정</span><span class="tag">비용 사전 동의</span></div><div class="gm">
+      <div class="mini-top">연결과 비용 한도</div><div class="mini-nav"><b>설정</b>연결<br>비용<br>권한</div>
+      <div class="mini-work"><div style="font-size:13px;font-weight:700;margin-bottom:8px">연결 상태</div><div class="row"><b>로컬 AI</b>연결됨<em>연결됨</em></div><div class="row"><b>계정 연동</b>연결 안 함<em>직접 로그인</em></div><div class="row"><b>모듈 링크</b>클릭으로 생성<em>자동 0건</em></div><div class="ln"></div><div style="font-size:8px;color:var(--ink-70)">기본 상한 0원 · 매번 확인</div></div>
+      <div class="mini-side">비용 한도<br><div class="big">0</div>기본 상한<br>사전 동의</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 디자인 시스템 -->
+<div class="board hide" id="systemView">
+  <h1 class="display">The Work Order</h1>
+  <div class="lead">업종에 묶이지 않는 마케팅 운영 도구 · 색 3개와 명도 파생 4개 · 카드와 배지 없음</div>
+  <div class="dock-rule"></div>
+  <h2><span class="no">01</span> 색 — paper 60 / ink 30 / signal 10</h2>
+  <div class="swatches">
+    <div class="swatch"><div class="chip" style="background:#E8E9E2"></div><div class="nm">paper</div><div class="hx">#E8E9E2</div></div>
+    <div class="swatch"><div class="chip" style="background:#202722"></div><div class="nm">ink</div><div class="hx">#202722</div></div>
+    <div class="swatch"><div class="chip" style="background:#B8371B"></div><div class="nm">signal</div><div class="hx">#B8371B</div></div>
+    <div class="swatch"><div class="chip" style="background:#59625B"></div><div class="nm">ink/70</div><div class="hx">#59625B</div></div>
+    <div class="swatch"><div class="chip" style="background:#C9CCC3"></div><div class="nm">ink/20</div><div class="hx">#C9CCC3</div></div>
+    <div class="swatch"><div class="chip" style="background:#EFD9D2"></div><div class="nm">signal/soft</div><div class="hx">#EFD9D2</div></div>
+    <div class="swatch"><div class="chip" style="background:#DCDDD5"></div><div class="nm">paper/alt</div><div class="hx">#DCDDD5</div></div>
+  </div>
+
+  <h2><span class="no">02</span> 타이포 — 9종, 세리프는 숫자 도장만</h2>
+  <div class="specrow"><div class="lb">Display 40/48</div><div class="display">작업 지시서</div></div>
+  <div class="specrow"><div class="lb">H1 28/36</div><div class="h1">현재 작업 1건</div></div>
+  <div class="specrow"><div class="lb">H2 22/30</div><div class="h2">진행 중인 작업</div></div>
+  <div class="specrow"><div class="lb">H3 18/26</div><div class="h3">수집 결과 확인</div></div>
+  <div class="specrow"><div class="lb">Body 15/24</div><div class="body">새 결과가 도착했어요.</div></div>
+  <div class="specrow"><div class="lb">Body Strong 15/24</div><div class="strong">수집</div></div>
+  <div class="specrow"><div class="lb">Caption 13/18</div><div class="cap">근거와 예상 시간</div></div>
+  <div class="specrow"><div class="lb">Numeric tabular 13/20</div><div class="body tab">14:01 · 0원 · 1건</div></div>
+  <div class="specrow"><div class="lb">Stamp 40/44</div><div class="num">1</div></div>
+
+  <h2><span class="no">03</span> 컴포넌트 — 카드 없이 행과 선으로</h2>
+  <div class="comprow"><div class="lb">TopBar</div><div class="body">워크스페이스 · 작업 지시서 · 연결 상태 · 비용</div></div>
+  <div class="comprow"><div class="lb">WorkBand</div><div class="hero" style="margin:0;padding:18px 22px;max-width:900px"><div class="band-top"><em>01</em> 지금 할 일</div><div class="band-main" style="margin:14px 0"><div class="stampbox" style="width:56px;height:56px"><span style="font-size:36px">1</span></div><div><div class="ttl" style="font-size:22px">수집 결과 확인</div><div class="sub">새 결과가 도착했어요.</div></div><button class="action">열기</button></div></div></div>
+  <div class="comprow"><div class="lb">TaskRow</div><div class="taskrow" style="max-width:900px"><span class="strong">수집</span><span class="body">진행 중</span><span class="m">대기</span></div></div>
+  <div class="comprow"><div class="lb">Button/Action</div><div><button class="action">열기</button></div></div>
+  <div class="comprow"><div class="lb">Button/Quiet</div><div><button class="quiet">선택</button></div></div>
+  <div class="comprow"><div class="lb">Input/Line</div><div><input class="lineinput" placeholder="키워드 또는 도메인" aria-label="키워드 또는 도메인" /></div></div>
+  <div class="comprow"><div class="lb">GateStrip</div><div class="gate" style="max-width:700px"><span class="done">01 완료</span><span class="on">02 현재</span><span>03 대기</span></div></div>
+  <div class="comprow"><div class="lb">Stamp/Numeric</div><div class="num">1</div></div>
+  <div class="comprow"><div class="lb">Notice/Line</div><div class="notice">시연 화면입니다. 실제 발행은 일어나지 않아요.</div></div>
+</div>
+
+<div class="mobilewrap hide" id="mobileView">
+  <div class="mobile">
+    <div class="mtop">워크스페이스</div>
+    <div class="msec"><i>01</i> 지금 할 일</div>
+    <div class="mhero">
+      <div class="box"><span>1</span></div>
+      <div class="t">수집 결과 확인</div>
+      <button class="action">열기</button>
+    </div>
+    <div class="msec"><i>02</i> 진행 중</div>
+    <div class="mtask"><span class="k">수집</span><span class="m">진행 중</span></div>
+    <div class="mtask"><span class="k">스튜디오</span><span class="m">검수 대기</span></div>
+    <div class="mtask"><span class="k">영상</span><span class="m">승인 대기</span></div>
+    <div class="msec"><i>03</i> 최근 결과</div>
+    <div class="mtask"><span class="k">결과 01</span><span class="m tab">14:01</span></div>
+    <div class="mtask"><span class="k">결과 02</span><span class="m tab">14:01</span></div>
+    <div class="mtabs"><span>홈</span><span>수집</span><span>만들기</span><span>발행</span><span>성과</span></div>
+  </div>
+</div>
+
+<script>
+  const nav=document.getElementById('nav');
+  const screens=[...document.querySelectorAll('.screen')];
+  const views={app:document.getElementById('appView'),all:document.getElementById('allView'),system:document.getElementById('systemView'),mobile:document.getElementById('mobileView')};
+  const statusText=document.querySelector('.status span');
+  function show(id){
+    screens.forEach(s=>s.classList.toggle('on',s.id===id));
+    nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.s===id));
+  }
+  nav.addEventListener('click',e=>{const b=e.target.closest('button[data-s]'); if(b) show(b.dataset.s);});
+  document.getElementById('modes').addEventListener('click',e=>{
+    const b=e.target.closest('button[data-mode]'); if(!b) return;
+    Object.keys(views).forEach(k=>views[k].classList.toggle('hide',k!==b.dataset.mode));
+    document.querySelectorAll('.modes button').forEach(x=>x.classList.toggle('on',x===b));
+  });
+  document.addEventListener('click',e=>{
+    const t=e.target.closest('[data-tabs] button');
+    if(t){t.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===t));return;}
+    const go=e.target.closest('[data-go]');
+    if(go){e.preventDefault();show(go.dataset.go);return;}
+    const a=e.target.closest('[data-act]');
+    if(a){statusText.textContent=a.dataset.act+' — 시연 동작입니다. 실제 전송이나 과금은 일어나지 않아요.';}
+  });
+</script>
+</body>
+</html>

@@ -1,4 +1,6 @@
-# DESIGN-PLAN — AI Marketing AX Workspace 디자인 계획
+> **보관 문서(deprecated, 2026-11-22)** — v3 설계는 `design-v3/00-DESIGN-DIRECTION.md`와 `design-v3/01-DESIGN-SYSTEM.md`로 완전히 대체되었습니다.
+
+# DESIGN-PLAN — AI Marketing AX Workspace 디자인 계획 (구)
 
 작성일: 2026-11-22  
 대상: 데스크톱 1440×900 우선, React + TypeScript + Tailwind + shadcn/ui 즉시 구현 가능한 명세 지향  
@@ -267,7 +269,7 @@ AI Marketing AX Workspace
 ### 5-1. 대표 시나리오 흐름
 
 ```text
-[장기렌트 선택]
+[캠페인 선택]
    ↓ 프로젝트/캠페인 컨텍스트가 전역에 고정
 S0 수집 대상 등록: 분야 키워드 / 우리 서비스 URL / 경쟁사 도메인
    ↓ 소스별 수집 Job: 영상 광고 · 이미지 광고 · 블로그 · 뉴스 (공개 범위만)

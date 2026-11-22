@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>AIMW — 재설계 v8</title>
+<style>
+/* Hallmark · v2.0.0 — redesign full (app screens) · mode Operate · theme: 근무대 (custom, zero-reuse brief) · light work surface + ink band + one forest signal · genre modern-minimal · stamp AIMW-V8-20261122 */
+/* Critique: Philosophy 4 · Hierarchy 5 · Execution 4 · Specificity 5 · Restraint 4 · Variety 4 — no axis below 3; app-screen full depth per redesign.md */
+/* waive: Hallmark 12 — app screen, no marketing fold gate; only "headline and action visible at top" applied */
+/* waive: Hallmark 16 — Node unavailable; browser computed style + Lighthouse + gates.md judgment used instead of sloplint */
+/* answered: signature move = the work band (one labelled action per screen) · browser surfaces themed below · one motion moment, visible by default */
+
+:root{
+  --canvas:#F1F3F1;
+  --surface:#FFFFFF;
+  --surface-alt:#E7EBE8;
+  --ink:#14201D;
+  --ink-soft:#26352F;
+  --muted:#4E605A;
+  --faint:#5D6E68;
+  --line:#C7D0CB;
+  --line-strong:#7F9089;
+  --signal:#0B5D4C;
+  --signal-ink:#FFFFFF;
+  --signal-soft:#E3EEE9;
+  --signal-bright:#4FC3A1;
+  --caution-bg:#F6EBD8;
+  --caution-ink:#6B4415;
+  --band:#14201D;
+  --band-ink:#F4F7F5;
+  --band-faint:#BFD0C8;
+  --font: Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px; --s8:32px; --s10:40px; --s12:48px;
+  --t-display:46px; --t-section:24px; --t-body:16px; --t-label:13px; --t-micro:12px;
+  --radius:2px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:clip}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:var(--t-body);line-height:1.55;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+::selection{background:var(--signal-soft);color:var(--ink)}
+input,textarea,select{caret-color:var(--signal)}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:var(--radius)}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.hero :focus-visible{outline-color:var(--signal-bright)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+.screen{width:1440px;height:900px;margin:0 auto;background:var(--canvas);border-bottom:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
+.framelabel{height:28px;flex:0 0 28px;display:flex;align-items:center;padding:0 var(--s10);background:var(--surface);border-bottom:1px solid var(--line);color:var(--faint);font-size:var(--t-micro);letter-spacing:0}
+.topbar{height:56px;flex:0 0 56px;display:flex;align-items:center;gap:var(--s6);padding:0 var(--s10);background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{font-size:var(--t-body);font-weight:800;letter-spacing:.02em;color:var(--ink)}
+.projswitch{height:36px;padding:0 var(--s3);border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);color:var(--ink);font-size:var(--t-label);font-weight:700;display:inline-flex;align-items:center;gap:var(--s2);cursor:pointer}
+.topright{margin-left:auto;display:flex;align-items:center;gap:var(--s4);font-size:var(--t-label);color:var(--muted)}
+.costchip{padding:var(--s1) var(--s2);border:1px solid var(--line-strong);border-radius:var(--radius);color:var(--ink);font-weight:700}
+.nav{height:44px;flex:0 0 44px;display:flex;align-items:stretch;gap:var(--s6);padding:0 var(--s10);background:var(--surface);border-bottom:1px solid var(--line)}
+.nav a{display:inline-flex;align-items:center;padding:0 0 0;color:var(--muted);text-decoration:none;font-size:var(--t-label);border-bottom:2px solid var(--surface)}
+.nav a.on{color:var(--ink);font-weight:700;border-bottom-color:var(--signal)}
+.main{flex:1;min-height:0;padding:var(--s8) var(--s10) var(--s6);display:flex;flex-direction:column;gap:var(--s6);overflow:hidden}
+.pagehead{display:flex;flex-direction:column;gap:var(--s1)}
+h1{font-size:var(--t-section);line-height:1.25;letter-spacing:-.01em;font-weight:700;margin:0;color:var(--ink)}
+.sub{margin:0;color:var(--muted);font-size:var(--t-body);line-height:1.5}
+
+.band{min-height:78px;display:flex;align-items:center;gap:var(--s4);padding:var(--s4) var(--s6);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius)}
+.blabel{width:92px;flex:0 0 92px;font-size:var(--t-label);color:var(--faint)}
+.bmain{flex:1;min-width:0}
+.bstate{font-size:var(--t-section);font-weight:700;line-height:1.25;color:var(--ink)}
+.bnote{margin-top:var(--s1);font-size:var(--t-label);color:var(--muted)}
+.btn{height:42px;padding:0 var(--s4);border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);color:var(--ink);font-size:var(--t-label);font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.btn:disabled{background:var(--canvas);border-color:var(--line);color:var(--faint);cursor:not-allowed}
+.textlink{border:0;border-bottom:1px solid var(--line-strong);background:none;padding:0 0 2px;color:var(--signal);font-size:var(--t-label);font-weight:700;cursor:pointer}
+.field{height:42px;padding:0 var(--s3);border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);color:var(--ink);font-size:var(--t-body)}
+.field::placeholder{color:var(--faint);opacity:1}
+.field.grow{flex:1;min-width:0}
+select.field{min-width:132px;cursor:pointer}
+.areafield{width:100%;height:60px;padding:var(--s3);border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);color:var(--ink);font-size:var(--t-body);line-height:1.5;resize:none}
+.labelline{display:flex;flex-direction:column;gap:var(--s1)}
+.labelline > span{font-size:var(--t-label);color:var(--faint)}
+.hint{font-size:var(--t-label);color:var(--muted)}
+
+.section{display:flex;flex-direction:column;gap:var(--s3)}
+.sectionhead{display:flex;align-items:baseline;gap:var(--s3)}
+.sectionhead h2{font-size:var(--t-label);font-weight:700;color:var(--ink);margin:0}
+.sectionhead .aside{font-size:var(--t-label);color:var(--faint)}
+.rule{height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s3);align-items:center;font-size:var(--t-body);min-height:48px;border-bottom:1px solid var(--line);padding:0 var(--s2)}
+.grid.head{min-height:30px;font-size:var(--t-label);color:var(--faint)}
+.grid .name{font-weight:700;min-width:0;overflow-wrap:break-word}
+.grid .right{justify-self:end;text-align:right}
+.grid .quiet{color:var(--muted);font-size:var(--t-label)}
+.stamp{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:24px;padding:0 var(--s2);border:1px solid var(--line-strong);border-radius:var(--radius);font-size:var(--t-label);font-weight:700;color:var(--ink)}
+.stamp.signal{border-color:var(--signal);color:var(--signal);background:var(--signal-soft)}
+.stamp.caution{border-color:var(--caution-ink);color:var(--caution-ink);background:var(--caution-bg)}
+.rowpair{display:flex;align-items:center;gap:var(--s3)}
+.evidenceline{font-size:var(--t-label);color:var(--muted)}
+.evidenceline b{color:var(--ink);font-weight:700}
+
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.step{padding:var(--s3) var(--s3);border-right:1px solid var(--line)}
+.step:last-child{border-right:0}
+.step .stepname{font-size:var(--t-body);font-weight:700;color:var(--ink)}
+.step .stepstate{font-size:var(--t-label);color:var(--faint)}
+.step.now{background:var(--signal-soft)}
+.step.now .stepname{color:var(--signal)}
+
+.tabs{display:flex;gap:var(--s6);border-bottom:1px solid var(--line)}
+.tabs span{font-size:var(--t-body);color:var(--muted);padding-bottom:var(--s3);border-bottom:2px solid var(--surface)}
+.tabs span.on{color:var(--ink);font-weight:700;border-bottom-color:var(--signal)}
+.chips{display:flex;gap:var(--s6);flex-wrap:wrap}
+.chipcheck{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--t-body);color:var(--ink)}
+.chipcheck input{width:18px;height:18px;accent-color:var(--signal);margin:0}
+.chipcheck .inc{font-size:var(--t-label);color:var(--signal);font-weight:700}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--s8);min-height:0;flex:1}
+.col{display:flex;flex-direction:column;gap:var(--s6);min-width:0}
+.preview{background:var(--band);color:var(--band-faint);padding:var(--s6);display:flex;flex-direction:column;gap:var(--s3);min-height:150px;border-radius:var(--radius)}
+.preview .ptitle{font-size:var(--t-label);color:var(--band-faint)}
+.preview .pstamp{align-self:flex-start;padding:var(--s1) var(--s2);border:1px solid var(--signal-bright);border-radius:var(--radius);color:var(--signal-bright);font-size:var(--t-label);font-weight:700}
+
+.notice{padding:var(--s3) var(--s4);border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);font-size:var(--t-body);color:var(--ink)}
+.rulebox{padding:var(--s4);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-alt);font-size:var(--t-label);color:var(--muted);line-height:1.7}
+.rulebox span{display:block}
+
+.hero{background:var(--band);color:var(--band-ink);padding:var(--s8);display:flex;flex-direction:column;gap:var(--s4);border-radius:var(--radius)}
+.hero h2{font-size:var(--t-display);line-height:1.12;letter-spacing:-.02em;font-weight:700;margin:0;color:var(--band-ink);max-width:820px;overflow-wrap:break-word}
+.hero .herosub{font-size:var(--t-body);color:var(--band-faint);margin:0;line-height:1.5}
+.heroform{display:flex;align-items:flex-end;gap:var(--s3);margin-top:var(--s4)}
+.heroform .labelline > span{color:var(--band-faint)}
+.heroform .field{min-width:132px}
+.heroform .stretch{flex:1;min-width:0}
+.hero .btn.primary{background:var(--signal-bright);border-color:var(--signal-bright);color:var(--ink)}
+.herokeyline{display:flex;align-items:flex-end;gap:var(--s3);margin-top:var(--s3)}
+.herohint{font-size:var(--t-label);color:var(--band-faint);align-self:center}
+
+.status{margin-top:auto;height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:0 var(--s10);border-top:1px solid var(--line);background:var(--surface);font-size:var(--t-label);color:var(--muted)}
+.status .right{text-align:right}
+</style>
+</head>
+<body>
+
+<!-- 홈 -->
+<section class="screen" aria-label="홈">
+  <div class="framelabel">홈</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a class="on" href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="home">
+    <div class="hero">
+      <h2>하고 싶은 일을 적어 주세요.</h2>
+      <p class="herosub">문장으로 요청하면 해석 결과를 확인합니다.</p>
+      <div class="heroform">
+        <label class="labelline"><span>실행 방식</span>
+          <select class="field"><option>로컬</option><option selected>API</option></select>
+        </label>
+        <label class="labelline stretch"><span>요청할 내용</span>
+          <input class="field" type="text" placeholder="하고 싶은 일을 문장으로 적어 주세요." />
+        </label>
+        <button class="btn primary" type="button">요청 해석</button>
+      </div>
+      <div class="herokeyline">
+        <label class="labelline"><span>API 키</span>
+          <input class="field" type="password" placeholder="키 입력" />
+        </label>
+        <span class="herohint">키는 직접 입력합니다.</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sectionhead"><h2>다음 할 일</h2><span class="aside">수집 결과 확인</span></div>
+      <div class="rule"></div>
+      <div class="grid"><span class="name">프로젝트 01</span><span class="quiet">수집 결과 확인</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+      <div class="grid"><span class="name">프로젝트 02</span><span class="quiet">콘셉트 확정</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+    </div>
+  </main>
+  <div class="status"><span>시연 화면입니다. 실제 전송과 결제는 일어나지 않습니다.</span><span class="right">비용이 드는 요청은 매번 확인받은 뒤에만 진행합니다.</span></div>
+</section>
+
+<!-- 프로젝트 선택 -->
+<section class="screen" aria-label="프로젝트 선택">
+  <div class="framelabel">프로젝트 선택</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a class="on" href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="projects">
+    <div class="pagehead">
+      <h1>프로젝트 선택</h1>
+      <p class="sub">어느 프로젝트에서 시작할지 고릅니다.</p>
+    </div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">프로젝트 열기</div><div class="bnote">목록에서 하나를 고르면 그 프로젝트의 홈이 열립니다.</div></div>
+      <button class="textlink" type="button">새 프로젝트</button>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>프로젝트</span><span>다음 할 일</span><span class="right">열기</span></div>
+      <div class="grid"><span class="name">프로젝트 01</span><span class="quiet">수집 결과 확인</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+      <div class="grid"><span class="name">프로젝트 02</span><span class="quiet">콘셉트 확정</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+      <div class="grid"><span class="name">프로젝트 03</span><span class="quiet">요청 해석 확인</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+      <div class="grid"><span class="name">프로젝트 04</span><span class="quiet">예약 확인</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+      <div class="grid"><span class="name">프로젝트 05</span><span class="quiet">지표 확인</span><span class="right"><button class="textlink" type="button">열기</button></span></div>
+    </div>
+  </main>
+  <div class="status"><span>프로젝트를 고르면 그 프로젝트의 홈이 열립니다.</span><span class="right">비용은 확인 후에만 사용합니다.</span></div>
+</section>
+
+<!-- 살펴보기 -->
+<section class="screen" aria-label="살펴보기">
+  <div class="framelabel">살펴보기</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a class="on" href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="explore">
+    <div class="pagehead">
+      <h1>소스 찾기</h1>
+      <p class="sub">찾고 싶은 내용을 적고 참고할 항목을 고릅니다.</p>
+    </div>
+    <div class="band">
+      <label class="labelline grow"><span>찾을 내용</span><input class="field" style="width:100%" type="text" placeholder="키워드 또는 도메인" /></label>
+      <button class="btn primary" type="button">찾기</button>
+    </div>
+    <div class="section">
+      <div class="sectionhead"><h2>포함할 채널</h2><span class="aside">선택한 채널만 찾습니다.</span></div>
+      <div class="chips">
+        <label class="chipcheck"><input type="checkbox" checked /><span>영상</span><span class="inc">포함</span></label>
+        <label class="chipcheck"><input type="checkbox" checked /><span>이미지</span><span class="inc">포함</span></label>
+        <label class="chipcheck"><input type="checkbox" /><span>블로그</span></label>
+        <label class="chipcheck"><input type="checkbox" /><span>뉴스</span></label>
+      </div>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>찾은 항목</span><span>출처</span><span class="right">다음 할 일</span></div>
+      <div class="grid"><span class="name">레퍼런스 01</span><span class="quiet">출처 확인</span><span class="right"><button class="textlink" type="button">참고로 보내기</button></span></div>
+      <div class="grid"><span class="name">레퍼런스 02</span><span class="quiet">출처 확인</span><span class="right"><button class="textlink" type="button">참고로 보내기</button></span></div>
+      <div class="grid"><span class="name">레퍼런스 03</span><span class="right"><span class="stamp">C</span> <span class="stamp caution">검증 필요</span></span><span class="right"><button class="textlink" type="button">참고로 보내기</button></span></div>
+    </div>
+    <p class="evidenceline"><b>근거</b> 출처와 함께 저장합니다. 미디어는 다시 올리지 않습니다.</p>
+  </main>
+  <div class="status"><span>참고로 보내기를 누를 때만 다음 작업으로 값이 전달됩니다.</span><span class="right">비용은 확인 후에만 사용합니다.</span></div>
+</section>
+
+<!-- 스튜디오 -->
+<section class="screen" aria-label="스튜디오">
+  <div class="framelabel">스튜디오</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a class="on" href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="studio">
+    <div class="pagehead">
+      <h1>콘셉트 확정</h1>
+      <p class="sub">브리프를 확인하고 만들 결과의 방향을 고릅니다.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="stepname">브리프</div><div class="stepstate">완료</div></div>
+      <div class="step now"><div class="stepname">콘셉트</div><div class="stepstate">지금</div></div>
+      <div class="step"><div class="stepname">결과</div><div class="stepstate">다음</div></div>
+      <div class="step"><div class="stepname">검수</div><div class="stepstate">다음</div></div>
+    </div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">콘셉트 하나 확정</div><div class="bnote">근거 저장한 참고 · 요청 브리프 확인</div></div>
+      <button class="btn primary" type="button">이걸로 결과 만들기</button>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>안</span><span>방향</span><span class="right">선택</span></div>
+      <div class="grid"><span class="name">안 1</span><span class="quiet">방향 1</span><span class="right"><button class="textlink" type="button">선택</button></span></div>
+      <div class="grid" style="background:var(--signal-soft)"><span class="name">안 2</span><span class="quiet">방향 2</span><span class="right"><span class="stamp signal">선택됨</span> <button class="textlink" type="button">선택 해제</button></span></div>
+      <div class="grid"><span class="name">안 3</span><span class="quiet">방향 3</span><span class="right"><button class="textlink" type="button">선택</button></span></div>
+    </div>
+    <p class="evidenceline"><b>근거</b> 저장한 참고 <b>요청</b> 브리프 확인</p>
+    <div class="rulebox"><span>콘셉트는 직접 고릅니다.</span><span>결과는 고른 뒤에 만듭니다.</span></div>
+  </main>
+  <div class="status"><span>결과는 콘셉트를 확정한 뒤에만 만듭니다.</span><span class="right">비용은 확인 후에만 사용합니다.</span></div>
+</section>
+
+<!-- 영상 워크벤치 -->
+<section class="screen" aria-label="영상 워크벤치">
+  <div class="framelabel">영상 워크벤치</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a class="on" href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="video">
+    <div class="pagehead">
+      <h1>어떤 장면이 필요한가요?</h1>
+      <p class="sub">요청을 적고 해석을 확정한 뒤 단계마다 확인합니다.</p>
+    </div>
+    <div class="band">
+      <label class="labelline grow"><span>요청 문장</span><textarea class="areafield" placeholder="하고 싶은 장면을 문장으로 적어 주세요."></textarea></label>
+      <button class="btn primary" type="button">해석 요청</button>
+    </div>
+    <div class="rowpair">
+      <label class="labelline"><span>실행 방식</span><select class="field"><option>로컬</option><option selected>API</option></select></label>
+      <button class="textlink" type="button">API 키 입력</button>
+      <span class="hint">키는 직접 입력합니다.</span>
+    </div>
+    <div class="split">
+      <div class="col">
+        <div class="section">
+          <div class="grid head"><span>요청</span><span>해석</span><span>근거</span><span class="right">확인</span></div>
+          <div class="grid"><span class="name">요청 01</span><span class="quiet">표준 용어 01</span><span><span class="stamp signal">A</span></span><span class="right quiet">높음</span></div>
+          <div class="grid"><span class="name">요청 02</span><span class="quiet">표준 용어 02</span><span><span class="stamp signal">B</span></span><span class="right quiet">높음</span></div>
+          <div class="grid"><span class="name">요청 03</span><span class="quiet">표준 용어 03</span><span><span class="stamp">C</span></span><span class="right"><span class="stamp caution">검증 필요</span></span></div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="stepname">콘티</div><div class="stepstate">완료</div></div>
+          <div class="step now"><div class="stepname">구도</div><div class="stepstate">지금</div></div>
+          <div class="step"><div class="stepname">애니매틱</div><div class="stepstate">다음</div></div>
+          <div class="step"><div class="stepname">샷 확인</div><div class="stepstate">다음</div></div>
+        </div>
+        <div class="rulebox"><span>검증이 필요한 항목은 확인 전에는 다음 단계로 가지 않습니다.</span><span>비용은 진행 전에 확인합니다.</span></div>
+      </div>
+      <div class="col">
+        <div class="preview">
+          <span class="ptitle">미리보기 면</span>
+          <span class="pstamp">시연</span>
+          <span class="ptitle">실제 렌더 없음</span>
+        </div>
+        <p class="evidenceline"><b>다음 할 일</b> 구도 확인</p>
+        <button class="btn primary" type="button">다음 단계 진행</button>
+      </div>
+    </div>
+  </main>
+  <div class="status"><span>진행 버튼을 누를 때만 다음 단계가 열립니다.</span><span class="right">비용은 확인 후에만 사용합니다.</span></div>
+</section>
+
+<!-- 발행 -->
+<section class="screen" aria-label="발행">
+  <div class="framelabel">발행</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a class="on" href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="publish">
+    <div class="pagehead">
+      <h1>게시 준비</h1>
+      <p class="sub">승인된 결과를 어디에 올릴지 확인합니다.</p>
+    </div>
+    <div class="notice">시연 화면입니다. 실제 전송과 결제는 일어나지 않습니다.</div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">채널과 예약 확인</div><div class="bnote">근거 검수 완료</div></div>
+      <button class="btn primary" type="button">승인하고 큐에 넣기</button>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>게시할 결과</span><span>채널</span><span class="right">예약</span></div>
+      <div class="grid"><span class="name">승인된 결과</span><span class="quiet">채널 1</span><span class="right"><span class="stamp signal">선택됨</span></span></div>
+      <div class="grid"><span class="name">승인된 결과</span><span class="quiet">채널 2</span><span class="right"><button class="textlink" type="button">선택</button></span></div>
+      <div class="grid"><span class="name">승인된 결과</span><span class="quiet">채널 3</span><span class="right"><button class="textlink" type="button">선택</button></span></div>
+    </div>
+    <p class="evidenceline">연동은 계정 소유자가 직접 합니다.</p>
+    <div class="labelline" style="max-width:420px"><span>예약</span><input class="field" type="text" placeholder="날짜와 시간 입력" /></div>
+  </main>
+  <div class="status"><span>시연 화면입니다. 실제 전송과 결제는 일어나지 않습니다.</span><span class="right">비용은 확인 후에만 사용합니다.</span></div>
+</section>
+
+<!-- 성과 -->
+<section class="screen" aria-label="성과">
+  <div class="framelabel">성과</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a class="on" href="#results">성과</a><a href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="results">
+    <div class="pagehead">
+      <h1>지표 확인</h1>
+      <p class="sub">업로드한 결과와 예측을 함께 봅니다.</p>
+    </div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">지표를 먼저 확인하세요</div><div class="bnote">데이터 출처 업로드 또는 샘플</div></div>
+      <button class="textlink" type="button">샘플로 보기</button>
+      <button class="btn primary" type="button">CSV 업로드</button>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>지표</span><span>값</span><span class="right">출처</span></div>
+      <div class="grid"><span class="name">노출</span><span class="quiet">값 없음</span><span class="right quiet">업로드 또는 샘플</span></div>
+      <div class="grid"><span class="name">클릭</span><span class="quiet">값 없음</span><span class="right quiet">업로드 또는 샘플</span></div>
+      <div class="grid"><span class="name">전환</span><span class="quiet">값 없음</span><span class="right quiet">업로드 또는 샘플</span></div>
+    </div>
+    <div class="rulebox"><span>예측입니다. 신뢰도와 모델, 기간은 확인 전입니다. 기준은 이동평균입니다.</span></div>
+    <p class="evidenceline"><b>근거</b> 데이터 출처는 업로드 또는 샘플에서 고릅니다.</p>
+  </main>
+  <div class="status"><span>순위를 보장하지 않습니다.</span><span class="right"><button class="textlink" type="button">개선안 브리프로 보내기</button></span></div>
+</section>
+
+<!-- 성장 -->
+<section class="screen" aria-label="성장">
+  <div class="framelabel">성장</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a class="on" href="#growth">성장</a><a href="#settings">설정</a>
+  </nav>
+  <main class="main" id="growth">
+    <div class="pagehead">
+      <h1>고쳐 쓸 항목</h1>
+      <p class="sub">진단 결과와 제안을 나란히 확인합니다.</p>
+    </div>
+    <div class="tabs"><span class="on">진단</span><span>키워드</span><span>예산</span><span>개선</span></div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">제안 확인 후 브리프로 보내기</div><div class="bnote">근거 공개 자료와 직접 입력한 값</div></div>
+      <button class="btn primary" type="button">개선안 브리프로 보내기</button>
+    </div>
+    <div class="section">
+      <div class="grid head"><span>항목</span><span>원문</span><span>제안</span><span class="right">적용</span></div>
+      <div class="grid"><span class="name">제목</span><span class="quiet">유지</span><span class="quiet">제안 확인</span><span class="right"><button class="textlink" type="button">적용</button></span></div>
+      <div class="grid"><span class="name">메타 설명</span><span class="quiet"></span><span class="quiet">제안 확인</span><span class="right"><button class="textlink" type="button">적용</button></span></div>
+      <div class="grid"><span class="name">키워드</span><span class="quiet"></span><span class="quiet">제안 확인</span><span class="right"><button class="textlink" type="button">적용</button></span></div>
+    </div>
+    <div class="rulebox"><span>예측입니다. 신뢰도와 기간은 확인 전입니다.</span><span>공개 자료와 직접 입력한 값을 기준으로 합니다.</span></div>
+  </main>
+  <div class="status"><span>제안을 적용해도 원문은 그대로 둡니다.</span><span class="right">순위를 보장하지 않습니다.</span></div>
+</section>
+
+<!-- 설정 -->
+<section class="screen" aria-label="설정">
+  <div class="framelabel">설정</div>
+  <div class="topbar">
+    <span class="brand">AIMW</span>
+    <button class="projswitch" type="button">프로젝트 선택</button>
+    <div class="topright"><span class="costchip">비용 승인 전</span></div>
+  </div>
+  <nav class="nav" aria-label="작업">
+    <a href="#home">홈</a><a href="#projects">프로젝트 선택</a><a href="#explore">살펴보기</a><a href="#studio">스튜디오</a><a href="#video">영상 워크벤치</a><a href="#publish">발행</a><a href="#results">성과</a><a href="#growth">성장</a><a class="on" href="#settings">설정</a>
+  </nav>
+  <main class="main" id="settings">
+    <div class="pagehead">
+      <h1>AI 실행 설정</h1>
+      <p class="sub">요청에 사용할 방식과 키를 입력합니다.</p>
+    </div>
+    <div class="band">
+      <span class="blabel">다음 할 일</span>
+      <div class="bmain"><div class="bstate">실행 방식 입력</div><div class="bnote">방식과 키는 여기서 직접 입력합니다.</div></div>
+      <button class="btn primary" type="button">설정 저장</button>
+    </div>
+    <div class="split" style="grid-template-columns:minmax(0,1fr) 320px">
+      <div class="col">
+        <div class="section">
+          <div class="sectionhead"><h2>실행</h2></div>
+          <label class="labelline" style="max-width:360px"><span>실행 방식</span><select class="field"><option>로컬</option><option selected>API</option></select></label>
+        </div>
+        <div class="section">
+          <div class="sectionhead"><h2>키</h2></div>
+          <label class="labelline" style="max-width:360px"><span>API 키</span><input class="field" type="password" placeholder="키 입력" /></label>
+          <p class="hint">키는 직접 입력합니다.</p>
+        </div>
+        <div class="section">
+          <div class="sectionhead"><h2>비용 확인</h2></div>
+          <p class="hint">실제 비용이 드는 요청마다 확인을 받습니다.</p>
+          <div class="rule"></div>
+          <div class="grid" style="grid-template-columns:minmax(0,1fr) 140px"><span>단일 승인 한도</span><span class="right">10,000원</span></div>
+          <div class="grid" style="grid-template-columns:minmax(0,1fr) 140px"><span>월 한도</span><span class="right">100,000원</span></div>
+          <div class="grid" style="grid-template-columns:minmax(0,1fr) 140px"><span>기본 상한</span><span class="right">0원</span></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="rulebox"><span>요청 화면에서도 실행 방식을 바꿀 수 있습니다.</span><span>비용은 확인 후에만 사용합니다.</span></div>
+        <p class="evidenceline"><b>근거</b> 실행 방식 직접 선택 <b>키 입력</b> 사용자 입력</p>
+      </div>
+    </div>
+  </main>
+  <div class="status"><span>요청 화면에서도 실행 방식을 바꿀 수 있습니다.</span><span class="right">비용이 드는 요청은 매번 확인받은 뒤에만 진행합니다.</span></div>
+</section>
+
+</body>
+</html>

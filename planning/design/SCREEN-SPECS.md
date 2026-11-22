@@ -1,4 +1,6 @@
-# SCREEN-SPECS — 화면 명세
+> **보관 문서(deprecated, 2026-11-22)** — v3 화면 명세는 `design-v3/03-SCREEN-SPECS.md`로 대체되었습니다.
+
+# SCREEN-SPECS (구) — 화면 명세
 
 작성일: 2026-11-22  
 기준 뷰포트: 1440×900 (보조 1280 / 768). 한국어 UI.  
@@ -15,7 +17,7 @@
 
 - **목적**: 프로젝트 컨텍스트 고정, 전역 탐색, AI 작업 상태 상시 노출.
 - **레이아웃**: Sidebar 240px | Main 1fr | DetailPanel 380px(조건부). 상단 Topbar 56px.
-- **Topbar**: CampaignSwitcher(장기렌트 캠페인), 전역 검색 `Ctrl/Cmd+K`, ProviderBadge(Ollama), CostBadge("로컬 · 무과금"), 알림, 사용자.
+- **Topbar**: CampaignSwitcher(현재 캠페인), 전역 검색 `Ctrl/Cmd+K`, ProviderBadge(Ollama), CostBadge("로컬 · 무과금"), 알림, 사용자.
 - **Sidebar**: Collector / **Own Content** / References / Studio / Publishing / Insights / **Performance** / **Segments** / **Video Workbench** / **SEO & Search Growth**(`SEO-GROWTH-SPECS.md` 참조) + 하단 설정·연결. 10개 화면. 그룹 라벨: `[수집·자산]` / `[작업(S8 포함)]` / `[분석]`.
 - **전역 오버레이**: JobDrawer(작업 큐), DetailPanel(선택 항목), CommandPalette.
 - **상태**: 연결 끊김 시 ProviderBadge 경고, 진행 중 작업 수 배지(수집 Job 포함).
@@ -30,7 +32,7 @@
 - **목적**: 사용자가 입력한 **분야 키워드 / 우리 서비스 URL / 경쟁사 도메인**을 기준으로 콘텐츠를 수집하고, 수직(vertical)별로 구분해 탐색한 뒤 S1 References로 넘긴다.
 - **레이아웃**: PageHeader → CollectTargetForm(한 줄 등록 바) → **VerticalTabs(전체 / 영상 광고 / 이미지 광고 / 블로그 / 뉴스)** → 좌측 SourceList(240) + 우측 결과 그리드/테이블 + DetailPanel(선택 항목).
 - **주요 요소**:
-  - CollectTargetForm: 분야 키워드(예: 장기렌트), 우리 서비스 URL, 경쟁사 도메인 여러 개 + `+ 소스 추가`, 수집 범위(공개 페이지만) 체크.
+  - CollectTargetForm: 분야 키워드, 우리 서비스 URL, 경쟁사 도메인 여러 개 + `+ 소스 추가`, 수집 범위(공개 페이지만) 체크. 업종 예시 문구는 넣지 않는다.
   - **VerticalTabs**: 5개 탭에 각각 건수 배지(예: `영상 24 / 이미지 51 / 블로그 18 / 뉴스 32`). 탭 전환 시 결과와 필터가 유지된다. 각 탭은 독립 URL(`?vertical=video|image|blog|news`)로 북마크·공유 가능.
   - SourceTile: 소스명/도메인, 방식 배지(**공식 API / 공개 페이지 / RSS / 수동 입력**), 연결 상태, 마지막 수집 시각, `수집` / `설정` / `사용` 토글.
   - CollectJobCard: 진행률, 수집 건수, 중복 제거 건수, 레이트리밋 대기, 실패·재시도, `중지`.

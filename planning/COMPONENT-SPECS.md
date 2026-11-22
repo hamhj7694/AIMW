@@ -62,7 +62,7 @@ composite/
 | AppShell | `sidebar 240px + main 1fr + (detail 380px 조건부)`. 1280 이하 detail은 오버레이, 1024 이하 sidebar 접힘 |
 | Sidebar | 10개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench/SEO & Search Growth — `SEO-GROWTH-SPECS.md` 참조) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
 | Topbar | CampaignSwitcher, 전역 검색(Ctrl/Cmd+K), ProviderBadge, 사용량/비용, 사용자 메뉴 |
-| CampaignSwitcher | 장기렌트 캠페인 컨텍스트. 전환 시 모든 화면 데이터 재바인딩 |
+| CampaignSwitcher | 현재 캠페인 컨텍스트. 전환 시 모든 화면 데이터 재바인딩 |
 | ProviderBadge | 현재 추론 Provider(Ollama 기본). 연결 상태 점 + 모델명 툴팁 |
 | CostBadge | 이번 세션 예상 비용, `font.mono`. 로컬이면 "로컬 · 무과금" |
 

@@ -19,6 +19,10 @@ Desktop.ini
 # Node / Python 산출물 (향후 구현 대비)
 node_modules/
 dist/
+
+# 서드파티 스킬 다운로드 캐시 (약 246MB) — 로컬 참고용, 출처 URL로 복원 가능
+design-v3/skills/_downloaded/
+
 __pycache__/
 *.py[cod]
 .venv/

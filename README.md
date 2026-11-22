@@ -1,40 +1,43 @@
-# AIMW — AI Marketing AX Workspace
+# AIMW — AI Marketing Workspace
 
-Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 저장소**입니다.
-현재 단계는 **기획 확정(2026-11-22) / 구현 착수 전**이며, 실제 웹앱 코드는 포함되어 있지 않습니다. 미확정 정책 31건은 `planning/DECISION-LOG.md` J장에서 최종 확정됐고, 계정 소유·API 키 발급 같은 외부 사실 확인만 실행 전에 남아 있습니다.
+업종에 묶이지 않는 **일반 마케팅 운영 도구**의 기획·설계 문서 저장소입니다. 수집, 기획, 제작, 검수, 발행, 성과, 개선을 사람이 확인하며 진행하는 워크스페이스를 설계합니다. 현재 브랜치는 `design-v3`이며, 기존 디자인을 완전히 갈아엎은 v3 설계를 작업 중입니다. 실제 웹앱 코드는 포함되어 있지 않습니다.
 
-## 포함 범위
-
-- `planning/` — 연구(research), 디자인(design), PRD, 아키텍처, 구현 계획, 의사결정 로그
-- 로컬 전용 참고 캡처 자료는 **저장소에 포함하지 않습니다.** 타사 서비스 자료(라이선스 미확인)이므로 로컬에서만 참고용으로 보관하며, 모든 문서는 그 경로에 의존하지 않습니다.
-
-## 문서 목록
+## 지금 읽어야 할 문서 (단일 진실)
 
 | 경로 | 내용 |
 |---|---|
-| `planning/research/SOURCE-INVENTORY.md` | 참고 자산 규모·구성 요약(555개, 경로 의존 없음) |
-| `planning/research/REFERENCE-AUDIT.md` | 서비스별 출처·등급 감사 |
-| `planning/research/FEATURE-MATRIX.md` | 기능 채택 매트릭스 |
-| `planning/research/COMPOSITION-PLAN.md` | 점수·조합 계획 |
-| `planning/design/DESIGN-PLAN.md` | 디자인 시스템·IA |
-| `planning/design/SCREEN-SPECS.md` | 화면 명세 |
-| `planning/COMPONENT-SPECS.md` | 컴포넌트 명세 |
-| `planning/PRD.md` | 제품 요구사항 (v0.6) |
-| `planning/ARCHITECTURE.md` | 아키텍처 |
-| `planning/IMPLEMENTATION-PLAN.md` | 1~2일 MVP 실행 계획 |
-| `planning/ROADMAP.md` | 필수 우선 → 모듈별 증분 제작 → 클릭 연결 → 문서 업데이트 확장 전략 |
-| `planning/DECISION-LOG.md` | 의사결정 로그 |
-| `planning/design/PRODUCTION-MODE-SPECS.md` | 제작 유형 6종(실사/숏폼/영화/영상/애니메이션/모션그래픽) 명세 |
-| `planning/design/SEO-GROWTH-SPECS.md` | S9 SEO 화면·컴포넌트·상태·수용 기준 |
-| `planning/research/UIUX-RULES-FROM-REFERENCES.md` | 공개 서비스 관찰을 자체 원칙으로 재서술한 UI/UX 규칙 |
-| `planning/design/DESIGN-GOVERNANCE.md` | 규칙 우선순위·문서 소유·변경 게이트·구현 전 체크리스트 |
-| `planning/knowledge/` | 전문가 지식 베이스(출처·등급·RAG 규칙). 로컬 캡처와 무관한 자체 저작 |
+| `planning/PRD.md` | **v1.0 제품 정의.** 비전, 범위, UX 원칙, 불변 제약, 성공 기준 |
+| `planning/JOURNEYS-V3.md` | 사용자 눈높이의 5개 여정 + 오류/빈 상태 문구 |
+| `design-v3/README.md` | v3 디자인 문서 지도 |
+| `design-v3/00-DESIGN-DIRECTION.md` | 콘셉트, 색·타이포 선정 근거, 톤앤매너, 자기 비평 |
+| `design-v3/01-DESIGN-SYSTEM.md` | 토큰, 타이포, 간격, 컴포넌트, 접근성 |
+| `design-v3/02-IA-AND-FLOWS.md` | 작업 공간 구조와 화면 흐름 |
+| `design-v3/03-SCREEN-SPECS.md` | 화면별 레이아웃·상태 명세 |
+| `design-v3/06-ANTI-SLOP-AUDIT.md` | AI 티 제거 체크리스트 적용 결과 |
+| `design-v3/figma-plugin/` | **Figma에서 실행하는 디자인 제너레이터 플러그인** |
+| `design-v3/preview/index.html` | 브라우저에서 바로 보는 v3.1 인터랙티브 프리뷰 |
 
-## 핵심 원칙
+## 문서 상태
 
-- 올인원 워크스페이스는 **필수 먼저, 나머지는 모듈별로 조금씩** 만들고, 연결할 때마다 문서를 업데이트합니다(`planning/ROADMAP.md`).
-- 캡처 자산은 **참고용**이며 코드·마크업을 복제하지 않습니다(직접 코드 재사용 0건).
-- 모듈(S0/S5/S6/S7/S8/S9)은 독립 라우트·독립 데이터를 가지며, 연결은 사용자 명시적 클릭으로만 생성됩니다.
-- 다른 작업 환경에서도 문서가 성립하도록 로컬 전용 파일 경로·파일명·링크는 기획 문서에 적지 않습니다.
-- 발행·과금·실제 영상 렌더는 MVP에서 Dry-run/스텁이며, 외부 API를 실행하지 않습니다.
-- 계정 연동은 **사용자가 직접 로그인/OAuth**로 합니다. 실제 비용·비딩은 **매번 사람의 동의** 후에만 실행되고, 단일 10,000원·월 누적 100,000원 초과 시 2차 확인 팝업이 뜹니다.
+- `planning/research/*` — 참고 서비스 감사·점수·기능 매트릭스. **점수·순위 불변**.
+- `planning/knowledge/*` — 자체 저작 전문 지식베이스(카메라·구도·조명·편집·광고 구조·숏폼·모션·SEO). 출처 등급 A/B/C 규칙 유지.
+- `planning/ARCHITECTURE.md`, `DECISION-LOG.md` — 구현 계약과 동결 결정 기록. 참고용으로 보존.
+- `planning/design/*` — **보관 문서(deprecated)**. v3 설계는 `design-v3/`를 사용하세요. 각 문서 상단에 경고가 붙어 있습니다.
+- `CHANGELOG.md` — 개정 이력. 본문에 버전 블록을 쌓지 않습니다.
+
+## v3에서 달라진 것 (요약)
+
+- 파란색 범용 SaaS와 직전 작업대 안까지 폐기 → **복사지 60% + 먹 30% + 확인 도장 10%의 "작업 지시서(The Work Order)"로 전면 재설계.**
+- 모듈 번호 중심 → **하는 일 중심** 이름(홈 / 살펴보기 / 스튜디오 / 영상 워크벤치 / 발행 / 성과 / 성장).
+- 비전문가에게 전문 제작 유형을 먼저 고르게 하지 않고, **말로 요청 → 시스템 제안 → 사람 확정**.
+- 화면마다 주 액션 1개, "지금 할 일" 상시 노출.
+- Figma MCP/컴퓨터 유즈를 사용할 수 없으므로 **플러그인으로 토큰·컴포넌트·화면을 생성**하는 방식 채택.
+
+## 핵심 불변
+
+- 모듈은 기본적으로 독립. 연결은 사용자의 명시적 클릭으로만(`ModuleLink`).
+- 발행·과금·렌더는 MVP에서 시연(Dry-run). "시연" 배지 상시.
+- 비용 발생 동작은 매번 사전 동의, 임계값 초과 시 2차 확인, 기본 상한 0원.
+- 계정 로그인은 사용자가 직접. 시스템이 토큰을 다루지 않음.
+- 영상은 4게이트 강제, 자동 전체 제작 금지.
+- 참고 자산의 직접 코드 재사용 0건, 로컬 전용 경로 의존 0건.

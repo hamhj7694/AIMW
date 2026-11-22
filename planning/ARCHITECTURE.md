@@ -220,7 +220,7 @@ Shot(1) ──< Composition3D(*)            # 카메라/FOV/배치/조명/모션
 Storyboard(1) ──< Animatic(*)           # 저해상도 타임라인
 Shot(1) ──< RenderStage(*) ──< ShotVersion(*)
 Shot(*) ──< Revision(*)                 # shot_id/timecode/element 타겟 패치
-Campaign(1) ──< VideoTemplate(*)        # 반복 포맷(예: 장기렌트 15초 세로)
+Campaign(1) ──< VideoTemplate(*)        # 반복 포맷(길이·비율·구조만 정의, 업종 예시 없음)
 # S8 ↔ S1/S2/S5는 FK 없이 ModuleLink로만 참조 (사용자 클릭)
 
 # SEO 성장 (S9, 독립. S6 지표를 복제하지 않음)

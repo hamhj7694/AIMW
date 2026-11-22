@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>AIMW — 메인 &amp; 프로젝트 구조</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0D12; --panel:#141923; --panel2:#1B2230; --paper:#F7F5EE;
+  --line:#2A3242; --line2:#D8D5CA; --fg:#F7F5EE; --ink:#10141C;
+  --muted:#7E8798; --muted2:#4C5668; --acc:#FF5A36; --accink:#1A0B06;
+}
+body{background:var(--bg);color:var(--fg);font-family:Inter,Pretendard,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;font-size:14px;line-height:22px}
+.screen{width:1440px;height:900px;border-bottom:1px solid #303746;overflow:hidden;position:relative}
+.slabel{height:34px;background:#05070A;color:var(--acc);font-size:12px;font-weight:800;letter-spacing:2px;display:flex;align-items:center;padding:0 32px;gap:14px}
+.slabel span{color:var(--muted);font-weight:500;letter-spacing:0}
+
+/* main */
+.mainnav{height:72px;display:flex;align-items:center;padding:0 44px;border-bottom:1px solid var(--line);gap:22px}
+.brand{font-size:21px;font-weight:900;letter-spacing:6px}
+.brandbar{width:5px;height:26px;background:var(--acc)}
+.navlinks{display:flex;gap:26px;margin-left:40px;font-size:13px;color:#A7B0BE}
+.navlinks b{color:var(--fg)}
+.navright{margin-left:auto;font-size:12px;color:var(--muted)}
+.hero{margin:38px 44px 0;height:470px;background:#151C28;border:1px solid #2C3545;display:flex;padding:46px 52px;gap:38px;position:relative;overflow:hidden}
+.heroL{flex:1;z-index:1}
+.kicker{font-size:12px;letter-spacing:4px;color:var(--acc);font-weight:800}
+.heroT{font-size:74px;line-height:1.02;font-weight:900;letter-spacing:-4px;margin-top:18px;max-width:760px}
+.heroD{font-size:15px;color:#AEB7C5;margin-top:18px;max-width:560px}
+.btnrow{display:flex;gap:10px;margin-top:26px}
+.btn{height:44px;padding:0 20px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;border:1px solid var(--line)}
+.btn.pri{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.btn.sec{background:transparent;color:var(--fg);border-color:#4A5466}
+.btn.paper{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.chat{margin-top:28px;width:640px;height:62px;background:var(--paper);display:flex;align-items:center;padding:0 8px 0 20px;gap:12px;color:var(--ink)}
+.chat .tag{font-size:11px;font-weight:900;color:#8A4532;letter-spacing:1px}
+.chat .ph{font-size:14px;color:#6B7380;flex:1}
+.chat .send{height:46px;background:var(--acc);color:var(--accink);font-weight:900;font-size:13px;padding:0 20px;display:flex;align-items:center}
+.heroR{width:292px;background:#1A2230;border-left:1px solid #2C3545;padding:24px;display:flex;flex-direction:column;gap:15px;z-index:1}
+.stat{display:flex;justify-content:space-between;font-size:12px;color:#B8C0CC;border-bottom:1px solid #2C3545;padding-bottom:12px}
+.stat b{color:var(--fg);font-weight:700}
+.mainmods{margin:24px 44px 0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.mainmod{height:116px;background:var(--panel);border:1px solid var(--line);padding:15px;display:flex;flex-direction:column;justify-content:space-between}
+.mainmod b{font-size:11px;color:var(--acc);letter-spacing:2px}
+.mainmod span{font-size:16px;font-weight:800}
+.mainmod small{font-size:11px;color:var(--muted)}
+
+/* app shell */
+.top{height:62px;background:var(--paper);color:var(--ink);display:flex;align-items:center;padding:0 32px;gap:16px}
+.logo{font-size:20px;font-weight:900;letter-spacing:6px}
+.logobar{width:5px;height:26px;background:var(--acc)}
+.crumb{font-size:14px;font-weight:700}
+.topmeta{margin-left:auto;font-size:12px;color:#5B6473}
+.topstate{display:flex;gap:14px;font-size:12px;color:#5B6473}
+.shell{display:flex;height:calc(100% - 96px)}
+.rail{width:206px;background:var(--panel);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:5px}
+.railcap{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
+.railitem{height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid transparent;color:#AAB2C0;font-size:13px}
+.railitem b{color:var(--muted2);font-size:11px;width:22px}
+.railitem.on{border-color:var(--acc);color:var(--fg);background:#1D2431}
+.railitem.on b{color:var(--acc)}
+.railfoot{margin-top:auto;font-size:11px;color:var(--muted);line-height:17px;border-top:1px solid var(--line);padding-top:14px}
+.work{flex:1;padding:28px 34px;overflow:hidden;background:var(--bg)}
+.eyebrow{font-size:11px;letter-spacing:3px;color:var(--acc);font-weight:800;margin-bottom:8px}
+.h1{font-size:46px;line-height:1.05;font-weight:900;letter-spacing:-2px}
+.h2{font-size:28px;line-height:1.15;font-weight:900;letter-spacing:-1px}
+.sub{color:var(--muted);margin-top:9px;font-size:13px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);padding:18px;min-height:132px;display:flex;flex-direction:column}
+.card .k{font-size:11px;color:var(--acc);letter-spacing:2px;font-weight:800}
+.card .t{font-size:18px;font-weight:800;margin-top:9px}
+.card .d{font-size:12px;color:var(--muted);margin-top:6px}
+.card .s{margin-top:auto;font-size:11px;color:#9AA4B4;border-top:1px solid var(--line);padding-top:10px;display:flex;justify-content:space-between}
+.card.paper{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.card.paper .k,.card.paper .s{color:#7A4A38}
+.card.paper .d{color:#5C6472}
+.mt{margin-top:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 9px;border:1px solid #3A4354;color:#B8C0CC}
+.pill .dot{width:6px;height:6px;background:var(--acc);border-radius:50%}
+.pill.ok .dot{background:#C9D3C2}
+.list{margin-top:20px;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:140px 1fr 160px 140px 90px;align-items:center;height:62px;border-bottom:1px solid var(--line);font-size:13px}
+.row .nm{font-weight:700}
+.row .st{color:#AEB7C5;font-size:12px}
+.row .act{justify-self:end;color:var(--acc);font-size:12px;font-weight:800}
+.split{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:22px}
+.panelbox{background:var(--panel);border:1px solid var(--line);padding:20px}
+.panelbox .ph{font-size:12px;color:var(--acc);letter-spacing:2px;font-weight:800;margin-bottom:16px}
+.line{height:48px;display:flex;align-items:center;border-bottom:1px solid var(--line);font-size:13px;gap:14px}
+.line span{color:var(--muted);font-size:12px;margin-left:auto}
+.evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.ev{background:#10151E;border:1px solid var(--line);padding:12px 14px;font-size:12px;display:flex;justify-content:space-between}
+.ev b{color:var(--acc)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.step{border:1px solid var(--line);padding:12px;background:#10151E;font-size:12px}
+.step b{display:block;color:var(--acc);font-size:11px;letter-spacing:1px;margin-bottom:6px}
+.note{margin-top:16px;font-size:12px;color:var(--muted);border-left:2px solid var(--acc);padding-left:12px}
+</style>
+</head>
+<body>
+
+<!-- 00 MAIN -->
+<div class="screen">
+  <div class="slabel">AIMW · MAIN <span>메인 진입 · 배너 · AI 요청</span></div>
+  <div class="mainnav">
+    <div class="brand">AIMW</div><div class="brandbar"></div>
+    <div class="navlinks"><b>메인</b><span>프로젝트</span><span>모듈</span><span>지식</span></div>
+    <div class="navright">연결 0건 · 비용 승인 전</div>
+  </div>
+  <div class="hero">
+    <div class="heroL">
+      <div class="kicker">운영 콘솔</div>
+      <div class="heroT">프로젝트와 모듈을<br>한 화면에서 시작</div>
+      <div class="heroD">모듈은 독립입니다. 연결은 클릭으로만 생성됩니다.</div>
+      <div class="btnrow">
+        <div class="btn pri">새 프로젝트</div><div class="btn sec">프로젝트 열기</div><div class="btn sec">모듈 보기</div>
+      </div>
+      <div class="chat">
+        <div class="tag">AI 요청</div><div class="ph">요청 입력</div><div class="send">요청</div>
+      </div>
+    </div>
+    <div class="heroR">
+      <div class="stat"><span>자동 연결</span><b>0건</b></div>
+      <div class="stat"><span>비용</span><b>승인 전</b></div>
+      <div class="stat"><span>발행</span><b>시연</b></div>
+      <div class="stat"><span>근거</span><b>A / B / C</b></div>
+      <div class="note">연결과 비용은 사용자 확인 후에만 진행됩니다.</div>
+    </div>
+  </div>
+  <div class="mainmods">
+    <div class="mainmod"><b>S0</b><span>수집</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S1</b><span>참고</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S2</b><span>스튜디오</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S3</b><span>발행</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S4</b><span>성과</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S5</b><span>자산</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S6</b><span>예측</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S7</b><span>세그먼트</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S8</b><span>영상 워크벤치</span><small>프로젝트 열기</small></div>
+    <div class="mainmod"><b>S9</b><span>성장</span><small>프로젝트 열기</small></div>
+  </div>
+</div>
+</body>
+</html>
