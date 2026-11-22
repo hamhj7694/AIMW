@@ -31,7 +31,7 @@
   ├─ S0 Collector  S5 Own Content  S1 References  S2 Studio
   ├─ S3 Publishing  S4 Insights  S6 Forecast  S7 Segments
   ├─ S8 Video Workbench  (분석 / 제작 / 수정 3탭 + 제작유형 6종 + 소스모드 3종, 독립 라우트)
-  ├─ S9 SEO & Search Growth (진단/키워드·콘텐츠/집행·예측/취합·개선 4탭, 독립 라우트)
+  ├─ S9 SEO & Search Growth (진단/키워드·콘텐츠/예산·예측/취합·개선 4탭, 독립 라우트)
   └─ 공통: Token 기반 UI, TanStack Table, Recharts, React Flow(후속)
             │
             │ HTTPS / JSON (same-origin)
@@ -151,7 +151,7 @@
 ### 4-1. 프런트엔드 (SPA)
 
 - **App Shell**: 프로젝트 컨텍스트, 전역 검색(Ctrl/Cmd+K), Provider 상태 배지, JobDrawer.
-- **화면 10개**: S0 Collector / S5 Own Content / S1 References / S2 Studio / S3 Publishing / S4 Insights / S6 Forecast / S7 Segments / **S8 Video Workbench** / **S9 SEO & Search Growth**(`design/SEO-GROWTH-SPECS.md`). 설정은 모달/라우트. **모듈별 독립 라우트이며, 진입 시 서로의 데이터를 자동 로드하지 않는다.** S8 내부는 분석/제작/수정 3탭으로 다시 분리되며, 탭 전환 시에도 상태가 섞이지 않는다. 미디어 소스·권한 확인 단계는 `?step=media-source`로 진입하고(`design/SCREEN-SPECS.md`), 이 단계의 결과가 분석 탭으로 자동 이동하지 않는다. S9 내부는 진단/키워드·콘텐츠/집행·예측/취합·개선 4탭으로 분리된다.
+- **화면 10개**: S0 Collector / S5 Own Content / S1 References / S2 Studio / S3 Publishing / S4 Insights / S6 Forecast / S7 Segments / **S8 Video Workbench** / **S9 SEO & Search Growth**(`design/SEO-GROWTH-SPECS.md`). 설정은 모달/라우트. **모듈별 독립 라우트이며, 진입 시 서로의 데이터를 자동 로드하지 않는다.** S8 내부는 분석/제작/수정 3탭으로 다시 분리되며, 탭 전환 시에도 상태가 섞이지 않는다. 미디어 소스·권한 확인 단계는 `?step=media-source`로 진입하고(`design/SCREEN-SPECS.md`), 이 단계의 결과가 분석 탭으로 자동 이동하지 않는다. S9 내부는 진단/키워드·콘텐츠/예산·예측/취합·개선 4탭으로 분리된다.
 - **상태 관리**: 서버 상태는 TanStack Query(또는 경량 fetch 캐시), UI 상태는 Zustand 또는 React state. MVP에서는 단순화 가능.
 - **금지**: 원본 사이트의 추적 스크립트(GA/GTM/Meta/Amplitude/Channel.io/HubSpot/OptinMonster 등) 이식, 원본 CDN 폰트·이미지 직접 참조, 인라인 스타일 난립.
 
@@ -332,7 +332,7 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 
 1. S9 진입 → 진단 탭에서 URL 또는 수동 입력을 받아 `SeoDiagnosis` 표시(Phase A 룰 엔진 + 샘플). 소유 확인 계정 연동은 Phase B, 여기서는 실제 계정 호출·과금 없음.
 2. 키워드·콘텐츠 탭에서 `KeywordGap[]`·`SearchIntentMap[]`·`ContentOptimization` 제안을 표시. 기존 문구는 `source_phrase`로 보존하고 제안을 별도 필드에 저장(자동 덮어쓰기 금지).
-3. 집행·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지, `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
+3. 예산·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지, `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
 4. 취합·개선 탭에서 실제값(`actual`)과 예측값(`delta`)을 라운드 단위로 취합하고 개선안을 만든다. 개선안을 S2 브리프/S5 콘텐츠로 보내려면 "브리프로 보내기" 클릭 시에만 `ModuleLink(s9→s2|s5)` 생성 — 자동 반영·자동 동기화 없음.
 5. 데이터 출처는 소유 확인 계정의 공식 API·공개 검색 API·수동 입력으로 제한. 스크래핑·로그인/유료벽 우회 경로는 존재하지 않는다. 순위 보장 문구는 응답 템플릿에서 차단한다.
 

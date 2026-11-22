@@ -162,9 +162,14 @@ TransformPreview.phase: A|B|C, dry_run, sample
 - 변환·합성 결과가 `Shot` / `Composition3D`로 동일 4게이트를 우회하면 실패.
 - 어떤 제작 유형·소스 모드에서도 전체 영상 자동 재렌더 버튼이 노출되면 실패.
 
-## 10. 확인 필요
+## 10. 확정 정책 (DECISION-LOG J장 위임 결정)
 
-- 유형별 기본 템플릿 소유자(사용자 vs 시스템 프리셋).
-- 숏폼 우선 플랫폼(Meta/TikTok/YouTube) 순서.
-- 모션그래픽/애니메이션 렌더 엔진 후보와 라이선스·예산.
-- 유형 변경 시 기존 산출물 보존 기간.
+| 항목 | 확정값 |
+|---|---|
+| 3D 프리뷰 | Phase A 경량 스키마 + 2D 와이어프레임 / Phase B 경량 3D / Phase C 실제 3D(J-2) |
+| 템플릿 소유 | Phase A는 필터·샘플만, Phase B `VideoTemplate` 레지스트리를 S8 소유로 등록(J-9) |
+| 숏폼 우선 플랫폼 | YouTube Shorts → Instagram Reels → TikTok은 공개 메타·수동 입력만(J-10) |
+| 모션 렌더 엔진 | Phase A SVG/CSS 스키마, Phase B 자체 SVG/CSS 내보내기 우선, 외부 웹서비스형 처리 제외(J-11) |
+| 유형 변경 산출물 | `archived` 보존 + 새 버전 생성, 덮어쓰기·자동 재생성 금지, 삭제는 사용자 명시 시(J-12) |
+| 변환 공급자 | 라이선스 확인 + 단가 상한 승인 전까지 실제 호출 0건, 미승인 시 제외(J-21) |
+| 권한 판정 주체 | 업로드 사용자 본인이 `rights_confirmed_by`에 기록, 시스템은 확인 여부만 검증(J-22) |
