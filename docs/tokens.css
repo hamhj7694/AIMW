@@ -1,0 +1,57 @@
+/* AIMW 작업기록장 v4 — 단일 토큰 소스 (DESIGN-PLAN-v4.md §2) */
+:root{
+  --paper:#EBEAE6;
+  --sheet:#F7F6F2;
+  --frame:#FFFFFF;
+  --ink:#101216;
+  --ink-2:#3D434B;
+  --muted:#646A72;
+  --rule:#CFCDC6;
+  --rule-strong:#9A9E9F;
+  --mark:#B03A28;
+  --amber:#8C6514;
+
+  --bg.app:var(--paper);
+  --surface.panel:var(--sheet);
+  --surface.frame:var(--frame);
+  --surface.ink:var(--ink);
+  --text.primary:var(--ink);
+  --text.secondary:var(--ink-2);
+  --text.muted:var(--muted);
+  --text.on-ink:var(--sheet);
+  --text.on-ink-muted:var(--rule);
+  --border.default:var(--rule);
+  --border.strong:var(--rule-strong);
+  --action.primary:var(--ink);
+  --action.accent:var(--mark);
+  --state.warning:var(--amber);
+
+  --font.sans:'Pretendard Variable', Pretendard, sans-serif;
+  --font.mono:'JetBrains Mono', monospace;
+  --type.display:42px;
+  --type.heading:19px;
+  --type.title:15px;
+  --type.body:15px;
+  --type.sub:13px;
+  --type.meta:11px;
+  --lh.body:1.75;
+  --tracking.display:-0.04em;
+
+  --space.1:4px;
+  --space.2:8px;
+  --space.3:12px;
+  --space.4:16px;
+  --space.5:24px;
+  --space.6:40px;
+
+  --header.h:58px;
+  --modules.h:46px;
+  --inspect.w:260px;
+  --content.max:1080px;
+  --gutter:32px;
+
+  --motion.hover:120ms;
+}
+@media(max-width:1180px){ :root{ --gutter:22px; --inspect.w:100%; } }
+@media(max-width:820px){ :root{ --gutter:18px; } }
+@media(prefers-reduced-motion:reduce){ :root{ --motion.hover:0ms; } }

@@ -3,7 +3,7 @@
 > 기준 브랜치: `design/v1` (작업기록장 v4 보존)
 > 작업 브랜치: `design/v2`
 > 원칙: **기능은 다르게 보이게, 톤은 같게**
-> 사용성 기획: `aimw-design/DESIGN-PLAN-v5-EASE.md` (동결 기획 문서는 수정하지 않음)
+> 사용성 기획: `docs/DESIGN-PLAN-v5-EASE.md` (동결 기획 문서는 수정하지 않음)
 
 ## 1. 무엇을 바꿨는가
 

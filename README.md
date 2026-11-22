@@ -2,8 +2,9 @@
 
 `AI Marketing AX Workspace`의 W0(필수 MVP) 프런트엔드입니다. 기획 저장소는 이 폴더 밖에 있으며 마크다운 전용으로 유지됩니다.
 
-최신 기획 상태는 [`../aimw-design/CURRENT-STATUS.md`](../aimw-design/CURRENT-STATUS.md)에서 확인하세요.
-현재 화면 기준은 [`DESIGN-V2.md`](DESIGN-V2.md), 쉬운 사용 기획은 [`../aimw-design/DESIGN-PLAN-v5-EASE.md`](../aimw-design/DESIGN-PLAN-v5-EASE.md)입니다.
+최신 기획 상태는 [`docs/CURRENT-STATUS.md`](docs/CURRENT-STATUS.md)에서 확인하세요.
+현재 화면 기준은 [`DESIGN-V2.md`](DESIGN-V2.md), 쉬운 사용 기획은 [`docs/DESIGN-PLAN-v5-EASE.md`](docs/DESIGN-PLAN-v5-EASE.md)입니다.
+기획 문서는 이 저장소의 `docs/`에 함께 보관합니다.
 
 ## 실행
 
