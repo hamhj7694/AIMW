@@ -1,7 +1,7 @@
 # AIMW — AI Marketing AX Workspace
 
 Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 저장소**입니다.
-현재 단계는 **기획 확정(2026-11-22) / 구현 착수 전**이며, 실제 웹앱 코드는 포함되어 있지 않습니다. 미확정 정책 30건은 `planning/DECISION-LOG.md` J장에서 최종 확정됐고, 계정 소유·API 키 발급 같은 외부 사실 확인만 실행 전에 남아 있습니다.
+현재 단계는 **기획 확정(2026-11-22) / 구현 착수 전**이며, 실제 웹앱 코드는 포함되어 있지 않습니다. 미확정 정책 31건은 `planning/DECISION-LOG.md` J장에서 최종 확정됐고, 계정 소유·API 키 발급 같은 외부 사실 확인만 실행 전에 남아 있습니다.
 
 ## 포함 범위
 
@@ -19,7 +19,7 @@ Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 
 | `planning/design/DESIGN-PLAN.md` | 디자인 시스템·IA |
 | `planning/design/SCREEN-SPECS.md` | 화면 명세 |
 | `planning/COMPONENT-SPECS.md` | 컴포넌트 명세 |
-| `planning/PRD.md` | 제품 요구사항 (v0.5) |
+| `planning/PRD.md` | 제품 요구사항 (v0.6) |
 | `planning/ARCHITECTURE.md` | 아키텍처 |
 | `planning/IMPLEMENTATION-PLAN.md` | 1~2일 MVP 실행 계획 |
 | `planning/ROADMAP.md` | 필수 우선 → 모듈별 증분 제작 → 클릭 연결 → 문서 업데이트 확장 전략 |

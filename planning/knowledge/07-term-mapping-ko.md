@@ -18,7 +18,7 @@ S8 `VideoTermService`가 사용하는 **초안 사전**. 사용자가 고칠 수
 
 | 자연어 표현(예) | 표준 용어(한) | 표준 용어(영) | 카테고리 | KB | 되묻기/주의 |
 |---|---|---|---|---|---|
-| "인물 살짝 커지게" | 클로즈업 / 푸시인 | CU / push-in | framing | KB-FRM-001, KB-CAM-003 | 줌인인가 돌리인가? "카메라가 다가가나요, 렌즈로 당기나요?" |
+| "인물 살짝 커지게" | 클로즈업 / 푸시인 | CU / push-in | framing | KB-FRM-001, KB-CAM-002 | 줌인인가 돌리인가? "카메라가 다가가나요, 렌즈로 당기나요?" |
 | "배경 흐리게" | 얕은 피사계 심도 | shallow depth of field | camera | KB-FRM-006 | 제품 글자까지 흐려지면 안 됨 |
 | "초점이 앞에서 뒤로" | 랙 포커스 | rack focus | camera | KB-FRM-006 | 어느 물체로 옮기는가? |
 | "가운데 딱" | 중앙·대칭 구도 | centered / symmetrical | composition | KB-FRM-003 | 규칙을 깬 의도인가? |
@@ -62,6 +62,6 @@ S8 `VideoTermService`가 사용하는 **초안 사전**. 사용자가 고칠 수
 
 ## 4. 감사 로그 규칙
 
-- `TermMapping.confirmed_by`가 없으면 `Storyboard` 생성 API가 거부한다(NFR-17).
+- `TermMapping.confirmed_by`가 없으면 `Storyboard` 생성 API가 거부한다(NFR-18, G4).
 - 사용자가 제안을 수정하면 `rationale`에 "사용자 선택"을 기록하고 원래 KB 근거는 `kb_refs`에 남긴다.
 - 등급 C KB만 근거인 매핑은 확정 전 "검증 필요" 배지를 출력한다.

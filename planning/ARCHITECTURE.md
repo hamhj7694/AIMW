@@ -228,7 +228,7 @@ SeoRound(1) ──< SeoDiagnosis(*) ──< Finding(*)
 SeoRound(1) ──< KeywordGap(*) ──> SearchIntentMap(*)
 SeoRound(1) ──< ContentOptimization(*)   # 제안은 source_phrase와 별도 보존
 SeoRound(1) ──< SeoInvestment(*) ──< BudgetRecommendation(*)
-SeoInvestment(*) ──< SerpObservation(*)  # 공식 출처만, 예측/신뢰도/모델 배지
+SeoInvestment(*) ──< SerpObservation(*)  # 공식 출처만, 예측/신뢰도/모델/기간 배지
 # 개선안 → S2/S5 전달은 ModuleLink(s9→s2|s5) 클릭 시에만
 
 # 비용 승인 (횡단 게이트, 승인 없이는 실행 불가)
@@ -341,7 +341,7 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 
 1. S9 진입 → 진단 탭에서 URL 또는 수동 입력을 받아 `SeoDiagnosis` 표시(Phase A 룰 엔진 + 샘플). **계정은 사용자가 직접 로그인/OAuth로 연동**(Phase B), 시스템 대리 로그인 없음. 여기서는 실제 계정 호출·과금 없음.
 2. 키워드·콘텐츠 탭에서 `KeywordGap[]`·`SearchIntentMap[]`·`ContentOptimization` 제안을 표시. 기존 문구는 `source_phrase`로 보존하고 제안을 별도 필드에 저장(자동 덮어쓰기 금지).
-3. 예산·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지, `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
+3. 예산·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지(Phase A는 `샘플` 별도 추가), `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
 4. 취합·개선 탭에서 실제값(`actual`)과 예측값(`delta`)을 라운드 단위로 취합하고 개선안을 만든다. 개선안을 S2 브리프/S5 콘텐츠로 보내려면 "브리프로 보내기" 클릭 시에만 `ModuleLink(s9→s2|s5)` 생성 — 자동 반영·자동 동기화 없음.
 5. 데이터 출처는 소유 확인 계정의 공식 API·공개 검색 API·수동 입력으로 제한. 스크래핑·로그인/유료벽 우회 경로는 존재하지 않는다. 순위 보장 문구는 응답 템플릿에서 차단한다.
 
@@ -389,10 +389,10 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 | 규정 준수 | 원본 자산 미복제, Dry-run 명시 | 클린룸 재작성, 배지/문구 |
 | 수집 준수 | robots/ToS/레이트리밋 100% 통과, 차단 건 0건 저장 | 4-4 체크리스트, CollectAdapter 게이트, provenance 로그 |
 | 수집 성능 | 파트별 1회 수집 30초 내(공식 API 기준) | 비동기 Job, 캐시, 동시성 제한 |
-| 모듈 격리 | S0/S5/S6/S7/S8/S9·KnowledgeService 간 자동 데이터 로드 0건 | 10개 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
+| 모듈 격리 | S0~S9 10개 라우트·독립 테이블, KnowledgeService는 읽기 전용 공용 서비스(라우트 아님) | 자동 데이터 로드 0건, `ModuleLink`만 사용 |
 | 비용 승인 | 실제 과금·비딩·예산 변경 100%에서 사전 동의 + 승인 이력, 임계값 초과 2차 팝업 | 자동 결제·자동 입찰 0건, 상한 초과 시 하드 스톱 |
 | 연결 감사 | 모든 모듈 링크에 `created_by` 기록 | `ModuleLinkService.link()`만 생성 경로 |
-| 예측 투명성 | S6 결과 100%에 `예측/신뢰도/모델` 배지 | `Forecast` 렌더링 규칙 |
+| 예측 투명성 | S6 결과 100%에 `예측/신뢰도/모델`, S9 결과 100%에 `예측/신뢰도/모델/기간` 배지 | `Forecast` 렌더링 규칙 |
 | 개인정보 | S7 원본 식별자 저장 0건 | 업로드 시 제거, 보유기간 명시, 삭제 요청 정책 |
 | 근거 인용 | 분석·매핑 카드 100%에 `KB-ID / Sxx / 등급` | `KnowledgeCitation`, 등급 C는 "검증 필요" 배지 |
 | 지식베이스 권리 | 원문 복제·번역·각색 0건, 캡처 근거 0건 | `SOURCES.md` 등급/권리 메모, `RAG-USAGE.md` 금지 사항 |
@@ -402,14 +402,14 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 ## 8. 알려진 제약·리스크
 
 - 로컬 Qwen(27B UD-Q4_K_M)은 VRAM 7.6GB/8GB를 사용해 **동시 추론 1개**만 안전. ctx 4096 유지, GPU 레이어 제한 필요.
-- npm/bun 미설치 → 구현 착수 전 환경 세팅 필요.
+- Node/npm 미설치 → 구현 착수 전 환경 세팅 필요(현재 상태는 `IMPLEMENTATION-PLAN.md` 참조).
 - Postiz(AGPL), n8n(SUL), ComfyUI(GPL)는 배포 형태에 따라 소스공개/라이선스 의무 발생 → 법률 검토 필요.
 - Motion은 참고 자료의 출처 불일치를 재분석해 진본 여부를 확정했고, **그룹화·AI 태깅·모멘텀 카드 패턴만 구조 설계에 참고**한다. 출처가 뒤바뀐 자료군은 계속 제외하며, 실제 내부 리포트 동작은 관찰 증거가 없어 단정하지 않는다.
 - 실제 발행/과금은 MVP 범위 밖. **수집은 MVP에 포함되되 공식 API·공개 피드·수동 입력에 한정**하고, 광고 라이브러리 심사/토큰이 필요한 경로는 "연동 대기"로 둔다.
 - Meta/TikTok은 공개 페이지라도 자동 수집이 ToS상 명시 금지 → 스크래퍼를 붙이지 않는다. SNS 발행과 마찬가지로 Dry-run/메타데이터 참조만 허용한다.
 - YouTube `search.list` 100/day 버킷, 네이버 25,000/day 등 외부 할당량은 변동 가능 → Job에 quota 게이지를 두고 초과 시 대기 상태로 전환한다.
 - **모듈 엉킴 리스크**: S5~S9·KnowledgeService를 핵심 흐름(F1~F7)에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
-- **SEO 오인 리스크**: 예측치를 실제 순위·성과로 오해하거나 "최상위 노출 보장"으로 과장 → `예측/신뢰도/모델` 배지, 공식 가이드 근거(S23/A), 순위 보장 문구 차단 테스트.
+- **SEO 오인 리스크**: 예측치를 실제 순위·성과로 오해하거나 "최상위 노출 보장"으로 과장 → `예측/신뢰도/모델`(S6)·`예측/신뢰도/모델/기간`(S9) 배지, 공식 가이드 근거(S23/A), 순위 보장 문구 차단 테스트.
 - **S9 계정·권리 리스크**: 시스템 대리 로그인·소유 확인되지 않은 계정·SERP 스크래핑·유료벽 우회 → 사용자가 직접 OAuth로 연동한 계정 + 공식 API/공개 데이터/수동 입력만 허용.
 - **비용·비딩 오남용 리스크**: 자동 결제·자동 입찰·자동 예산 변경 → `CostApprovalService`가 승인 토큰 없이 실행 거부, 임계값 초과 시 2차 팝업, 상한 초과 시 하드 스톱(NFR-27·28).
 - **지식베이스 저작권 리스크**: ASC·StudioBinder·Rosco·CreativeHut 등은 저작권 보호 문서이며 CreativeHut는 복제·번역·각색에 서면 허가를 요구 → 개념 자체 서술 + 출처 ID만 저장. 저장소에 포함되지 않는 로컬 캡처 자료는 라이선스 미확인이자 경로 의존으로 KB 근거에서 제외. 플랫폼 픽셀 수치는 공식 원칙(A)과 제3자 추정(C)을 분리해 단정 금지.

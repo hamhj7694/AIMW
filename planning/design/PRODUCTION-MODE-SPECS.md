@@ -57,7 +57,7 @@ S8 Video Workbench의 **프로젝트 단위 제작 유형** 선택 체계. 기�
 ### 4-2. 숏폼 (`short_form`)
 - 분석 차원: 훅 유형·타임코드·세이프존 충돌·자막 가독성·음소거 이해도.
 - 콘티 필드 추가: `hook_type`, `safe_zone_preset(meta|tiktok|youtube)`, `caption_text`, `duration`.
-- 게이트 추가: 세이프존 체크(KB-SHF-009 표 참조)를 3D 구도 게이트에 포함.
+- 사전 확인: 세이프존 체크(KB-SHF-002 표 참조)를 3D 구도 스키마에 반영(승인 게이트 수에는 미포함).
 - 템플릿: 3샷 15초 / 4샷 20초 / 리스트 5컷 30초(KB-SHF-007).
 - 제약: 가로 소스의 단순 크롭 금지, 재구도 시 새 버전 생성.
 - 변환·합성 가이드: 세로 재구도(리사이즈/크롭)와 자막 합성을 기본 조합으로 제안한다. 트리밍·리타이밍으로 훅 구간을 다듬고, 텍스트·로고 레이어는 상·하단 세이프존 안에 배치한다. 레이어 타이밍은 3샷/4샷 템플릿 길이를 따르며 재구도 결과는 항상 새 버전으로 남긴다.
@@ -65,7 +65,7 @@ S8 Video Workbench의 **프로젝트 단위 제작 유형** 선택 체계. 기�
 ### 4-3. 영화 (`film`)
 - 분석 차원: 심도·광비·색 팔레트·연속성(180도/30도)·전환 의미.
 - 콘티 필드 추가: `palette[]`, `continuity_warnings[]`, `depth_profile`.
-- 게이트 추가: 색 팔레트 승인, 연속성 체크.
+- 사전 확인: 색 팔레트·연속성 체크를 3D 구도 스키마에 반영(승인 게이트 수에는 미포함).
 - 제약: 돌리 줌·크레인 등 고난도 기법은 "참고 기법" 배지, 결과 보장 안 함.
 - 변환·합성 가이드: 색 팔레트 정규화와 세이프존을 넘지 않는 색그레이딩을 우선한다. 배경 교체·프레임 보간은 연속성(180도/30도) 검토 후 적용하고, 팔레트 승인 전에는 최종 결과로 확정하지 않는다. 여러 소스를 합성할 때도 컷 간 색 연속성을 G2에서 확인한다.
 
@@ -94,16 +94,18 @@ S8 Video Workbench의 **프로젝트 단위 제작 유형** 선택 체계. 기�
 
 | 게이트 | 공통 | 실사 | 숏폼 | 영화 | 영상 | 애니메 | 모션그래 |
 |---|---|---|---|---|---|---|---|
-| G0 레퍼런스 서치 | ✓ | 기법 | 훅/세이프존 | 구도/색 | 메시지 | 타이밍 | 이징/타이포 |
-| G0.5 소스·권리 확인 | 변환·합성 시 필수 | 색보정·배경 권리 | 재구도·자막 권리 | 팔레트·연속성 권리 | 인서트·오버레이 권리 | 레이어·키프레임 권리 | 타이포·이징 권리 |
+| PRE-0a 레퍼런스 서치 | ✓ | 기법 | 훅/세이프존 | 구도/색 | 메시지 | 타이밍 | 이징/타이포 |
+| PRE-0b 소스·권리 확인 | 변환·합성 시 필수 | 색보정·배경 권리 | 재구도·자막 권리 | 팔레트·연속성 권리 | 인서트·오버레이 권리 | 레이어·키프레임 권리 | 타이포·이징 권리 |
 | G1 콘티 | ✓ | 샷사이즈 | 9:16 재구도 | 팔레트 | 인서트 | 키프레임 | 레이어 |
 | G2 구도/스펙 | ✓ | 3D 스키마 | 세이프존 | 연속성 | 레이아웃 | 키프레임 시트 | 모션 스펙 |
 | G3 애니매틱 | ✓ | 저해상도 | 자막 확인 | 색 확인 | 오버레이 | 타이밍 | 이징 확인 |
 | G4 단계 렌더 | ✓ | 샷 단위 | 샷 단위 | 샷 단위 | 샷 단위 | 샷 단위 | 샷 단위 |
 
-- 모든 게이트는 `approved_by`가 없으면 다음 단계를 생성하지 않는다.
+> PRE-0a/0b는 **사전 확인 단계**이며 승인 게이트 수에 포함되지 않는다. 승인 게이트는 G1~G4 **4개**다(J-31).
+
+- G1~G4 승인 게이트는 `approved_by`가 없으면 다음 단계를 생성하지 않는다.
 - 변환 결과는 `Shot`으로, 합성 레이어는 `Composition3D` 스키마로 들어가 G1~G4를 그대로 통과한다. 소스 모드에 따라 게이트를 건너뛰지 않는다.
-- G0.5는 `transform_source` / `composite`에서만 활성이며 `rights_flag` / `rights_confirmed_by` 확인으로 통과한다. 미확인·거부면 G1로 넘어가지 않는다.
+- PRE-0b는 `transform_source` / `composite`에서만 활성이며 `rights_flag` / `rights_confirmed_by` 확인으로 통과한다. 미확인·거부면 G1로 넘어가지 않는다.
 - **전체 영상 즉시 생성 버튼은 어떤 유형·소스 모드에서도 제공하지 않는다.**
 
 ## 6. 데이터 모델 필드
@@ -112,8 +114,8 @@ S8 Video Workbench의 **프로젝트 단위 제작 유형** 선택 체계. 기�
 VideoIntent.production_mode: live_action|short_form|film|general_video|animation|motion_graphics
 VideoTemplate.production_mode: 동일 값
 VideoTemplate.aspect_ratio, duration, shot_pattern[], transition_policy
-Composition3D.mode_schema: camera_rig|safe_zone|continuity|keytframe|motion_spec
-RenderStage.gate: G0~G4, approved_by, estimated_cost, estimated_seconds
+Composition3D.mode_schema: camera_rig|safe_zone|continuity|keyframe|motion_spec
+RenderStage.gate: G1~G4, approved_by, estimated_cost, estimated_seconds (PRE-0a/0b는 사전 확인 단계로 별도 기록)
 Revision.production_mode: 수정 요청 시점의 유형(변경 이력 보존)
 VideoIntent.input_mode: generate_new|transform_source|composite (기본 generate_new, 명시 전환)
 MediaSource.kind: upload|url|s5_asset|reference_metadata (서드파티는 메타데이터 전용)
