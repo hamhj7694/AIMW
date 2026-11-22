@@ -1,7 +1,7 @@
 # AIMW — AI Marketing AX Workspace
 
 Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 저장소**입니다.
-현재 단계는 **기획 확정(2026-11-22) / 구현 착수 전**이며, 실제 웹앱 코드는 포함되어 있지 않습니다. 미확정 정책 29건은 `planning/DECISION-LOG.md` J장에서 최종 확정됐고, 계정 소유·API 키 발급 같은 외부 사실 확인만 실행 전에 남아 있습니다.
+현재 단계는 **기획 확정(2026-11-22) / 구현 착수 전**이며, 실제 웹앱 코드는 포함되어 있지 않습니다. 미확정 정책 30건은 `planning/DECISION-LOG.md` J장에서 최종 확정됐고, 계정 소유·API 키 발급 같은 외부 사실 확인만 실행 전에 남아 있습니다.
 
 ## 포함 범위
 
@@ -22,6 +22,7 @@ Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 
 | `planning/PRD.md` | 제품 요구사항 (v0.5) |
 | `planning/ARCHITECTURE.md` | 아키텍처 |
 | `planning/IMPLEMENTATION-PLAN.md` | 1~2일 MVP 실행 계획 |
+| `planning/ROADMAP.md` | 필수 우선 → 모듈별 증분 제작 → 클릭 연결 → 문서 업데이트 확장 전략 |
 | `planning/DECISION-LOG.md` | 의사결정 로그 |
 | `planning/design/PRODUCTION-MODE-SPECS.md` | 제작 유형 6종(실사/숏폼/영화/영상/애니메이션/모션그래픽) 명세 |
 | `planning/design/SEO-GROWTH-SPECS.md` | S9 SEO 화면·컴포넌트·상태·수용 기준 |
@@ -31,6 +32,7 @@ Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 
 
 ## 핵심 원칙
 
+- 올인원 워크스페이스는 **필수 먼저, 나머지는 모듈별로 조금씩** 만들고, 연결할 때마다 문서를 업데이트합니다(`planning/ROADMAP.md`).
 - 캡처 자산은 **참고용**이며 코드·마크업을 복제하지 않습니다(직접 코드 재사용 0건).
 - 모듈(S0/S5/S6/S7/S8/S9)은 독립 라우트·독립 데이터를 가지며, 연결은 사용자 명시적 클릭으로만 생성됩니다.
 - 다른 작업 환경에서도 문서가 성립하도록 로컬 전용 파일 경로·파일명·링크는 기획 문서에 적지 않습니다.
