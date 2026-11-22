@@ -21,7 +21,7 @@
 | A — 원본 캡처 | 실제 렌더링 결과, 메타 일치 | Snipit/Foreplay/Postiz/Creatify(일부)/Buffer/MONOV `capture/**` |
 | B — 보조 증거 | 조사 로그·DOM 분석, 교차 확인 필요 | `investigation.cany/evidence/**`, `how-it-works.md`, `capture.jsonhealth` |
 | C — 생성 산출물 | Craft Anything 재구성, 원본 아님 | `monov-ai-com/app/**`, `checks/**` |
-| X — 오귀속/불일치 | 근거로 사용 금지 | Motion `capture/**` 전반, Creatify `/features/agent`, MONOV states, Foreplay how-it-works, Snipit/NONOV 상태 캡처 일부 |
+| X — 오귀속/불일치 | 근거로 사용 금지 | `motionapp-com/capture/**` 전반(Creatify 오염), Creatify `/features/agent` 오귀속 표기(2-7 재감사에서 Motion 진본 B등급으로 재분류), MONOV states, Foreplay how-it-works, Snipit/NONOV 상태 캡처 일부 |
 
 ---
 
@@ -142,10 +142,21 @@
 
 ---
 
-## 7. 결론
+## 7. 감사 범위 외 — S8/전문 지식베이스 (자체 설계, 레퍼런스 점수 아님)
+
+- **S8 Video Workbench**: 7개 캡처에 대응하는 기능/화면이 없다. 따라서 **자체 설계(레퍼런스 점수 아님)** 로 분류하고, `COMPOSITION-PLAN.md` 2장 점수표·순위에 넣지 않는다. 기존 점수·순위(Motion 4위 3.70, Creatify 5위 3.55, Foreplay 6위, Postiz 7위)는 변경하지 않는다.
+- **제작 유형 체계**: 실사/숏폼/영화/영상/애니메이션/모션그래픽 6종 선택은 프로젝트 단위 사용자 명시 선택(기본 미선택, 자동 감지·변경 금지)이다. 캡처 서비스가 제시한 분류가 아니며 **자체 설계**이므로 점수에 영향 없다. 유형별 프로파일은 `planning/design/PRODUCTION-MODE-SPECS.md` 경로만 참조한다.
+- **레퍼런스 서치 체계**: 자동(사용자 트리거)/수동(URL·메모·타임코드) 이원화와 공개 범위 한정(공식 API·공개 피드·공개 메타·수동; 로그인/유료벽/우회 제외), `ModuleLink(s0→s8)` 클릭 연결만 허용한다. 이 역시 **자체 설계**이며 캡처 점수·순위에 영향 없다. 검색 축 근거는 `planning/knowledge/12-reference-search-playbook.md` 경로만 참조한다.
+- **전문 지식베이스**: `planning/knowledge/`는 공개된 권위 있는 영화·광고 자료를 출처로 **새로 작성**하는 지식이다. `reference/**` 캡처가 아니므로 **캡처 서비스의 증거로 취급하지 않고**, 아래 6장의 "직접 코드 재사용 불가" 원칙(0건)에도 영향하지 않는다. 숏폼·모션그래픽 공식 스펙(`10-shortform-composition.md`, `11-motion-graphics-and-animation.md`)도 이 새 자체 출처 기반이다(경로만 참조, 이 변경에서 생성하지 않음).
+- **출처 경계**: 캡처 마케팅 사이트 문구를 전문 용어의 근거로 등록하지 않는다. Motion 진본 위치(`creatify-ai/capture/routes/features-agent/**`, B등급 3.70)와 `motionapp-com/capture/**` 제외, 직접 코드 재사용 0건은 그대로 유지한다.
+- **A6 한계 연장**: 이미지 직접 판독 불가 한계 때문에 프레임 단위 기술 분석을 캡처 스크린샷으로 검증하지 않는다. S8의 분석 스키마는 자연어 입력 + 사용자 확인 기반이며, 타임코드 Grounding 범위는 별도 확인 사항이다.
+
+---
+
+## 8. 결론
 
 2026-11-22 사용자 결정으로 **S0 Collector(분야·경쟁사 등록 → 영상/이미지/블로그/뉴스 수집 → 정리 → 분석)는 MVP에 포함**되었으나, 이 기능은 7개 캡처에 대응하는 근거가 없다. 따라서 수집 파이프라인은 자체 설계하고, 캡처는 여전히 UI·인터랙션 참고용으로만 쓴다(자세한 소스/라이선스 근거는 `ARCHITECTURE.md`, `DECISION-LOG.md` E장).
 
-S0 Collector와 S5~S7 모듈은 **캡처에 대응하는 근거가 없어 자체 설계**한다. 본 감사는 모듈의 UI 패턴을 정당화하지 않으며, 필요할 때만 Motion/Snipit/Buffer의 개별 패턴을 참고한다(엉킴 금지, `COMPOSITION-PLAN.md` 참조).
+S0 Collector와 S5~S7 모듈은 **캡처에 대응하는 근거가 없어 자체 설계**한다. S8 비디오 워크벤치(제작 유형·레퍼런스 서치 포함)와 전문 지식베이스도 **캡처에 대응하는 근거가 없는 자체 설계/자체 저작**이며, 점수·순위에 반영하지 않는다(7장). 본 감사는 모듈의 UI 패턴을 정당화하지 않으며, 필요할 때만 Motion/Snipit/Buffer의 개별 패턴을 참고한다(엉킴 금지, `COMPOSITION-PLAN.md` 참조).
 
 7개 자료는 **"재사용할 코드"가 아니라 "검증된 인터랙션 패턴과 UI(font/토큰/레이아웃)의 근거"**다. 특히 (1) Motion 캡처가 두 폴더에 뒤섞여 있었던 출처 오귀속(재캡처로 진본 위치 확인), (2) Creatify↔Motion 라우트 교차 오염, (3) MONOV 생성 코드의 58% 품질+snipit 오염, (4) 이미지 직접 판독 불가가 가장 큰 신뢰 리스크다. 오귀속 자료는 명시적으로 제외하고, 진본으로 확인된 자료도 **패턴 참고만** 허용한다. 따라서 설계는 **클린룸 재작성 + 토큰 재선언 + Dry-run** 원칙 위에 세우고, 오귀속 자료는 명시적으로 제외한다. 점수·채택 기준은 `COMPOSITION-PLAN.md`, `FEATURE-MATRIX.md`에 반영했다.

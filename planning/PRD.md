@@ -1,13 +1,15 @@
 # PRD — AI Marketing AX Workspace
 
-버전: 0.3 (MVP + 독립 모듈 + 영상 분석·단계 제작 기획 반영)  
+버전: 0.4 (MVP + 독립 모듈 + 영상 분석·단계 제작 + 제작 유형·레퍼런스 서치·전문 RAG 지식베이스 반영)  
 작성일: 2026-11-22  
 상태: 분석·설계 완료 / 구현 착수 전 (실제 웹앱 코드 없음)  
-관련: `research/*`, `design/*`, `ARCHITECTURE.md`, `IMPLEMENTATION-PLAN.md`, `DECISION-LOG.md`
+관련: `research/*`, `design/*`, `design/PRODUCTION-MODE-SPECS.md`, `knowledge/*`, `ARCHITECTURE.md`, `IMPLEMENTATION-PLAN.md`, `DECISION-LOG.md`
 
 > **0.2 변경**: ① Motion 재캡처로 진본 소스 위치 확정(`creatify-ai/capture/routes/features-agent/**`) 및 점수 재평가(3.70). ② **S5 우리 콘텐츠 허브 / S6 성과·예측 / S7 오디언스 세그먼트**를 독립 모듈로 추가. 각 모듈은 기본적으로 분리되어 작동하며, 사용자 명시적 선택 시에만 ID 기반으로 연결된다(엉킴 방지).
 >
 > **0.3 변경**: **S8 Video Workbench(영상 분석·제작·수정)**를 독립 모듈로 추가. ① 내용 분석 + 기술 분석(카메라/조명/전환/구도/편집) 2계층, ② 비전문 자연어 → 표준 영상 용어 변환(해석 확인 게이트), ③ 콘티 → 3D 구도 → 애니매틱 → 단계별 렌더의 4단계 게이트, ④ `shot_id`/타임코드 기반 타겟 수정. 모든 단계는 사용자가 "진행"을 눌러야 다음으로 넘어가며, 자동 전체 제작은 하지 않는다.
+>
+> **0.4 변경**: ① **제작 유형 6종**(실사/숏폼/영화/영상/애니메이션/모션그래픽)을 프로젝트 단위 명시 선택으로 추가(기본 미선택·자동 감지/변경 금지, 변경 시 기존 산출물 보존). ② **제작 전 레퍼런스 서치**(사용자 트리거 공개 소스 검색 + 수동 URL·메모·타임코드, S0 연결은 클릭 시 `ModuleLink(s0→s8)`만) 추가. ③ 숏폼·모션그래픽/애니메이션 기획을 `design/PRODUCTION-MODE-SPECS.md` 및 `knowledge/10~12`로 분리. ④ **전문가 RAG 지식베이스**(`planning/knowledge/**`) 추가 — 안정 ID(KB-…)/출처 ID(Sxx)/근거 등급(A·B·C) 기반 인용, 저작권 원문 복제 금지, 등급 C는 "검증 필요" 배지. 9개 라우트 + KnowledgeService로 모듈 격리 범위 확장(FR-43~47, NFR-20~22).
 
 ---
 
@@ -33,7 +35,7 @@
 4. 출처·모델·비용·버전을 모든 결과물에 메타로 붙인다.
 5. 수집은 공개 범위(공식 API·공개 피드·수동 입력)만 사용하고, ToS/robots/개인정보를 준수한다.
 6. 발행/과금은 MVP에서 Dry-run, 실제 연동은 후속.
-7. **모듈 독립성**: S0/S5/S6/S7은 각자 라우트·데이터·상태를 가지며, 기본값은 "연결 안 함". 연결은 사용자가 명시적으로 선택할 때만 ID 참조로 발생한다.
+7. **모듈 독립성**: S0/S5/S6/S7/S8과 KnowledgeService는 각자 라우트·데이터·상태를 가지며, 기본값은 "연결 안 함". 연결은 사용자가 명시적으로 선택할 때만 ID 참조로 발생한다.
 8. 연결은 데이터 복제가 아니라 `content_id`, `segment_id` 같은 식별자 참조로만 이뤄진다. 한 모듈이 비어 있어도 다른 모듈은 샘플 데이터로 독립 사용 가능하다.
 
 ---
@@ -157,6 +159,11 @@
 | FR-40| **S8: `shot_id`/타임코드/요소(조명·자막·카메라·전환·오디오) 기반 타겟 수정 요청 + 영향 범위 미리보기** | P0(MVP-lite) |
 | FR-41| **S8: 샷 단위 버전 저장·비교·되돌리기 + 부분 실패 시 성공 샷 유지/실패 샷만 재시도** | P1(Phase B) |
 | FR-42| **S8: 실제 영상 렌더 어댑터(저해상도→최종) 및 저작권·안전영역(9:16/1:1/16:9) 검사** | P1(Phase B/C) |
+| FR-43| **S8: 제작 유형 6종(실사/숏폼/영화/영상/애니메이션/모션그래픽) 명시 선택. 기본 미선택, 자동 감지·자동 변경 금지, 변경 시 기존 산출물 보존 확인** | P0(MVP-lite) |
+| FR-44| **S8: 제작 전 레퍼런스 서치 — 사용자 트리거 공개 소스 검색(스텁/샘플) + 수동 URL·메모·타임코드 입력. S0 연결은 클릭 시 `ModuleLink(s0→s8)`만** | P0(MVP-lite) |
+| FR-45| **전문 지식베이스(`planning/knowledge/`) 청크 검색. 안정 ID(KB-…)/출처 ID(Sxx)/근거 등급(A·B·C) 기반으로 매핑·분석 카드에 인용 표시** | P0(MVP-lite) |
+| FR-46| **근거 등급 C만 있는 항목은 "검증 필요" 배지 + 사용자 확인 없이 `VideoIntent` 확정 불가** | P0 |
+| FR-47| 전문 지식베이스 출처 등록부 조회(발행자·URL·권리 메모·확인일) 및 로컬 임베딩 재랭킹 | P1(Phase B/C) |
 
 ---
 
@@ -175,7 +182,7 @@
 | NFR-09 | 수집 준수 | robots.txt/ToS/레이트리밋 통과, 차단 건 미저장, provenance 기록 |
 | NFR-10 | 수집 성능 | 파트별 1회 수집 30초 내(공식 API 기준), 할당량 초과 시 대기 상태 |
 | NFR-11 | 외부 할당량 | YouTube `search.list` 약 100/day, 네이버 25,000/day 모니터링(변동 가능) |
-| NFR-12 | 모듈 격리 | S0/S5/S6/S7은 라우트·데이터·상태를 공유하지 않음. 공용은 디자인 시스템/Job/ProviderConnection 뿐 |
+| NFR-12 | 모듈 격리 | S0/S5/S6/S7/S8·KnowledgeService는 라우트·데이터·상태를 공유하지 않음. 공용은 디자인 시스템/Job/ProviderConnection 뿐 |
 | NFR-13 | 명시적 연결자 | 모듈 간 이동·참조는 사용자 클릭으로만 발생. 자동 동기화·자동 브리프 생성 금지 |
 | NFR-14 | 예측 투명성 | 예측값은 반드시 "예측/신뢰도/모델" 배지와 함께 표시, 실제 성과로 오인 금지 |
 | NFR-15 | 개인정보 | S7은 식별자 최소화, 범주형 익명화, 보유기간·삭제 요청 정책 명시. 원본 고객정보 미보관 |
@@ -183,6 +190,9 @@
 | NFR-17 | 단계 게이트 | S8의 모든 다음 단계는 사용자 명시적 "진행" 클릭으로만 실행. 자동 연속 생성 0건. 각 게이트에 예상 비용·시간 표시 |
 | NFR-18 | 용어 해석 감사 | 자연어→용어 변환은 `원문/표준용어/신뢰도/사용자확정`을 모두 기록. 자동 확정 금지, 신뢰도 임계값 미달 시 되묻기 |
 | NFR-19 | 영상 저작권·안전 | 타사 영상은 메타·스냅샷 URL·타임코드만 참조(다운로드/재호스팅 금지). 얼굴·번호판 등 식별요소 블러 권고, 플랫폼 안전영역 가이드 표시 |
+| NFR-20 | 모듈 격리 확장 | S8·KnowledgeService를 포함한 9개 라우트가 서로 데이터·상태를 공유하지 않음. 공용은 디자인 시스템/Job/ProviderConnection 뿐 |
+| NFR-21 | 근거 인용 | 모든 분석·매핑 카드에 `KB-ID / Sxx / 등급` 노출. 등급 C는 "검증 필요" 배지 필수. 원문 2문장 이상 연속 재현·표·도식 복제 금지 |
+| NFR-22 | 지식베이스 권리 | `reference/**` 캡처를 KB 근거로 쓰지 않음. 서면 허가 필요 출처(S04)는 용어 존재 확인용으로만 사용. 플랫폼 수치는 공식 원칙(A)과 비공식 추정(C)을 분리 |
 
 ---
 
@@ -190,7 +200,8 @@
 
 핵심 엔티티: `Campaign`, `BrandKit`, **`CollectSource`**, **`CollectJob`**, **`CollectedItem`**, `Reference`, `Board`, `Analysis`, `Brief`, `Concept`, `Asset`, `Review`, `PublishJob`, `Insight`, `Improvement`, `Job`, `CostRecord`, `ProviderConnection`.
 신규 모듈 엔티티: **`OwnContent`**(우리 콘텐츠), **`ContentSeries`**, **`IdeaBacklog`**, **`OverlapFlag`**, **`MetricSeries`**, **`Forecast`**, **`AudienceDataset`**, **`Segment`**, **`SegmentMember`**, **`ModuleLink`**(명시적 연결 기록).
-영상 모듈 엔티티: **`VideoAnalysis`**(내용+기술 2계층), **`TermMapping`**, **`VideoIntent`**, **`Storyboard`**, **`Shot`**, **`Composition3D`**, **`Animatic`**, **`RenderStage`**, **`ShotVersion`**, **`Revision`**, **`VideoTemplate`**.
+영상 모듈 엔티티: **`VideoReference`**(레퍼런스 서치 결과·provenance), **`VideoAnalysis`**(내용+기술 2계층), **`TermMapping`**, **`VideoIntent`**, **`Storyboard`**, **`Shot`**, **`Composition3D`**, **`Animatic`**, **`RenderStage`**, **`ShotVersion`**, **`Revision`**, **`VideoTemplate`**.
+지식베이스 엔티티(읽기 전용): **`KnowledgeDoc`**, **`KnowledgeChunk`**(안정 ID `KB-…`, 등급 A/B/C), **`KnowledgeCitation`**. `planning/knowledge/**`에서 생성하며 `reference/**` 캡처는 근거로 쓰지 않는다(NFR-21·22).
 모듈 간에는 **FK가 아니라 `ModuleLink`(source_module, source_id, target_module, target_id, created_by)** 로만 연결한다. 관계와 저장 전략은 `ARCHITECTURE.md` 4-3절 참조.
 
 ---

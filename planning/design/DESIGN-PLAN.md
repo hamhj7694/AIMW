@@ -2,7 +2,7 @@
 
 작성일: 2026-11-22  
 대상: 데스크톱 1440×900 우선, React + TypeScript + Tailwind + shadcn/ui 즉시 구현 가능한 명세 지향  
-관련 문서: `SOURCE-INVENTORY.md`, `REFERENCE-AUDIT.md`, `FEATURE-MATRIX.md`, `COMPOSITION-PLAN.md`, `SCREEN-SPECS.md`, `COMPONENT-SPECS.md`
+관련 문서: `SOURCE-INVENTORY.md`, `REFERENCE-AUDIT.md`, `FEATURE-MATRIX.md`, `COMPOSITION-PLAN.md`, `SCREEN-SPECS.md`, `COMPONENT-SPECS.md`, `planning/design/PRODUCTION-MODE-SPECS.md`(별도 작성중, 경로 참조만)
 
 ---
 
@@ -101,6 +101,24 @@
 - 모션: hover 120ms, drawer 180ms ease-out, skeleton pulse 1.4s. `prefers-reduced-motion`에서는 pulse/transition 비활성.
 - 그라데이션·네온·글래스모피즘·이모지 아이콘 사용 금지.
 
+### 3-5. S8 Video Workbench 컴포넌트 토큰
+
+> 아래는 기존 색상·타이포·간격 토큰의 조합만 사용한다. S8 전용 색상을 새로 정의하지 않는다. Phase B/C에서 실제 3D·렌더로 교체되어도 토큰 이름은 유지한다.
+
+| 토큰 | 값/구성 | 용도 |
+|---|---|---|
+| `s8.mode.picker` | `surface.default` + `border.default`, 미선택 `text.muted`, 선택 `primary.50`/`primary.500`, 유형별 Lucide 선형 아이콘 + 텍스트 라벨 | 프로젝트 단위 제작 유형(실사/숏폼/영화/영상/애니메이션/모션그래픽) 선택. 기본값 미선택, 자동 감지·자동 변경 금지 |
+| `s8.reference.card` | `surface.default` + `border.default` + `radius.md`, 권리·출처 등급 배지 `text.xs`, 타임코드 `font.mono` | 레퍼런스 서치 결과 카드. 원문 URL·썸네일 URL·타임코드·provenance만 표시, 미디어 바이트 미저장 |
+| `s8.analysis.card` | `surface.default` + `border.default` + `radius.md`, 구분선 `border.default` | 내용 분석 / 기술 분석 2레이어 카드. 헤더 라벨로 레이어 구분. 분석 차원은 제작 유형에 따라 달라짐 |
+| `s8.term.table` | `surface.default`, sticky 헤더, 4열(원문/표준용어/근거/신뢰도), 신뢰도 `font.mono` 우측 정렬 | 자연어 → 표준 용어 매핑 미리보기 표 |
+| `s8.confidence.badge` | 높음 `success.50`/`success.500`, 보통 `warning.50`/`warning.500`, 낮음 `danger.50`/`danger.500` + 텍스트 라벨 | 분석·매핑 신뢰도. 색만으로 전달 금지 |
+| `s8.gate.stepper` | 완료 `success.500`, 현재 `primary.500` 2px, 잠김 `text.muted` | 콘티 → 3D 구도 스키마 → 애니매틱 → 단계별 렌더 4게이트 |
+| `s8.cost.gauge` | `font.mono`, 경고 임계치 `warning.50`/`warning.500`, 상시 "예상" 라벨 | 예상 비용·예상 시간 미리보기. 비용/시간 프로파일은 제작 유형별로 다름 |
+| `s8.shot.timeline` | 트랙 `surface.subtle`, 선택 샷 `primary.50` + `primary.500`, 타임코드 `font.mono` | shot_id/timecode 기반 샷 트랙·재생 헤드 |
+| `s8.version.chip` | `radius.pill`, `primary.50` + `primary.500` | 샷 버전(`v1`/`v2`/`수정본`) 칩 |
+| `s8.safeZone.overlay` | 가이드 `border.strong` 1px 점선, 안전 영역 `primary.50` 반투명 | 9:16 / 1:1 / 16:9 자막·CTA 안전 영역. 세이프존 규칙은 제작 유형별로 다름 |
+| `s8.dryRun.badge` | `surface.subtle` + `text.secondary`, `radius.pill` | `샘플` / `시연 · 실제 렌더 없음` / `시뮬레이션` / `저해상도 스텁` 상시 배지 |
+
 ---
 
 ## 4. 정보구조 (IA)
@@ -109,8 +127,8 @@
 AI Marketing AX Workspace
 ├── 전역 셸
 │   ├── 상단 바: 프로젝트 선택 / Provider 선택 / 전역 검색 / 알림 / 사용량·비용 / 사용자
-│   ├── 좌측 사이드바: Collector / Own Content / References / Studio / Publishing / Insights / Performance / Segments / 설정·연결
-│   │   └── 그룹 구분: [수집·자산] S0·S5 / [작업] S1~S3 / [분석] S4·S6·S7
+│   ├── 좌측 사이드바: Collector / Own Content / References / Studio / Publishing / Insights / Performance / Segments / Video Workbench / 설정·연결
+│   │   └── 그룹 구분: [수집·자산] S0·S5 / [작업] S1~S3·S8 / [분석] S4·S6·S7
 │   │       (기본은 각 그룹 독립. 연결은 사용자 명시적 클릭 시에만 생성)
 │   └── 우측 상세 패널(조건부): 선택 항목의 분석·버전·승인·작업 로그
 │
@@ -164,27 +182,61 @@ AI Marketing AX Workspace
 │   ├── 세그먼트 프로필/페르소나 라벨
 │   └── 명시적 연결: "이 그룹에 맞춤 콘텐츠" 클릭 시 segment_id 참조만
 │
+├── S8. Video Workbench       영상 분석·해석·제작·수정 (독립 모듈, S2 서브탭 아님)
+│   ├── 진입 단계: 제작 유형 선택(실사 / 숏폼 / 영화 / 영상 / 애니메이션 / 모션그래픽, 기본값 미선택)
+│   │   ├── 프로젝트 단위 명시적 사용자 선택. 자동 감지·자동 변경 금지
+│   │   ├── 유형별로 분석 차원·구도 규칙·게이트 산출물·템플릿·비용/시간 프로파일·세이프존 규칙이 달라짐
+│   │   ├── 유형 변경 시 확인 다이얼로그 → 기존 분석/콘티/샷/버전을 자동 덮어쓰지 않음
+│   │   └── 상세 스펙: `planning/design/PRODUCTION-MODE-SPECS.md`, 숏폼 `planning/knowledge/10-shortform-composition.md`, 모션그래픽·애니메이션 `planning/knowledge/11-motion-graphics-and-animation.md` (경로 참조만)
+│   ├── 진입 단계: 레퍼런스 서치(3탭과 별개, 제작 탭 진입 전)
+│   │   ├── 자동: 사용자가 검색 버튼을 누를 때만 공식 API·공개 피드·공개 메타데이터에서 수집(사용자 트리거, 모듈 간 자동 동기화 아님)
+│   │   ├── 수동: URL·메모·타임코드 직접 입력
+│   │   ├── 유형별 검색 축 — 실사=카메라/조명 기법, 숏폼=훅·세이프존·길이, 영화=구도·조명·색, 영상=브랜드·정보전달, 애니메이션=타이밍·스타일, 모션그래픽=이징·타이포·브랜드 모션
+│   │   ├── S0 연결은 "S8 참고로 가져오기" 클릭 시에만 `ModuleLink(s0→s8)` 생성. 자동 로드·복제 금지
+│   │   ├── 공개 범위만(로그인/유료벽/스크래핑 우회 제외), 미디어 바이트 저장 금지 — 원문 URL·썸네일 URL·타임코드만 보관
+│   │   └── 근거: `planning/knowledge/12-reference-search-playbook.md` (경로 참조만)
+│   ├── 내부 3탭: 분석 / 제작 / 수정 — 탭별 독립 상태(선택 샷·입력 원문·확인된 intent·게이트 진행도·수정 이력)
+│   │   └── 전환 시 한 탭의 값이 다른 탭으로 주입되지 않음. 공유는 전역 프로젝트 컨텍스트와 샘플·Dry-run 메타 뿐
+│   ├── 분석: 2레이어 분석 카드
+│   │   ├── 내용 분석 — 훅/구조/메시지/CTA/타깃/감정곡선 + timecode
+│   │   └── 기술 분석 — 카메라앵글·기법·전환·조명·구도·편집 + confidence
+│   ├── 제작: 비전문가 자연어 입력 → 용어 매핑 미리보기(원문/표준용어/근거/신뢰도)
+│   │   ├── 사용자 확인 후에만 VideoIntent 생성. 신뢰도 낮음 → 되묻기 카드
+│   │   └── 도메인 어휘·표준 용어는 전문가 지식베이스 `planning/knowledge/`에서 가져온다(경로 참조만)
+│   ├── 제작 4게이트(사용자 확인 없는 자동 진행 금지)
+│   │   ├── 1 콘티 — shot_id/timecode 기반 텍스트 콘티
+│   │   ├── 2 3D 구도 스키마 — MVP 와이어프레임/시뮬레이션(실제 3D 렌더 아님, 시뮬레이션 배지)
+│   │   ├── 3 애니매틱 — 저해상도 스텁
+│   │   └── 4 단계별 렌더 — 샷 단위 DryRender 플레이스홀더(전체 일괄 렌더 버튼 없음)
+│   ├── 수정: shot_id/timecode 지정 → 영향 범위·예상비용 미리보기 → "이 샷만 수정"
+│   │   └── 자동 전체 재생성 금지. 대상 샷만 diff 재생성(Phase B/C)
+│   └── 안전장치: 샘플/시연/시뮬레이션/스텁 배지 상시, 전체 영상 즉시 생성 없음
+│
 └── 설정/연결
     ├── 브랜드 키트
     ├── Model Provider / API 키 상태
     ├── MCP·외부 도구 연결
     ├── 모듈 연결 상태(ModuleLink 목록, 연결/해제)
+    ├── S8 용어사전(도메인 용어 → 표준용어, 근거·신뢰도, 사람이 확정)
     ├── 작업 이력·실패 재시도
     └── 비용·사용량
 ```
 
 전역 객체: `Campaign`, `BrandKit`, `CollectSource`, `CollectedItem`, `Asset`, `Job`, `ProviderConnection`, `CostRecord` — 화면 어디서든 우측 패널로 연결된다.
-모듈 전용 객체: `OwnContent`, `ContentSeries`, `IdeaBacklog`, `OverlapFlag` (S5) / `MetricSeries`, `Forecast` (S6) / `AudienceDataset`, `Segment`, `SegmentMember` (S7). 이들은 서로 FK를 갖지 않고 `ModuleLink`로만 참조된다.
+모듈 전용 객체: `OwnContent`, `ContentSeries`, `IdeaBacklog`, `OverlapFlag` (S5) / `MetricSeries`, `Forecast` (S6) / `AudienceDataset`, `Segment`, `SegmentMember` (S7) / `ProductionMode`, `ReferenceHit`, `ManualReference`, `VideoAnalysis`, `VideoIntent`, `Shot`, `RenderGate`, `RevisionRequest` (S8). 이들은 서로 FK를 갖지 않고 `ModuleLink`로만 참조된다. S8 내부 3탭의 객체도 탭별로 분리되며, 수정 탭에는 사용자가 명시적으로 지정한 `shot_id`/timecode만 전달된다.
 
 > **설계 원칙 재확인**: 캡처한 7개 서비스는 인터랙션·토큰 참고용일 뿐이다. 실제 수집/검색/분석 파이프라인은 이 프로젝트에 맞춰 **직설계·직구현**하며, 오픈소스 수집 툴은 라이선스를 확인한 뒤 라이브러리/서비스 형태로만 사용한다. S0의 소스별 탐색은 "수집기"를 사용자에게 노출하는 네비게이션이며, 크롤링 대상·범위·주기는 설정에서 통제한다.
 
-> **모듈 분리 원칙 (최우선)**: S0(남의 콘텐츠 수집) / S5(우리 콘텐츠) / S6(성과·예측) / S7(오디언스)는 **서로 다른 질문에 답하는 별도 화면**이다.
+> **모듈 분리 원칙 (최우선)**: S0(남의 콘텐츠 수집) / S5(우리 콘텐츠) / S6(성과·예측) / S7(오디언스) / S8(영상 분석·제작·수정)는 **서로 다른 질문에 답하는 별도 화면**이다.
 > 1. 각 모듈은 독립 라우트·독립 상태·독립 빈 화면을 가진다. 진입은 사이드바에서 직접 한다.
 > 2. **연결은 기본 off.** 사용자가 "가져오기 / 연결 / 적용" 버튼을 눌러야만 `ModuleLink`가 생긴다.
 > 3. 연결은 **식별자 참조만**(`content_id`, `segment_id`). 데이터를 복사하거나 자동 동기화하지 않는다.
 > 4. 한 모듈에 데이터가 없어도 나머지는 샘플 데이터로 정상 작동한다(차단 전파 금지).
 > 5. 공유 대상은 디자인 토큰·App Shell·JobDrawer·ProviderConnection 뿐이다. 모듈 내부 컴포넌트는 재사용하지 않는다.
 > 6. 설정의 "모듈 연결"에서 생성된 링크를 한눈에 확인/해제할 수 있다.
+> 7. S8은 S2의 서브탭이 아니라 독립 라우트이며, 내부 3탭(분석/제작/수정)도 상태를 섞지 않는다. S2로 결과를 넘길 때도 사용자가 명시적으로 클릭해야 한다.
+> 8. S8 제작 유형은 **프로젝트 단위 명시적 선택(기본값 미선택)**이다. 자동 감지·자동 변경 금지, 변경 시 확인 다이얼로그로 안내하고 기존 결과를 자동 덮어쓰지 않는다. 3탭 상태 분리는 유형이 바뀌어도 유지된다.
+> 9. S8 레퍼런스 서치는 **사용자가 검색 버튼을 누르거나 수동 입력하거나 S0 결과를 클릭할 때만** 동작한다. `ModuleLink(s0→s8)`는 클릭으로만 생성되고 자동 로드·복제·미디어 바이트 저장을 하지 않는다(원문 URL·썸네일 URL·타임코드만).
 
 ---
 
@@ -219,9 +271,19 @@ S4 CSV 성과 업로드 → 지표 비교 → AI 개선안 → 새 브리프로 
 
 [오디언스] S7 진입 → 변수/k 선택 → 군집 카드·프로필
    → (선택) "이 그룹에 맞춤 콘텐츠" 클릭 시 segment_id만 참조
+
+[영상 워크벤치] S8 진입 → 제작 유형 직접 선택(실사/숏폼/영화/영상/애니메이션/모션그래픽, 기본 미선택)
+   → 유형별 규칙 적용(분석 차원·구도·게이트 산출물·템플릿·비용/시간·세이프존). 변경 시 확인 다이얼로그, 기존 결과 자동 덮어쓰기 없음
+   → 레퍼런스 서치(3탭과 별개): 사용자 트리거 자동 검색(공개 범위) 또는 URL·메모·타임코드 수동 입력
+      → (선택) S0 결과 "S8 참고로 가져오기" 클릭 시에만 ModuleLink(s0→s8). 미디어 바이트 미저장
+   → 분석 탭: 내용(훅/구조/메시지/CTA/타깃/감정곡선 + timecode) + 기술(앵글/기법/전환/조명/구도/편집 + confidence)
+   → 제작 탭: 자연어 입력 → 용어 매핑 미리보기(원문/표준용어/근거/신뢰도) → 사용자 확인 → VideoIntent
+   → 게이트 1 콘티 → 게이트 2 3D 구도 스키마(시뮬레이션) → 게이트 3 애니매틱(저해상도 스텁) → 게이트 4 샷별 렌더(DryRender)
+   → 수정 탭: shot_id/timecode 지정 → 영향 범위·예상비용 미리보기 → "이 샷만 수정"
+   → (선택) 결과 참조만 S2에 전달(사용자 클릭). 전체 영상 즉시 생성/전체 재생성 없음
 ```
 
-> 위 세 흐름은 **S0~F7 파이프라인과 자동으로 이어지지 않는다.** 사용자가 각 진입점에서 시작하고, 연결 버튼을 눌렀을 때만 `ModuleLink`가 기록된다.
+> 위 네 흐름은 **S0~S8 파이프라인과 자동으로 이어지지 않는다.** 사용자가 각 진입점에서 시작하고, 연결 버튼을 눌렀을 때만 `ModuleLink`가 기록된다. S8의 3개 탭도 서로 자동으로 데이터를 읽지 않는다.
 
 ### 5-2. 전역 인터랙션 패턴
 
@@ -237,6 +299,12 @@ S4 CSV 성과 업로드 → 지표 비교 → AI 개선안 → 새 브리프로 
 | Module link chip | 연결이 사용자 액션으로 생성됐음을 표시 (`S0 → S5 참고`, `S6 → S5 content_id`). 설정에서 해제 가능 |
 | Forecast badge | S6 예측값에 `예측 / 신뢰도 / 모델` 명시. 실제 성과와 색상 구분 |
 | Segment tag | S7 군집 라벨(`신규/기존/관심/잠재`). 사람이 이름을 편집 가능, 자동 확정 금지 |
+| Production mode picker | S8 진입 시 제작 유형(실사/숏폼/영화/영상/애니메이션/모션그래픽)을 프로젝트 단위로 직접 선택. 기본 미선택, 자동 감지·변경 금지, 변경 시 확인 다이얼로그 |
+| Reference search | S8 제작 전 별개 단계. `검색` 클릭 시에만 공개 범위 자동 수집, 또는 URL·메모·타임코드 수동 입력. 결과 없음·쿼터 소진·중복·낮은 신뢰도 상태 제공. S0 연결은 `ModuleLink(s0→s8)` 클릭으로만 |
+| Term mapping confirm | S8 자연어 → 표준 용어 매핑 미리보기(원문/표준용어/근거/신뢰도)를 사용자가 확인해야 `VideoIntent` 생성. 신뢰도 낮으면 되묻기 |
+| Gate step | S8 4게이트(콘티 → 3D 구도 스키마 → 애니매틱 → 단계별 렌더)는 단계별 사용자 승인 후에만 다음 단계 활성. 건너뛰기 금지 |
+| Dry render badge | S8 렌더·미리보기에 `샘플` / `시연 · 실제 렌더 없음` / `시뮬레이션` / `저해상도 스텁` 명시. 전체 일괄 렌더 버튼 없음 |
+| Targeted revision | S8은 shot_id/timecode를 지정해 영향 범위·예상비용을 미리 보고 "이 샷만 수정". 전체 재생성 버튼 없음 |
 
 ---
 
@@ -254,6 +322,12 @@ S4 CSV 성과 업로드 → 지표 비교 → AI 개선안 → 새 브리프로 
 | Scheduled | 예약 시각, 채널,시간대 표시. 취소 가능 |
 | Published | 플랫폼 게시물 링크/ID, 성과 수치 연결 |
 | Archived | 흐리게 표시, 복원 버튼 제공 |
+| ModeUnselected (S8) | 제작 유형 미선택 시 분석·제작·수정 진입을 막고 안내 문구 + 6개 유형 선택 버튼. 자동 감지하지 않음 |
+| ModeChangeConfirm (S8) | 유형 변경 시 확인 다이얼로그: 영향 받는 분석·콘티·샷·템플릿·비용 프로파일 목록 안내. 확인 전 기존 결과 유지, 자동 덮어쓰기 없음 |
+| LowConfidence / Clarification (S8) | 신뢰도 낮음이면 되묻기 카드 + 재입력 요구. 사용자 확인 없이 `VideoIntent` 생성·게이트 진행 금지 |
+| GateBlocked (S8) | 현재 게이트 미승인이면 다음 단계 비활성 + 누락 사유 표시. 게이트 건너뛰기 금지 |
+| Sample / Dry-run (S8) | `샘플` · `시연 · 실제 렌더 없음` · `시뮬레이션` · `저해상도 스텁` 배지 상시. 실제 렌더·과금 전 상태임을 명시 |
+| Reference states (S8) | 결과 없음 → 검색 축 변경/수동 입력 권유, 쿼터 소진 → 대기·수동 안내, 중복 → 합치기/유지 선택, 낮은 출처 신뢰도 → 근거 확인 요구. 자동 삭제·자동 재시도 없음 |
 
 ---
 
@@ -263,7 +337,7 @@ S4 CSV 성과 업로드 → 지표 비교 → AI 개선안 → 새 브리프로 
 - 모든 인터랙션은 키보드로 도달 가능, 포커스 링은 `border.strong` 2px.
 - 표는 `<table>` 의미 구조 유지, 숫자는 `font.mono` + 우측 정렬.
 - 이미지/카드에는 대체 텍스트 또는 `aria-label` 제공.
-- 1440×900 기준. 1280 이하에서 우측 패널은 오버레이로 전환, 1024 이하에서 사이드바는 접힘, 768 이하에서는 8개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments)을 세로 스택으로 재배치(단, MVP는 데스크톱 우선).
+- 1440×900 기준. 1280 이하에서 우측 패널은 오버레이로 전환, 1024 이하에서 사이드바는 접힘, 768 이하에서는 9개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments·Video Workbench)을 세로 스택으로 재배치(단, MVP는 데스크톱 우선).
 
 ---
 
@@ -306,3 +380,10 @@ Figma는 필수가 아니다. 대신 `browser.screenshot` + `browser.preview`, `
 - [ ] AI 생성 작업은 항상 Provider·모델·비용·상태를 노출한다.
 - [ ] 이모지 아이콘, 그라데이션, 글래스모피즘이 없다.
 - [ ] React/Tailwind/shadcn/ui 구조로 그대로 매핑 가능한 컴포넌트 이름이 `COMPONENT-SPECS.md`에 정의되어 있다.
+- [ ] S8이 9개 화면의 독립 라우트로 진입하고, S2 서브탭이 아니다.
+- [ ] S8 제작 유형(실사/숏폼/영화/영상/애니메이션/모션그래픽)이 프로젝트 단위 명시 선택(기본 미선택)이고 자동 감지·자동 변경이 없다.
+- [ ] S8 유형 변경 시 확인 다이얼로그가 기존 결과를 자동 덮어쓰지 않는다.
+- [ ] S8 3탭(분석/제작/수정)의 상태가 섞이지 않고, 4게이트는 사용자 승인 후에만 진행된다.
+- [ ] S8에 전체 영상 즉시 생성/전체 일괄 렌더 버튼이 없고, shot 단위 수정과 Dry-run 배지가 있다.
+- [ ] S8 레퍼런스 서치가 사용자 트리거 자동/수동 두 경로를 지원하고 `ModuleLink(s0→s8)`도 클릭으로만 생성된다.
+- [ ] S8 레퍼런스는 공개 범위만 사용하고 미디어 바이트를 저장하지 않으며(원문 URL·썸네일 URL·타임코드만), 결과 없음·쿼터 소진·중복·낮은 신뢰도 상태가 정의되어 있다.

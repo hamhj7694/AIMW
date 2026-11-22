@@ -19,10 +19,12 @@ Craft Anything 레퍼런스 7종을 분석해 도출한 **기획·설계 문서 
 | `planning/design/DESIGN-PLAN.md` | 디자인 시스템·IA |
 | `planning/design/SCREEN-SPECS.md` | 화면 명세 |
 | `planning/COMPONENT-SPECS.md` | 컴포넌트 명세 |
-| `planning/PRD.md` | 제품 요구사항 (v0.3) |
+| `planning/PRD.md` | 제품 요구사항 (v0.4) |
 | `planning/ARCHITECTURE.md` | 아키텍처 |
 | `planning/IMPLEMENTATION-PLAN.md` | 1~2일 MVP 실행 계획 |
 | `planning/DECISION-LOG.md` | 의사결정 로그 |
+| `planning/design/PRODUCTION-MODE-SPECS.md` | 제작 유형 6종(실사/숏폼/영화/영상/애니메이션/모션그래픽) 명세 |
+| `planning/knowledge/` | 전문가 지식 베이스(출처·등급·RAG 규칙). `reference/` 캡처와 무관한 자체 저작 |
 
 ## 핵심 원칙
 

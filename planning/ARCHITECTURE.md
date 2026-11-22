@@ -30,7 +30,7 @@
   ├─ App Shell (Sidebar / Topbar / DetailPanel / JobDrawer)
   ├─ S0 Collector  S5 Own Content  S1 References  S2 Studio
   ├─ S3 Publishing  S4 Insights  S6 Forecast  S7 Segments
-  ├─ S8 Video Workbench  (분석 / 제작 / 수정 3모드, 독립 라우트)
+  ├─ S8 Video Workbench  (분석 / 제작 / 수정 3탭 + 제작유형 6종, 독립 라우트)
   └─ 공통: Token 기반 UI, TanStack Table, Recharts, React Flow(후속)
             │
             │ HTTPS / JSON (same-origin)
@@ -42,12 +42,16 @@
   ├─ /api/v1/own-content          S5: 우리 콘텐츠 CRUD/CSV import/겹침·시리즈·아이디어
   ├─ /api/v1/forecast             S6: 지표 시계열·이동평균 baseline 예측(샘플 허용)
   ├─ /api/v1/segments             S7: 데이터/변수·k·군집 프로필(Phase B KMeans)
+  ├─ /api/v1/video/modes          S8: 제작유형 6종 조회·선택·변경확인(기본 미선택)
+  ├─ /api/v1/video/references     S8: 레퍼런스 서치(사용자 트리거 공개 검색 + 수동 입력)
   ├─ /api/v1/video/analyze        S8: 내용+기술 2계층 분석 (타사=메타 참조, 자기=업로드)
   ├─ /api/v1/video/interpret      S8: 자연어→용어 매핑 미리보기/확정/되묻기
   ├─ /api/v1/video/terms          S8: 용어 사전 조회·수정
   ├─ /api/v1/video/stages         S8: 콘티/3D구도/애니매틱/렌더 게이트 진행·비용 미리보기
   ├─ /api/v1/video/shots          S8: 샷 조회·버전·되돌리기
   ├─ /api/v1/video/revisions      S8: 타겟 수정 요청·영향 범위·적용
+  ├─ /api/v1/knowledge/search     S8: 전문가 KB 청크 검색(KB-ID·등급·제작유형 필터)
+  ├─ /api/v1/knowledge/sources    S8: 출처 등록부 조회(권리·등급·확인일)
   ├─ /api/v1/module-links         명시적 연결 생성/해제/목록 (자동 연결 없음)
   ├─ /api/v1/projects, /brands, /references, /boards
   ├─ /api/v1/jobs                 AI 작업 생성·상태·취소
@@ -69,8 +73,9 @@
     ├─ [OwnContentService]  S5: 자산/중복/시리즈/백로그 (독립)
     ├─ [ForecastService]    S6: 시계열+baseline → statsmodels → ML/DL (독립)
     ├─ [SegmentService]     S7: 전처리 → KMeans → 프로필 (독립)
-    └─ [VideoWorkbench]     S8: 분석→해석→콘티→3D→애니매틱→단계렌더→타겟수정 (독립)
-             (네 서비스는 DB 테이블을 공유하지 않고 ModuleLink로만 참조)
+    ├─ [VideoWorkbench]     S8: 유형선택→레퍼런스→분석→해석→콘티→3D→애니매틱→단계렌더→타겟수정 (독립)
+    └─ [KnowledgeService]   S8: planning/knowledge/** 읽기 전용 청크 검색·인용 조립
+             (다섯 서비스는 DB 테이블을 공유하지 않고 ModuleLink로만 참조)
             │
    [JobRunner] — 백그라운드 스레드/Queue, 단계별 진행률·재시도
                  (수집 Job도 동일 프레임워크 사용)
@@ -144,8 +149,8 @@
 
 ### 4-2. 백엔드 (FastAPI)
 
-- **도메인 서비스**: CollectorService, ReferenceService, BriefService, GenerationService, ReviewService, PublishingService, InsightsService, **OwnContentService, ForecastService, SegmentService, ModuleLinkService**.
-- **모듈 경계 규칙**: OwnContentService/ForecastService/SegmentService는 서로를 import하지 않고, 공통은 `JobRunner`·`InferenceGateway`(선택)·`ProviderConnection`·디자인 토큰 뿐이다. 모듈 간 참조는 `ModuleLinkService.link(source, source_id, target, target_id, created_by)`로 사용자 액션 시에만 생성하고 `unlink()`로 해제한다. 자동 링크 API는 제공하지 않는다.
+- **도메인 서비스**: CollectorService, ReferenceService, BriefService, GenerationService, ReviewService, PublishingService, InsightsService, **OwnContentService, ForecastService, SegmentService, ModuleLinkService, VideoWorkbench(유형/레퍼런스/분석/해석/콘티/렌더/수정 7개 서브서비스), KnowledgeService**.
+- **모듈 경계 규칙**: OwnContentService/ForecastService/SegmentService/**VideoWorkbench**/**KnowledgeService**는 서로를 import하지 않고, 공통은 `JobRunner`·`InferenceGateway`(선택)·`ProviderConnection`·디자인 토큰 뿐이다. 모듈 간 참조는 `ModuleLinkService.link(source, source_id, target, target_id, created_by)`로 사용자 액션 시에만 생성하고 `unlink()`로 해제한다. 자동 링크 API는 제공하지 않는다. S8 내부의 분석/제작/수정 탭도 각자 상태를 가지며 서로 자동으로 값을 채우지 않는다. 제작 유형 변경도 사용자 확인 없이 기존 산출물을 덮어쓰지 않는다.
 - **CollectorService**: `register_target(...)`, `start_job(verticals, sources)`, `list_items(vertical)`, `promote_to_references(item_ids)`. 어댑터는 `CollectAdapter` 인터페이스(`fetch`, `normalize`, `compliance_check`)로 분리한다. 구현체: `ManualAdapter`, `YouTubeAdapter`, `NaverSearchAdapter`, `RssAdapter`, `GdeltAdapter`; `AdLibraryMetaAdapter`는 연동 대기 스텁.
 - **정규화 파이프라인**: URL 정규화 → `external_id` 부여 → 본문/메타 추출(trafilatura) → **중복 제거(URL + external_id + 콘텐츠 해시)** → 파트(영상/이미지/블로그/뉴스) 분류 → `CollectedItem` 저장. 미디어 바이트는 저장하지 않고 원문/썸네일 URL만 보존한다.
 - **컴플라이언스 게이트**: 모든 어댑터는 요청 전 `robots.txt`·ToS 플래그·SSRF 화이트리스트·레이트리밋(지수 백오프)·ETag 캐시를 통과해야 한다. 차단 시 아이템을 저장하지 않고 `blocked` 사유를 Job 로그에 남긴다.
@@ -155,7 +160,13 @@
 - **OwnContentService**: `import_csv(...)`, `list_contents()`, `check_overlap(text)`(MVP 토큰 Jaccard → Phase B 임베딩), `link_series(...)`, `create_idea(...)`. CMS/채널 커넥터는 Phase B.
 - **ForecastService**: `get_series(metric, granularity)`, `forecast(method="moving_average", horizon)` → `Forecast{value, confidence, model}`. Phase B에서 statsmodels/scikit-learn, Phase C에서 LightGBM/시계열 DL로 교체(인터페이스 유지). 예측은 S4 데이터를 복사하지 않고 `MetricSeries`에서 읽는다.
 - **SegmentService**: `select_features(...)`, `set_k(3~6)`, `cluster()`(Phase B scikit-learn KMeans + silhouette), `profile()`. MVP는 샘플 좌표와 프로필 UI만. 식별자 컬럼은 입력 단계에서 제거하고 원본 고객정보는 저장하지 않는다.
-- **보안**: API 키는 서버 환경변수/`.env`에 보관, `/connections` 응답은 마스킹(`sk-****abcd`)만 반환. S7 업로드 파일은 처리 후 즉시 삭제 정책(Phase B) 적용.
+- **VideoAnalysisService** (S8): `analyze_content(ref)` → 훅/구조/메시지/CTA/타깃/감정 곡선(타임코드 매핑). `analyze_craft(ref)` → 샷 사이즈/앵글/무브먼트/렌즈·FOV/조명/전환/구도/색보정/속도/사운드 + `confidence`. 타사 영상은 메타·스냅샷 URL·타임코드만 입력으로 받고, 프레임 분석은 사용자가 업로드한 자기 콘텐츠에 한정한다.
+- **VideoTermService** (S8): `interpret(text)` → `TermMapping[] {source_phrase, standard_term, category, rationale, confidence, confirmed}`. 신뢰도 임계값 미달 시 `ClarificationQuestion`을 반환해 되묻는다. `confirm(mapping_ids)`를 호출해야 `VideoIntent`가 확정된다(자동 확정 금지). `VideoTermDictionary`는 자체 구축 + 사람 검수(설정에서 수정 가능).
+- **KnowledgeService** (S8): `planning/knowledge/**`를 **읽기 전용**으로 청크 단위(`### KB-…`) 검색. `search(query, mode, evidence_tier)` → `KnowledgeChunk[] {chunk_id, domain, production_mode, source_ids, evidence_tier, path}` + `KnowledgeCitation[]`. `sources()`는 출처 등록부(`SOURCES.md`)의 URL·발행자·권리 메모·확인일을 반환. 원문 복제·번역·각색을 하지 않고 **요약과 인용만** 프롬프트에 조립한다(`RAG-USAGE.md` 4장 템플릿). 등급 C는 "비공식 추정, 확인 필요" 배지를 강제. 렌더·외부 전송·모듈 간 데이터 복사를 실행하지 않는다. 인덱싱은 Phase A 로컬 키워드 → Phase B 로컬 임베딩(라이선스 재확인 후) → Phase C 재랭킹 순.
+- **StoryboardService** (S8): `build_intent(confirmed_mappings)` → `VideoIntent{shots[], timing, tone, platform}`. `generate_storyboard(intent)` → `Storyboard{shots[{shot_id, timecode, visual, copy, audio, transition, camera, lighting}]}`. `generate_composition3d(storyboard)` → `Composition3D` **스키마**(카메라 위치·FOV·피사체 배치·조명 리그·모션 경로). MVP는 SVG/와이어프레임 시뮬레이션이며 실제 3D 렌더가 아님을 배지로 명시. `generate_animatic(storyboard)` → 저해상도 타임라인 미리보기(스텁).
+- **ShotRenderService** (S8): `estimate(stage)` → 예상 시간/비용. `advance_stage(project_id, stage, approved_by)` → **사용자 승인 시에만** 다음 단계 실행. `render_shot(shot_id, quality)` → 샷 단위 산출물 + `ShotVersion`. MVP는 `DryRenderAdapter`(플레이스홀더/샘플), Phase B에서 저해상도→최종 렌더 어댑터 교체. 부분 실패 시 성공 샷은 유지하고 실패 샷만 재시도.
+- **RevisionService** (S8): `plan(target)` → `{shot_ids[], elements[], estimated_cost, affected_scopes}` 미리보기. `apply(revision_id)` → 승인된 범위에만 패치(Phase A는 요청·미리보기 UI, Phase B 실제 diff 재렌더). 자동 전체 재생성 경로 없음.
+- **보안**: API 키는 서버 환경변수/`.env`에 보관, `/connections` 응답은 마스킹(`sk-****abcd`)만 반환. S7 업로드 파일은 처리 후 즉시 삭제 정책(Phase B) 적용. S8 업로드 영상은 자기 콘텐츠로 한정, 얼굴·번호판 블러 권고, 보유기간 명시.
 
 ### 4-3. 데이터 계층
 
@@ -186,11 +197,24 @@ Campaign(1) ──< IdeaBacklog(*)     # "S0 참고로 가져오기"는 ModuleLi
 MetricSeries(*) ──< Forecast(*)    # S6 전용, S4 Insight와 데이터 복제 없음
 AudienceDataset(1) ──< Segment(*) ──< SegmentMember(*)   # S7, 식별자 미저장
 
+# 영상 워크벤치 (S8, 독립. 아래 4단계 게이트를 강제)
+VideoAnalysis(1) ──< TermMapping(*)      # 원문→표준용어, 신뢰도·확정여부
+TermMapping(*) ──> VideoIntent(1)        # 확정된 매핑으로만 생성
+VideoIntent(1) ──< Storyboard(*) ──< Shot(*)
+Shot(1) ──< Composition3D(*)            # 카메라/FOV/배치/조명/모션 스키마
+Storyboard(1) ──< Animatic(*)           # 저해상도 타임라인
+Shot(1) ──< RenderStage(*) ──< ShotVersion(*)
+Shot(*) ──< Revision(*)                 # shot_id/timecode/element 타겟 패치
+Campaign(1) ──< VideoTemplate(*)        # 반복 포맷(예: 장기렌트 15초 세로)
+# S8 ↔ S1/S2/S5는 FK 없이 ModuleLink로만 참조 (사용자 클릭)
+
 # 유일한 모듈 간 연결 경로 (사용자 클릭만)
 ModuleLink(source_module, source_id, target_module, target_id, created_by, created_at)
   예) (s0, collected_item#12, s5, idea_backlog#3)
       (s5, own_content#7,  s6, metric_series#2)
       (s7, segment#1,      s2, brief#9)
+      (s1, reference#4,    s8, video_analysis#2)   # "영상 분석" 버튼
+      (s8, storyboard#1,   s2, brief#11)           # "이 콘티로 기획" 버튼
 
 Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 ```
@@ -205,6 +229,23 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 - `AudienceDataset`: `id`, `feature_columns[]`, `excluded_columns[]`, `row_count`, `retained_until`, `is_sample`. **식별자 원본은 저장하지 않음**.
 - `Segment`: `id`, `label`(사람 편집), `size`, `profile_summary`, `silhouette?`(Phase B).
 - `ModuleLink`: 위 정의. 생성 시 `created_by` 필수(자동 생성 차단 감사용).
+
+영상 모듈 최소 필드:
+- `VideoReference`: `reference_id`, `source_url`, `thumbnail_url`(참조만), `platform`, `title`, `author`, `published_at`, `timecode_in/out`, `search_mode`(auto/manual), `production_mode`, `evidence_tier`, `rights_flag`, `provenance`, `created_by`. **미디어 바이트 미저장**. S0 항목은 `ModuleLink(s0→s8)`로만 참조.
+- `VideoAnalysis`: `id`, `source_ref`(타사=메타/스냅샷 URL, 자기=업로드 ID), `layer`(content/craft), `findings[{timecode, category, term, rationale, confidence, kb_refs[], source_ids[], evidence_tier}]`.
+- `TermMapping`: `source_phrase`, `standard_term`, `user_selected_term?`, `category`(camera/lighting/transition/compose/edit/audio/blocking/ad/platform), `rationale`, `confidence`, `kb_refs[]`, `confirmed_by`, `confirmed_at`. **미확정 매핑으로 다음 단계 진입 불가**.
+- `VideoIntent`: `mappings[]`, `shots[]`, `timing`, `tone`, **`production_mode`**(live_action/short_form/film/general_video/animation/motion_graphics, 기본 미선택), `aspect_ratio`, `platform`, `status`(draft/confirmed). 유형 변경 시 기존 산출물은 `archived`로 보존.
+- `Shot`: `shot_id`, `timecode_in/out`, `visual`, `copy`, `audio`, `transition`, `camera`, `lighting`, `blocking`, `props[]`, `typography?`, `production_mode`, `status`.
+- `Composition3D`: `camera_position`, `fov`, `subject_layout[]`, `light_rig[]`, `motion_path[]`, `layers[]?`, `keyframes[]?`, `mode_schema`(camera_rig/safe_zone/continuity/keyframe/motion_spec), `is_schematic=true`(MVP).
+- `RenderStage`: `stage`(storyboard/composition3d/animatic/render), `gate`(G1~G4), `status`, `approved_by`, `approved_at`, `estimated_cost`, `estimated_seconds`. **approved_by 없음 → 다음 단계 생성 안 함**.
+- `ShotVersion`: `shot_id`, `version`, `render_url`(로컬 FS), `quality`(draft/final), `parent_version`, `production_mode`.
+- `Revision`: `target_shot_ids[]`, `timecode_range`, `elements[]`, `natural_language`, `interpreted_patch`, `affected_shots[]`, `continuity_warnings[]`, `status`, `created_by`, `production_mode`.
+- `VideoTemplate`: `name`, `duration`, `aspect_ratio`, `shot_pattern[]`, `tone`, `production_mode`, `transition_policy`, `safe_zone_preset?`, `loopable?` — 새 제작 시 복사해서 쓰되 기존 결과를 자동 덮어쓰지 않는다.
+
+전문 지식베이스 최소 필드(읽기 전용, `planning/knowledge/**`에서 생성):
+- `KnowledgeDoc`: `path`, `domain`, `title`, `source_ids[]`, `updated`, `rights_note`.
+- `KnowledgeChunk`: `chunk_id`(안정 ID `KB-…`), `doc_path`, `domain`, `production_mode`(any/6종), `body`(정의/효과/적용/주의/근거 5줄), `source_ids[]`, `evidence_tier`(A/B/C), `updated`.
+- `KnowledgeCitation`: `chunk_id`, `source_id`, `evidence_tier`, `used_in`(analysis/term_mapping/storyboard/revision), `created_at`. **원문 연속 인용 금지, 요약+인용만**.
 
 ### 4-4. 수집 컴플라이언스 체크리스트 (설계에 포함)
 
@@ -246,13 +287,34 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 
 > 각 모듈은 다른 모듈의 데이터가 없어도 진입 가능하며, 샘플 데이터로 자체 상태를 완성한다. 자동 파이프라인 트리거는 존재하지 않는다.
 
+**영상 워크벤치 흐름(S8, 게이트 강제)**
+
+사전 단계(유형 선택·레퍼런스 서치):
+- S8 진입 → **제작 유형 6종 중 사용자 명시 선택**(기본 미선택, 자동 감지·자동 변경 금지). 유형이 분석 차원·구도 스키마·게이트 산출물·템플릿 필터·비용 프로파일을 결정한다(`design/PRODUCTION-MODE-SPECS.md`). 미선택 시 G1 이후 잠금. 변경 시 재확인 후 기존 산출물 `archived` 보존.
+- 레퍼런스 서치: 사용자가 검색 버튼을 누를 때만 공개 소스 어댑터(Phase A 스텁/샘플) 조회, 또는 URL·메모·타임코드 수동 입력. S0 항목은 "S8로 가져오기" 클릭 시에만 `ModuleLink(s0→s8)` 생성. 로그인·유료벽·스크래핑 우회 제외, 미디어 바이트 미저장(`knowledge/12-reference-search-playbook.md`).
+
+1. S8 진입 또는 S1에서 "영상 분석" 클릭(이때만 `ModuleLink(s1→s8)` 생성) → 분석 탭에서 내용/기술 2계층 결과를 타임코드와 함께 표시. `KnowledgeService.search()`가 `KB-ID / Sxx / 등급`을 근거로 붙인다.
+2. 제작 탭에서 비전문 자연어 입력 → `interpret()` → 원문/표준용어/신뢰도 매핑표 미리보기. 신뢰도 낮으면 되묻기 질문 카드. 사용자가 "이 해석으로 콘티"를 눌러야 `VideoIntent` 확정.
+3. Gate 1 콘티: `Storyboard{Shot[]}` 생성 → 사용자가 샷별 텍스트/타임코드 수정 → "3D 구도 진행" 클릭(예상 비용/시간 표시).
+4. Gate 2 3D 구도: 카메라·FOV·배치·조명·모션 경로 **스키마** 표시(MVP는 시뮬레이션 배지) → 승인 → "애니매틱 진행" 클릭.
+5. Gate 3 애니매틱: 저해상도 타임라인/자막/임시 오디오 미리보기 → 승인 → "샷 렌더 진행" 클릭.
+6. Gate 4 단계별 렌더: 샷 순서대로 `ShotVersion` 생성. 각 샷 확정 후 다음 샷 진행. 전체 일괄 렌더 버튼은 제공하지 않는다.
+7. 수정 탭: 타임라인에서 `shot_id` 클릭 → 자연어 수정 요청 → `Revision.plan()`이 영향 샷/예상 비용 표시 → 사용자가 "이 샷만 수정" 클릭 시 해당 샷만 패치(Phase A는 요청 UI, Phase B 실제 재렌더).
+8. (선택) "이 콘티로 기획" 클릭 시 `ModuleLink(s8→s2)` 기록 + S2 BriefForm 채움. 자동 전달 없음.
+
+> 각 게이트는 `RenderStage.approved_by`가 없으면 다음 단계를 생성하지 않는다. 이는 S8의 비용·시간 절약을 위한 핵심 안전장치다(NFR-17).
+
+> 지식 베이스(`planning/knowledge/**`)는 **읽기 전용 참고**다. 등급 C만 근거인 항목은 "비공식 추정, 확인 필요" 배지를 붙이고 사용자 확인 없이 `VideoIntent`를 확정하지 않는다. KB가 렌더·외부 전송·모듈 간 데이터 복사를 실행하지 않는다(NFR-21·22).
+
 ---
 
 ## 6. AI / MCP / 외부 도구 경계
 
 | 구분 | 계층 | MVP 처리 | 후속 |
 |---|---|---|---|
-| Ollama 로컬 HTTP | 웹앱 추론 | **사용** (`qwen3.8-local`, num_ctx 4096) | vision으로 스크린샷 분석 |
+| Ollama 로컬 HTTP | 웹앱 추론 | **사용** (`qwen3.8-local`, num_ctx 4096) | vision으로 자기 콘텐츠 프레임 분석(Phase B) |
+| 자체 3D 구도 스키마(SVG/와이어프레임) | S8 프리뷰 | **사용**(시뮬레이션 배지, 실제 렌더 아님) | 경량 WebGL 카메라 프리뷰(Phase B) |
+| DryRenderAdapter | S8 렌더 | **사용**(플레이스홀더·샘플 산출물) | fal.ai/Kling 등 실제 렌더(Phase B/C, 예산 승인 후) |
 | OpenAI / Anthropic API | 웹앱 추론 | 미사용 | 서버사이드 키로 활성화 |
 | fal.ai / Higgsfield / Kling | 웹앱 추론 | 미사용(비용) | 이미지·영상 생성 Provider |
 | Postiz REST/MCP | 발행 연동 | Dry-run UI만 | REST 우선, 포크 금지(AGPL) |
@@ -286,10 +348,12 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 | 규정 준수 | 원본 자산 미복제, Dry-run 명시 | 클린룸 재작성, 배지/문구 |
 | 수집 준수 | robots/ToS/레이트리밋 100% 통과, 차단 건 0건 저장 | 4-4 체크리스트, CollectAdapter 게이트, provenance 로그 |
 | 수집 성능 | 파트별 1회 수집 30초 내(공식 API 기준) | 비동기 Job, 캐시, 동시성 제한 |
-| 모듈 격리 | S0/S5/S6/S7 간 자동 데이터 로드 0건 | 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
+| 모듈 격리 | S0/S5/S6/S7/S8·KnowledgeService 간 자동 데이터 로드 0건 | 9개 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
 | 연결 감사 | 모든 모듈 링크에 `created_by` 기록 | `ModuleLinkService.link()`만 생성 경로 |
 | 예측 투명성 | S6 결과 100%에 `예측/신뢰도/모델` 배지 | `Forecast` 렌더링 규칙 |
 | 개인정보 | S7 원본 식별자 저장 0건 | 업로드 시 제거, 보유기간 명시, 삭제 요청 정책 |
+| 근거 인용 | 분석·매핑 카드 100%에 `KB-ID / Sxx / 등급` | `KnowledgeCitation`, 등급 C는 "검증 필요" 배지 |
+| 지식베이스 권리 | 원문 복제·번역·각색 0건, 캡처 근거 0건 | `SOURCES.md` 등급/권리 메모, `RAG-USAGE.md` 금지 사항 |
 
 ---
 
@@ -302,7 +366,8 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 - 실제 발행/과금은 MVP 범위 밖. **수집은 MVP에 포함되되 공식 API·공개 피드·수동 입력에 한정**하고, 광고 라이브러리 심사/토큰이 필요한 경로는 "연동 대기"로 둔다.
 - Meta/TikTok은 공개 페이지라도 자동 수집이 ToS상 명시 금지 → 스크래퍼를 붙이지 않는다. SNS 발행과 마찬가지로 Dry-run/메타데이터 참조만 허용한다.
 - YouTube `search.list` 100/day 버킷, 네이버 25,000/day 등 외부 할당량은 변동 가능 → Job에 quota 게이지를 두고 초과 시 대기 상태로 전환한다.
-- **모듈 엉킴 리스크**: S5~S7을 S0~F7에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
+- **모듈 엉킴 리스크**: S5~S8·KnowledgeService를 핵심 흐름(F1~F7)에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
+- **지식베이스 저작권 리스크**: ASC·StudioBinder·Rosco·CreativeHut 등은 저작권 보호 문서이며 CreativeHut는 복제·번역·각색에 서면 허가를 요구 → 개념 자체 서술 + 출처 ID만 저장. `reference/**` 캡처는 라이선스 미확인으로 KB 근거에서 제외. 플랫폼 픽셀 수치는 공식 원칙(A)과 제3자 추정(C)을 분리해 단정 금지.
 - **예측 오인 리스크**: 이동평균 결과를 실제 성과로 오해 → 예측 배지·신뢰도·샘플 배지 상시 노출.
 - **개인정보 리스크**: S7 고객데이터 과수집 → 식별자 제거, 최소 변수, 보유기간·삭제 정책. 법률 검토 전 실제 CRM 연동 금지.
 
@@ -320,3 +385,4 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 8. **S6 고도화**: `statsmodels/scikit-learn` 회귀·시계열 + 신뢰구간 → `LightGBM` Feature 기반 예측 → 시계열 DL(시나리오 분석). 항상 예측 배지 유지.
 9. **S7 고도화**: scikit-learn KMeans(k 3~6, silhouette/elbow), 범주형 one-hot + 스케일링, 최종적으로 딥 임베딩 군집 + `segment_id` 기반 맞춤 콘텐츠 추천. 실제 고객데이터는 개인정보 검토 후.
 10. **모듈 연결 UX**: 설정의 ModuleLink 목록에 필터·해제·감사 로그 추가(연결은 여전히 사용자 액션만).
+11. **전문 지식베이스 고도화**: Phase B 로컬 임베딩(라이선스 재검증 후) + 재랭킹, Phase C 사용자 승인 용어 사전 가중치. 출처가 삭제·유료화되면 `SOURCES.md` 상태 갱신 + 등급 한 단계 하향. 플랫폼 스펙은 분기별 재확인. 항상 요약·인용만 사용.

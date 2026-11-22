@@ -19,11 +19,17 @@ domain/         (프로젝트 도메인)
   ReferenceCard, BoardCard, ConceptCard, AssetCard, ReviewChecklist,
   ChannelTile, PublishQueueRow, MetricCard, InsightRow, EmptyState,
   OverlapFlag, SeriesTag, IdeaCard, ForecastBadge, SegmentTag, ModuleLinkChip
+  ProductionModePicker, ReferenceSearchPanel, ReferenceCard(S8), ManualReferenceInput,
+  AnalysisCard, TermMappingPreview, ClarificationCard, ConfidenceBadge,
+  GateStepper, StoryboardGrid, Composition3DSchemaView, AnimaticTimeline,
+  ShotTimeline, ShotVersionChip, RevisionPanel, CostTimeGauge,
+  SafeZoneOverlay, VideoTemplatePicker
 layout/
   AppShell, Sidebar, Topbar, DetailPanel, JobDrawer, PageHeader
 composite/
   CollectorPanel, OwnContentPanel, ForecastPanel, SegmentPanel,
-  AiComposePanel, GenerationGrid, CompareView, ApprovalGate, CsvMapper
+  AiComposePanel, GenerationGrid, CompareView, ApprovalGate, CsvMapper,
+  VideoWorkbenchPanel
 ```
 
 ---
@@ -52,7 +58,7 @@ composite/
 | 항목 | 정의 |
 |---|---|
 | AppShell | `sidebar 240px + main 1fr + (detail 380px 조건부)`. 1280 이하 detail은 오버레이, 1024 이하 sidebar 접힘 |
-| Sidebar | 8개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
+| Sidebar | 9개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
 | Topbar | CampaignSwitcher, 전역 검색(Ctrl/Cmd+K), ProviderBadge, 사용량/비용, 사용자 메뉴 |
 | CampaignSwitcher | 장기렌트 캠페인 컨텍스트. 전환 시 모든 화면 데이터 재바인딩 |
 | ProviderBadge | 현재 추론 Provider(Ollama 기본). 연결 상태 점 + 모델명 툴팁 |
@@ -150,7 +156,36 @@ composite/
 
 > S7의 맞춤 콘텐츠는 추천 결과가 아니라 `segment_id` 참조 링크다. 자동 적용 금지.
 
-### 3-10. 공통 상태·피드백
+### 3-10. S8 Video Workbench (독립 모듈, S2 서브탭 아님)
+
+> S8 3탭(분석/제작/수정)은 상태를 섞지 않는다. 이 절의 `mode`는 **제작 유형(`productionMode`: 실사/숏폼/영화/영상/애니메이션/모션그래픽)**을 뜻하며, `SCREEN-SPECS.md`의 내부 탭 쿼리(`?tab=analysis|production|revision`)와는 별개다. `mode`는 프로젝트 단위 명시 선택값(기본 미선택)이며 모든 S8 컴포넌트의 공통 입력이다. 자동 감지·자동 변경 금지, 변경 시 확인 모달을 거치고 기존 결과를 덮어쓰지 않는다. `planning/design/PRODUCTION-MODE-SPECS.md`, `planning/knowledge/10-shortform-composition.md`, `planning/knowledge/11-motion-graphics-and-animation.md`, `planning/knowledge/12-reference-search-playbook.md`는 경로 참조만 한다.
+
+| 컴포넌트 | 목적 | 입력(props) | 출력/상태 | mode 의존 | 토큰 | a11y·인터랙션 |
+|---|---|---|---|---|---|---|
+| ProductionModePicker | 제작 유형 6종 프로젝트 단위 선택 | `실사/숏폼/영화/영상/애니메이션/모션그래픽`, 현재 값(기본 미선택), 프로젝트 컨텍스트 | 미선택 시 안내 + 3탭 진입 차단. 변경 요청 → 확인 모달(영향 목록) → 확정 전 기존 결과 유지 | 없음(값 자체가 mode) | `s8.mode.picker`, `radius.md`, `primary.50`, `text.muted`, 유형별 Lucide 선형 아이콘 + 텍스트 라벨 | `role=radiogroup`, 미선택 상태 텍스트 명시, 모달 focus trap + ESC + 포커스 복귀 |
+| ReferenceSearchPanel | 제작 전 레퍼런스 서치(자동/수동) | `mode`(검색 축), 검색어, 검색 버튼, S0 가져오기 버튼 | 자동=버튼 클릭 시에만 공개 범위 수집, 수동=`ManualReferenceInput`. 결과 없음·쿼터 소진·중복·낮은 신뢰도 상태 | 높음(검색 축 기본값) | `surface.default`, `warning.50`, `s8.reference.card`, `s8.dryRun.badge` | 검색 버튼 `aria-label`, 상태 변경 `aria-live=polite`, 출처 등급 텍스트 병기, S0 링크는 "S8 참고로 가져오기" 라벨 |
+| ReferenceCard (S8) | 수집·수동 레퍼런스 결과 카드 | 원문 URL·썸네일 URL·타임코드·출처 등급·권리 배지·provenance·자동/수동 구분 | 선택→근거로 첨부, 중복 배지, **미디어 바이트 미저장** | 중간(유형별 근거 라벨) | `s8.reference.card`, `text.xs`, `font.mono`, `border.default` | `aria-label`에 출처·타임코드·권리 상태, 외부 링크임을 텍스트로 안내 |
+| ManualReferenceInput | URL·메모·타임코드 직접 입력 | 원문 URL(필수), 메모, 타임코드 시작/끝, 출처 등급, 권리 확인 체크, 검색 축 태그 | `ManualReference` 생성, 권리 미확인 시 저장 차단, 타임코드 역전 오류 표시 | 중간(검색 축 태그 기본값) | `Input/Textarea`, `Checkbox`, `border.strong`, `warning.50` | 필수 필드 `aria-required`, 오류 `aria-describedby`, 타임코드 형식 힌트 제공 |
+| AnalysisCard (내용/기술 2종) | 2레이어 영상 분석 결과 표시 | `layer=내용|기술`, 항목(내용: 훅/구조/메시지/CTA/타깃/감정곡선 + timecode, 기술: 앵글·기법·전환·조명·구도·편집 + confidence), `mode` | timecode 클릭→해당 구간만 미리보기, 신뢰도 배지, 접기/펼치기 | 높음(분석 차원) | `s8.analysis.card`, `s8.confidence.badge`, `font.mono` | 레이어 구분 헤더 + `aria-label`, timecode 버튼 라벨, 배지 텍스트 병기 |
+| TermMappingPreview | 자연어 → 표준 용어 매핑 검토 | 원문, 매핑 후보(표준용어/근거/신뢰도/지식베이스 출처), `mode` | 4열 표(원문/표준용어/근거/신뢰도), 행 선택, 낮은 신뢰도 되묻기 표시, 사용자 확인 전 `VideoIntent` 생성 차단 | 중간 | `s8.term.table`, `s8.confidence.badge`, `Table` | `<th scope="col">`, 행 선택 키보드 가능, 비활성 사유 텍스트 제공 |
+| ClarificationCard | 모호·저신뢰 항목 되묻기 | 모호 항목, 질문 문구, 선택지/자유 입력 | 답변→매핑 재계산, 미답변 시 다음 단계 잠김 | 낮음 | `warning.50`, `warning.500`, `surface.default` | 질문 `aria-live=polite`, 포커스 이동, ESC 닫되 미답변 상태 유지 |
+| ConfidenceBadge | 분석·매핑 신뢰도 표시 | `value 0~1`, `level 상|중|하`, 근거 툴팁 | "신뢰도 높음/보통/낮음" 텍스트 + 색, 낮음은 되묻기 트리거 | 없음 | `s8.confidence.badge` | 색만 의존 금지, 툴팁 포커스로 열림 |
+| GateStepper | 4게이트 진행·잠금·승인 | 4게이트(콘티/3D 구도 스키마/애니매틱/단계별 렌더), 상태(완료/현재/잠김), 승인 여부, `mode` | 현재 단계 강조, 미승인 시 다음 비활성 + 사유, 건너뛰기 없음 | 중간(산출물 라벨) | `s8.gate.stepper` | `aria-current="step"`, 잠김 단계 `aria-disabled` + 사유 텍스트, 완료 단계만 이동 |
+| StoryboardGrid | 게이트 1 콘티 산출물 | shot_id/timecode/샷 설명/선택 상태, `mode`(콘티 서식) | 샷 카드 그리드, 클릭→상세·수정 대상 지정, 승인 체크 | 높음(콘티 서식·길이) | `surface.subtle`, `border.default`, `s8.shot.timeline` | 카드 `aria-label`에 샷 ID·타임코드, 체크박스 키보드 조작 |
+| Composition3DSchemaView | 게이트 2 구도 스키마 미리보기 | 카메라/앙글/구도/비율/세이프존/시뮬레이션 여부, `mode` | 와이어프레임·시뮬레이션 뷰 + **시뮬레이션 배지**(실제 3D 렌더 아님), Phase B 실제 프리뷰 | 높음(구도 규칙) | `s8.safeZone.overlay`, `border.strong`, `surface.inverse`, `s8.dryRun.badge` | `role=img` + 대체 설명(구도·앙글·안전영역 텍스트), 비율 전환 버튼 라벨 |
+| AnimaticTimeline | 게이트 3 저해상도 스텁 | 샷 순서/타임코드/스텁 프레임/재생 상태, `mode`(프레임 단위 여부) | 저해상도 스텁 재생 + 스텁 배지, 일시정지/샷 이동 | 중간 | `s8.shot.timeline`, `surface.subtle`, `text.muted`, `s8.dryRun.badge` | 재생 버튼 `aria-label`, timecode 텍스트 제공, reduced-motion 시 자동 재생 없음 |
+| ShotTimeline | 샷 단위 선택·수정 대상 지정 | shot_id/timecode/구간/현재 위치/선택 | 트랙 클릭→샷 선택, "이 샷 수정" 클릭 시에만 수정 탭으로 값 전달, 전체 수정 버튼 없음 | 중간(샷 길이 프로파일) | `s8.shot.timeline`, `primary.50`, `primary.500` | 샷 버튼 키보드 이동, `aria-pressed`, 타임코드 병기 |
+| ShotVersionChip | 샷 버전 표시·비교 | `v1/v2/수정본`, 상태(초안/승인), 비교 대상, `mode` | 칩 클릭→비교/복원, 자동 덮어쓰기 없음 | 낮음 | `s8.version.chip`, `radius.pill`, `primary.50` | 버튼 + `aria-current="true"`, 변경 요약 툴팁 |
+| RevisionPanel | 대상 샷만 수정 요청 | shot_id/timecode, 수정 요청 자연어, 영향 범위, 예상비용/시간, 확인 상태, `mode` | 미리보기 먼저 → "이 샷만 수정" 활성, 전체 재생성 없음 | 중간(영향 범위 계산) | `s8.cost.gauge`, `warning.50`, `surface.default` | 영향 범위 텍스트 목록, 확인 다이얼로그 focus trap |
+| CostTimeGauge | 예상 비용·시간 사전 표시 | 샷 수/비율/템플릿/스텁 여부/모델/렌더 모드/`mode` | "예상 비용 n · 예상 시간 n" + 산출 근거, 임계치 경고, 실제 과금·렌더 아님 명시 | 높음(비용/시간 프로파일) | `s8.cost.gauge`, `font.mono`, `warning.500` | 단위 병기("원", "분"), 변경 시에만 `aria-live=polite` |
+| SafeZoneOverlay | 비율별 안전 영역 가이드 | 비율(9:16/1:1/16:9), 자막/CTA 영역 on/off, `mode` | 점선 가이드 + 안전 영역, 이탈 시 경고 | 높음(세이프존 규칙) | `s8.safeZone.overlay`, `border.strong`, `primary.50` | 텍스트 요약("상단 n%, 하단 n% 안전"), 색만 의존 금지 |
+| VideoTemplatePicker | 제작 유형별 템플릿 선택 | 템플릿 목록(유형별 필터), 비율, 길이, 샘플 여부, `mode` | 선택→콘티/구도 기본값 반영(덮어쓰기 전 확인), 샘플 템플릿 배지 | 높음(사용 가능 템플릿) | `s8.dryRun.badge`, `surface.subtle`, `border.default` | `role=radiogroup`, 비율·길이 텍스트 병기 |
+
+> S8 모듈 분리·안전 규칙: 분석/제작/수정 탭은 상태를 공유하지 않고, 레퍼런스 서치도 탭에 자동 삽입되지 않는다. 레퍼런스는 사용자 트리거 자동 검색·수동 입력·`ModuleLink(s0→s8)` 클릭으로만 들어오며 공개 범위(공식 API·공개 피드·공개 메타데이터·수동 입력)만 사용한다. 로그인/유료벽/스크래핑 우회 제외, 미디어 바이트 미저장(원문 URL·썸네일 URL·타임코드만). Phase A는 텍스트·스키마·샘플 미리보기 + DryRenderAdapter 플레이스홀더만, Phase B/C에서 실제 렌더·3D 프리뷰·diff-only 재렌더로 교체한다. 전체 영상 즉시 생성/일괄 렌더 버튼은 없다.
+>
+> 이름 주의: `ReferenceCard (S8)`는 3-3의 S1 `ReferenceCard`와 이름이 같지만 **모듈 내부 컴포넌트 재사용 금지** 원칙에 따라 S8 전용 별도 컴포넌트로 정의한다.
+
+### 3-11. 공통 상태·피드백
 
 | 컴포넌트 | 규칙 |
 |---|---|
@@ -195,4 +230,8 @@ composite/
 - [ ] shadcn primitives와 도메인 컴포넌트가 분리되어 있다.
 - [ ] 각 상태 컴포넌트(Empty/Loading/Error/Approval/DryRun)가 정의되어 있다.
 - [ ] 접근성 규칙이 모든 컴포넌트에 적용된다.
+- [ ] S8 컴포넌트 18개가 이름·목적·props/상태·토큰·a11y 규칙으로 정의되어 있다.
+- [ ] S8 모든 컴포넌트에 제작 유형(`mode`) 의존성이 표시되어 있고, 기본 미선택·자동 변경 금지·변경 확인 모달이 적용된다.
+- [ ] S8 레퍼런스 서치 컴포넌트가 권리 배지·provenance·타임코드·출처 등급·자동/수동 구분을 다루고 미디어 바이트를 저장하지 않는다.
+- [ ] S8 3탭 상태 분리, 4게이트 승인, 샷 단위 수정, Dry-run·시뮬레이션·스텁 배지가 컴포넌트 수준에서 보장된다.
 - [ ] 재사용 금지 목록이 명시되어 있다.
