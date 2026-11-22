@@ -1,0 +1,25 @@
+# 타사 서비스 캡처 자산 (라이선스 미확인, 555개/약 258MB) — 저장소에 포함하지 않음
+reference/
+
+# OS / 에디터 / 임시 파일
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# 로컬 비밀값·환경설정
+.env
+.env.*
+*.pem
+*.key
+
+# Node / Python 산출물 (향후 구현 대비)
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
