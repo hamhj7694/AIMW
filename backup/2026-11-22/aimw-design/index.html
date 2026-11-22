@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AIMW 라이트테이블 — 디자인 v2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);font-family:var(--sans);font-weight:400;letter-spacing:-.01em;word-break:keep-all;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono);letter-spacing:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px 120px}
+
+/* masthead */
+.mast{padding:64px 0 28px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+.mast .brandline{font:500 12px/1 var(--mono);color:var(--muted);display:flex;align-items:center;gap:10px}
+.mast .brandline i{display:inline-block;width:22px;height:1px;background:var(--mark);transform:rotate(-12deg)}
+.mast h1{font-size:58px;font-weight:600;letter-spacing:-.045em;line-height:1;margin:18px 0 12px}
+.mast .tag{font-size:19px;color:var(--ink2)}
+.mast .meta{text-align:right;font:400 12px/1.9 var(--mono);color:var(--muted);white-space:nowrap}
+.mast .meta b{color:var(--mark);font-weight:500}
+
+/* job ticket */
+.ticket{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule-strong);background:var(--sheet);margin:24px 0 0}
+.ticket div{padding:13px 20px;border-right:1px solid var(--rule);font:400 12px/1 var(--mono);color:var(--muted)}
+.ticket div:last-child{border-right:0}
+.ticket b{color:var(--ink);font-weight:500;margin-left:8px}
+.ticket .free b{color:var(--mark)}
+
+/* section */
+section{margin-top:84px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--ink);padding-bottom:12px;margin-bottom:32px}
+.sec-head .n{font:500 13px/1 var(--mono);color:var(--mark)}
+.sec-head h2{font-size:27px;font-weight:600;letter-spacing:-.03em;margin:0}
+.sec-head .en{font:400 11px/1 var(--mono);color:var(--muted);margin-left:auto;letter-spacing:.04em}
+
+/* branding */
+.brand-grid{display:grid;grid-template-columns:300px 1fr;gap:56px;align-items:start}
+.mark-box{border:1px solid var(--rule-strong);background:var(--sheet);height:230px;position:relative;display:flex;align-items:center;justify-content:center}
+.mark-box .inner{border:1px solid var(--ink);width:120px;height:150px;position:relative}
+.mark-box .inner:after{content:'F-014';position:absolute;left:8px;bottom:7px;font:400 10px var(--mono);color:var(--muted)}
+.mark-box .ring{position:absolute;width:150px;height:96px;border:2px solid var(--mark);border-radius:50%;transform:rotate(-8deg)}
+.mark-box .stamp{position:absolute;right:34px;bottom:34px;border:2px solid var(--ink);padding:4px 9px;font:600 13px var(--sans);transform:rotate(-4deg);background:var(--sheet)}
+.brand-def dl{margin:0;display:grid;grid-template-columns:110px 1fr;gap:0}
+.brand-def dt{font:400 12px/1.6 var(--mono);color:var(--muted);padding:14px 0;border-bottom:1px solid var(--rule)}
+.brand-def dd{margin:0;padding:14px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.brand-def dd.small{font-size:14px;color:var(--ink2)}
+.brand-def dd .x{color:var(--mark);text-decoration:line-through;text-decoration-thickness:1px;margin-right:6px}
+
+/* swatches */
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-strong);border-left:1px solid var(--rule-strong)}
+.sw{border-right:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);background:var(--sheet)}
+.sw .chip{height:88px;border-bottom:1px solid var(--rule)}
+.sw .info{padding:12px 14px}
+.sw .info .t{font:500 12px var(--mono)}
+.sw .info .v{font:400 11px var(--mono);color:var(--muted);float:right}
+.sw .info .u{font-size:12px;color:var(--ink2);margin-top:7px;clear:both}
+
+/* type */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule-strong)}
+.type-cell{border-bottom:1px solid var(--rule);padding:24px 0 26px}
+.type-cell:first-child,.type-cell:nth-child(2){padding-top:8px}
+.type-cell .lbl{font:400 11px var(--mono);color:var(--muted);margin-bottom:14px}
+.type-display{font-size:46px;font-weight:600;letter-spacing:-.04em;line-height:1.15}
+.type-h{font-size:24px;font-weight:600;letter-spacing:-.03em}
+.type-body{font-size:16px;line-height:1.75;color:var(--ink2);max-width:440px}
+.type-sub{font-size:13px;line-height:1.7;color:var(--muted);max-width:440px}
+.type-mono{font:400 14px/1.8 var(--mono);color:var(--ink2)}
+.type-mono em{color:var(--mark);font-style:normal}
+
+/* components */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.comp{border:1px solid var(--rule-strong);background:var(--sheet);padding:22px;min-height:170px;position:relative}
+.comp>.cap{position:absolute;top:-1px;left:-1px;background:var(--ink);color:var(--sheet);font:500 10px var(--mono);padding:5px 9px;letter-spacing:.03em}
+.comp>.cap.red{background:var(--mark)}
+.comp .body{padding-top:22px}
+
+/* frame demo */
+.frames-demo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.frame{border:1px solid var(--rule-strong);background:#fff;aspect-ratio:4/5;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.frame .thumb{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.frame .thumb.a{background:var(--rule)}
+.frame .thumb.b{background:var(--rule-strong)}
+.frame .thumb.c{background:var(--paper)}
+.frame .thumb.d{background:var(--sheet)}
+.frame .glyph{width:36%;height:36%;border:1px solid var(--rule-strong)}
+.frame .glyph.r{border-radius:50%}
+.frame .glyph.d2{border:0;background:var(--rule-strong);height:1px;width:46%}
+.frame .fno{position:absolute;left:6px;top:5px;font:400 10px var(--mono);color:var(--muted)}
+.frame .sel{position:absolute;inset:-4px;border:2px solid var(--mark);border-radius:50%;transform:rotate(-4deg);pointer-events:none}
+
+/* stamps */
+.stamp-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0 4px}
+.st{border:1.5px solid var(--ink);color:var(--ink);padding:5px 10px;font-size:13px;font-weight:600;background:transparent}
+.st.red{border-color:var(--mark);color:var(--mark);transform:rotate(-3deg)}
+.st.ghost{border-color:var(--rule-strong);color:var(--muted)}
+.st.amber{border-color:var(--amber);color:var(--amber)}
+.st.solid{background:var(--ink);color:var(--sheet)}
+
+/* gate */
+.gate{display:flex;align-items:stretch;gap:0;border:1px solid var(--rule-strong)}
+.gate .g{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--rule);font:500 12px var(--mono);color:var(--muted);background:var(--sheet)}
+.gate .g:last-child{border-right:0}
+.gate .g .gn{display:block;font-size:10px;color:var(--rule-strong);margin-bottom:6px}
+.gate .g.done{background:var(--ink);color:var(--sheet)}
+.gate .g.done .gn{color:var(--rule-strong)}
+.gate .g.now{color:var(--mark);border-bottom:3px solid var(--mark);padding-bottom:9px}
+.gate .g.now .gn{color:var(--mark)}
+
+/* tabs */
+.tabs{display:flex;gap:26px;border-bottom:1px solid var(--rule-strong);padding-bottom:0}
+.tabs span{padding:0 0 11px;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--mark)}
+
+/* buttons + field */
+.btnrow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.inkbtn{background:var(--ink);color:var(--sheet);border:1px solid var(--ink);padding:10px 18px;font-size:14px;font-weight:600;cursor:default}
+.redact{color:var(--mark);border:0;border-bottom:1px solid var(--mark);background:none;padding:4px 0;font-size:14px;font-weight:600;cursor:default}
+.ghostbtn{border:1px solid var(--rule-strong);background:transparent;padding:10px 18px;font-size:14px;color:var(--ink2)}
+.field{border-bottom:1px solid var(--ink);padding:8px 2px;font-size:14px;color:var(--muted);background:transparent}
+.field.filled{color:var(--ink)}
+
+/* ticket + inspect */
+.tk{display:flex;flex-wrap:wrap;border:1px solid var(--rule-strong)}
+.tk div{padding:10px 14px;border-right:1px solid var(--rule);font:400 11px var(--mono);color:var(--muted)}
+.tk div:last-child{border-right:0}
+.tk b{color:var(--ink);font-weight:500;margin-left:7px}
+.inspect{border:1px solid var(--rule-strong)}
+.inspect .row{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--rule);font-size:13px}
+.inspect .row:last-child{border-bottom:0}
+.inspect .row .k{color:var(--muted)}
+.inspect .row .v{font-family:var(--mono);font-size:12px;text-align:right}
+.inspect .row .v.red{color:var(--mark)}
+
+/* empty */
+.empty{border:1px dashed var(--rule-strong);height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted)}
+.empty .en{font:400 11px var(--mono)}
+.empty .et{font-size:14px}
+
+/* screen mockups */
+.mock{border:1px solid var(--ink);background:var(--sheet)}
+.mock .bar{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--rule-strong);font:400 11px var(--mono);color:var(--muted)}
+.mock .bar b{color:var(--ink);font-weight:500}
+.mock .bar .rt{color:var(--mark)}
+.layout{display:grid;grid-template-columns:52px 1fr 250px;min-height:390px}
+.rail{border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:2px}
+.rail span{font:500 10px var(--mono);color:var(--muted);padding:8px 0;width:100%;text-align:center;border-left:2px solid transparent}
+.rail span.on{color:var(--mark);border-left-color:var(--mark);background:var(--paper)}
+.main{padding:20px 22px;min-width:0}
+.main .ptitle{font-size:19px;font-weight:600;letter-spacing:-.025em;margin:0 0 4px}
+.main .pdesc{font-size:12px;color:var(--muted);margin:0 0 18px}
+.insp{border-left:1px solid var(--rule);padding:18px 16px}
+.insp h4{margin:0 0 14px;font-size:13px;font-weight:600;letter-spacing:-.02em}
+.insp .kv{display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-bottom:1px solid var(--rule);color:var(--muted)}
+.insp .kv b{font-family:var(--mono);color:var(--ink);font-weight:500}
+.insp .kv b.red{color:var(--mark)}
+.insp .stampbox{margin-top:16px;border:2px solid var(--mark);color:var(--mark);padding:7px 10px;text-align:center;font-size:15px;font-weight:600;transform:rotate(-3deg)}
+.mini-tabs{display:flex;gap:20px;border-bottom:1px solid var(--rule);margin-bottom:16px}
+.mini-tabs span{font-size:12px;color:var(--muted);padding-bottom:9px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.mini-tabs span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--mark)}
+.sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.sheet-grid .frame{aspect-ratio:4/4.6}
+.sheet-foot{margin-top:16px;border-top:1px solid var(--rule);padding-top:10px;display:flex;justify-content:space-between;font:400 10px var(--mono);color:var(--muted)}
+
+/* S8 */
+.track{border-top:1px solid var(--rule);margin-top:18px;padding-top:14px}
+.track .th{display:flex;justify-content:space-between;font:400 11px var(--mono);color:var(--muted);margin-bottom:10px}
+.shots{display:flex;gap:6px}
+.shot{flex:1;border:1px solid var(--rule-strong);background:#fff;padding:8px 6px;text-align:center}
+.shot .sid{font:400 9px var(--mono);color:var(--muted)}
+.shot .tc{font:400 10px var(--mono);color:var(--ink);margin-top:6px}
+.shot.pick{border-color:var(--mark);outline:1px solid var(--mark);outline-offset:-2px}
+.shot.pick .sid{color:var(--mark)}
+
+/* figma note */
+.figma{border:1px solid var(--rule-strong);background:var(--sheet);padding:24px 26px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.figma h3{margin:0 0 8px;font-size:17px;font-weight:600}
+.figma p{margin:0;color:var(--ink2);font-size:14px;line-height:1.7;max-width:660px}
+.figma .pill{border:1px solid var(--mark);color:var(--mark);padding:8px 12px;font:500 11px var(--mono);white-space:nowrap}
+
+footer{margin-top:90px;border-top:2px solid var(--ink);padding-top:16px;display:flex;justify-content:space-between;font:400 11px/1.8 var(--mono);color:var(--muted)}
+footer b{color:var(--mark);font-weight:500}
+
+/* S9 */
+.forecast{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fcard{border:1px solid var(--rule);padding:12px 14px;background:var(--frame)}
+.fcard .fk{font:400 10px var(--mono);color:var(--muted)}
+.fcard .fv{font:500 18px var(--mono);margin-top:6px}
+.budget{border-top:1px solid var(--rule);margin-top:16px;padding-top:12px}
+.brow{display:flex;justify-content:space-between;font:400 11px var(--mono);color:var(--muted);padding:6px 0;border-bottom:1px solid var(--rule)}
+.brow b{color:var(--ink);font-weight:500}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+
+@media(max-width:900px){
+  .wrap{padding:0 20px 80px}
+  .mast h1{font-size:40px}
+  .brand-grid{grid-template-columns:1fr}
+  .swatches{grid-template-columns:repeat(2,1fr)}
+  .type-grid,.comp-grid{grid-template-columns:1fr}
+  .layout{grid-template-columns:44px 1fr}
+  .insp{grid-column:1/-1;border-left:0;border-top:1px solid var(--rule)}
+  .figma{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div>
+      <div class="brandline"><i></i>AIMW · DESIGN SYSTEM v2</div>
+      <h1>라이트테이블</h1>
+      <div class="tag">고르고, 승인하고, 내보낸다.</div>
+    </div>
+    <div class="meta">
+      STATUS <b>단일 진실 확정</b><br>
+      SHEET 01 / 01<br>
+      2026.11.22
+    </div>
+  </header>
+
+  <div class="ticket">
+    <div>프로젝트 <b>AIMW</b></div>
+    <div>작업 <b>콘택트 시트 검수</b></div>
+    <div>Provider <b>미연결</b></div>
+    <div class="free">예상 비용 <b>0원</b></div>
+    <div>모듈 링크 <b>0</b></div>
+  </div>
+
+  <!-- 01 BRAND -->
+  <section>
+    <div class="sec-head"><span class="n">01</span><h2>브랜딩</h2><span class="en">BRAND FOUNDATION</span></div>
+    <div class="brand-grid">
+      <div class="mark-box">
+        <div class="inner"><div class="ring"></div></div>
+        <div class="stamp">승인</div>
+      </div>
+      <div class="brand-def">
+        <dl>
+          <dt>이름</dt><dd>라이트테이블 (Light Table)</dd>
+          <dt>한 줄</dt><dd>고르고, 승인하고, 내보낸다.</dd>
+          <dt>범주</dt><dd>크리에이티브 운영 작업실</dd>
+          <dt>성격</dt><dd class="small">차분함 · 정밀함 · 손의 감각 · 편집자적 판단</dd>
+          <dt>목소리</dt><dd class="small">짧은 동사, 현재형, 근거를 붙여 단정한다</dd>
+          <dt>금지</dt><dd class="small"><span class="x">혁신적인</span><span class="x">강력한</span><span class="x"> 느낌표</span><span class="x">ALL CAPS</span></dd>
+          <dt>근거</dt><dd class="small">현상한 필름을 콘택트 시트에 올려 프레임을 고르던 행위 = 생성 결과 검토 → 선택 → 승인 → 발행</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 COLOR -->
+  <section>
+    <div class="sec-head"><span class="n">02</span><h2>색</h2><span class="en">COLOR TOKENS</span></div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#EFF0F2"></div><div class="info"><span class="t">paper</span><span class="v">#EFF0F2</span><div class="u">작업대 배경</div></div></div>
+      <div class="sw"><div class="chip" style="background:#F8F8F7"></div><div class="info"><span class="t">sheet</span><span class="v">#F8F8F7</span><div class="u">프레임 시트</div></div></div>
+      <div class="sw"><div class="chip" style="background:#14171C"></div><div class="info"><span class="t">ink</span><span class="v">#14171C</span><div class="u">제목 · 본문 · 주 버튼</div></div></div>
+      <div class="sw"><div class="chip" style="background:#3A4048"></div><div class="info"><span class="t">ink-2</span><span class="v">#3A4048</span><div class="u">보조 텍스트</div></div></div>
+      <div class="sw"><div class="chip" style="background:#646C77"></div><div class="info"><span class="t">muted</span><span class="v">#646C77</span><div class="u">메타 · 프레임 번호</div></div></div>
+      <div class="sw"><div class="chip" style="background:#D3D6DB"></div><div class="info"><span class="t">rule</span><span class="v">#D3D6DB</span><div class="u">가는 구분선</div></div></div>
+      <div class="sw"><div class="chip" style="background:#A8AEB7"></div><div class="info"><span class="t">rule-strong</span><span class="v">#A8AEB7</span><div class="u">강한 경계</div></div></div>
+      <div class="sw"><div class="chip" style="background:#BC3B2B"></div><div class="info"><span class="t">mark</span><span class="v">#BC3B2B</span><div class="u">선택 표시 · 승인 도장에만</div></div></div>
+      <div class="sw"><div class="chip" style="background:#A9761B"></div><div class="info"><span class="t">amber</span><span class="v">#A9761B</span><div class="u">비용 · 위험 맥락에만</div></div></div>
+    </div>
+  </section>
+
+  <!-- 03 TYPE -->
+  <section>
+    <div class="sec-head"><span class="n">03</span><h2>타이포그래피</h2><span class="en">TYPE SCALE</span></div>
+    <div class="type-grid">
+      <div class="type-cell"><div class="lbl">DISPLAY · 46 / 600 · -0.04em</div><div class="type-display">프레임을 고른다</div></div>
+      <div class="type-cell"><div class="lbl">HEADING · 24 / 600</div><div class="type-h">검수 패널</div></div>
+      <div class="type-cell"><div class="lbl">BODY · 16 / 400 · 1.75</div><div class="type-body">선택된 프레임의 출처와 권리 상태를 확인하세요. 승인 전에는 비용과 게이트를 함께 검토합니다.</div></div>
+      <div class="type-cell"><div class="lbl">SECONDARY · 13 / 400</div><div class="type-sub">근거를 붙여 단정한다. 짧은 동사, 현재형. 확정되지 않은 수치는 샘플 배지를 동반한다.</div></div>
+      <div class="type-cell"><div class="lbl">MONO · JETBRAINS MONO</div><div class="type-mono">F-014 &nbsp; 00:00:03.000 &nbsp; 0원 &nbsp; <em>RIGHTS_FLAG</em></div></div>
+      <div class="type-cell"><div class="lbl">금지</div><div class="type-sub">700 이상 굵기 · ALL-CAPS 라벨 · 가운뎃점 메타 · 단어 하나만 색칠한 제목 · 버튼 끝 화살표</div></div>
+    </div>
+  </section>
+
+  <!-- 04 COMPONENTS -->
+  <section>
+    <div class="sec-head"><span class="n">04</span><h2>핵심 컴포넌트</h2><span class="en">COMPONENTS</span></div>
+    <div class="comp-grid">
+
+      <div class="comp">
+        <div class="cap red">FRAME + SELECTION MARK</div>
+        <div class="body">
+          <div class="frames-demo">
+            <div class="frame"><div class="thumb a"><div class="glyph"></div></div><span class="fno">F-011</span></div>
+            <div class="frame"><div class="thumb b"><div class="glyph r"></div></div><span class="fno">F-012</span><div class="sel"></div></div>
+            <div class="frame"><div class="thumb c"><div class="glyph d2"></div></div><span class="fno">F-013</span></div>
+            <div class="frame"><div class="thumb d"><div class="glyph"></div></div><span class="fno">F-014</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">STATUS STAMP</div>
+        <div class="body">
+          <div class="stamp-row">
+            <span class="st">초안</span><span class="st">검수</span><span class="st red">승인</span><span class="st ghost">보류</span><span class="st amber">샘플</span><span class="st solid">발행</span>
+          </div>
+          <div class="stamp-row" style="margin-top:18px">
+            <span class="st ghost">예측</span><span class="st amber">비용 확인 필요</span><span class="st red">권리 미확인</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">GATE STEP · G1~G4</div>
+        <div class="body">
+          <div class="gate">
+            <div class="g done"><span class="gn">G1</span>소스</div>
+            <div class="g done"><span class="gn">G2</span>초안</div>
+            <div class="g now"><span class="gn">G3</span>검수</div>
+            <div class="g"><span class="gn">G4</span>승인</div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:14px">완료 = 검정 채움 · 현재 = 빨간 선 · 잠김 = 회색</div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">RULED TAB</div>
+        <div class="body">
+          <div class="tabs"><span class="on">전체</span><span>영상</span><span>이미지</span><span>블로그</span><span>뉴스</span></div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:18px">알약형 탭 없음. 활성은 빨간 밑줄로만 표시.</div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">INK BUTTON / RED ACTION</div>
+        <div class="body">
+          <div class="btnrow">
+            <span class="inkbtn">수집하기</span>
+            <span class="redact">이 샷만 수정</span>
+            <span class="ghostbtn">보류</span>
+          </div>
+          <div style="font:400 11px var(--mono);color:var(--muted);margin-top:18px">다음 모듈은 화살표 대신 캡션: S1 References로 이동</div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">FIELD / JOB TICKET</div>
+        <div class="body">
+          <div class="field filled">분야 또는 키워드</div>
+          <div class="field">입력 후 Enter</div>
+          <div class="tk" style="margin-top:18px">
+            <div>제작 모드 <b>선택 안 함</b></div><div>예상 비용 <b>0원</b></div><div>게이트 <b>G3</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap red">INSPECT PANEL</div>
+        <div class="body">
+          <div class="inspect">
+            <div class="row"><span class="k">프레임</span><span class="v">F-014</span></div>
+            <div class="row"><span class="k">타임코드</span><span class="v">00:00:03.000</span></div>
+            <div class="row"><span class="k">출처</span><span class="v">S03 / 공개</span></div>
+            <div class="row"><span class="k">권리</span><span class="v red">RIGHTS_FLAG</span></div>
+            <div class="row"><span class="k">비용</span><span class="v">0원</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <div class="cap">EMPTY FRAME</div>
+        <div class="body">
+          <div class="empty"><div class="en">F-000</div><div class="et">첫 프레임을 올리세요.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 05 SCREENS -->
+  <section>
+    <div class="sec-head"><span class="n">05</span><h2>핵심 화면</h2><span class="en">CORE SCREENS</span></div>
+
+    <div style="font:500 12px var(--mono);color:var(--mark);margin-bottom:12px">S0 / COLLECTOR</div>
+    <div class="mock">
+      <div class="bar"><span><b>작업표</b> &nbsp; 프로젝트: AIMW &nbsp; / &nbsp; Provider: 미연결 &nbsp; / &nbsp; 예상 비용: 0원</span><span class="rt">모듈 링크 0</span></div>
+      <div class="layout">
+        <div class="rail">
+          <span>S0</span><span>S1</span><span>S2</span><span>S3</span><span>S5</span><span>S8</span><span>S9</span>
+        </div>
+        <div class="main">
+          <h3 class="ptitle">수집함</h3>
+          <p class="pdesc">공개 범위의 자료만 모았습니다. 프레임을 선택해 출처를 확인하세요.</p>
+          <div class="mini-tabs"><span class="on">전체</span><span>영상</span><span>이미지</span><span>블로그</span><span>뉴스</span></div>
+          <div class="sheet-grid">
+            <div class="frame"><div class="thumb a"><div class="glyph"></div></div><span class="fno">F-011</span></div>
+            <div class="frame"><div class="thumb b"><div class="glyph r"></div></div><span class="fno">F-012</span><div class="sel"></div></div>
+            <div class="frame"><div class="thumb c"><div class="glyph d2"></div></div><span class="fno">F-013</span></div>
+            <div class="frame"><div class="thumb d"><div class="glyph"></div></div><span class="fno">F-014</span></div>
+            <div class="frame"><div class="thumb b"><div class="glyph"></div></div><span class="fno">F-015</span></div>
+            <div class="frame"><div class="thumb a"><div class="glyph r"></div></div><span class="fno">F-016</span></div>
+            <div class="frame"><div class="thumb d"><div class="glyph d2"></div></div><span class="fno">F-017</span></div>
+            <div class="empty" style="aspect-ratio:4/4.6"><div class="et" style="font-size:12px">빈 프레임</div></div>
+          </div>
+          <div class="sheet-foot"><span>Selection 1 / 8</span><span>공개 범위만 / 스크래핑 없음</span></div>
+        </div>
+        <aside class="insp">
+          <h4>검상 패널</h4>
+          <div class="kv"><span>프레임</span><b>F-012</b></div>
+          <div class="kv"><span>유형</span><b>영상 광고</b></div>
+          <div class="kv"><span>출처 ID</span><b>S03</b></div>
+          <div class="kv"><span>공개 범위</span><b>공개</b></div>
+          <div class="kv"><span>비용</span><b>0원</b></div>
+          <div class="kv"><span>모듈 링크</span><b>0</b></div>
+          <div class="stampbox">검수</div>
+        </aside>
+      </div>
+    </div>
+
+    <div style="font:500 12px var(--mono);color:var(--mark);margin:48px 0 12px">S8 / VIDEO WORKBENCH</div>
+    <div class="mock">
+      <div class="bar"><span><b>작업표</b> &nbsp; 프로젝트: AIMW &nbsp; / &nbsp; Provider: Ollama (로컬) &nbsp; / &nbsp; 예상 비용: 0원</span><span class="rt">모듈 링크 0</span></div>
+      <div class="layout">
+        <div class="rail">
+          <span>S0</span><span>S1</span><span>S2</span><span>S3</span><span>S5</span><span style="color:var(--mark);border-left-color:var(--mark);background:var(--paper)">S8</span><span>S9</span>
+        </div>
+        <div class="main">
+          <h3 class="ptitle">영상 워크벤치</h3>
+          <p class="pdesc">소스 모드와 제작 모드를 고르고, 게이트를 통과한 샷만 승인합니다.</p>
+          <div class="gate" style="margin-bottom:6px">
+            <div class="g done"><span class="gn">G1</span>소스 확인</div>
+            <div class="g done"><span class="gn">G2</span>초안 생성</div>
+            <div class="g now"><span class="gn">G3</span>검수</div>
+            <div class="g"><span class="gn">G4</span>승인</div>
+          </div>
+          <div class="mini-tabs" style="margin-top:20px"><span class="on">샷 트랙</span><span>소스</span><span>권리</span></div>
+          <div class="track">
+            <div class="th"><span>SHOT TRACK / 4 SHOTS</span><span>00:00:00 ~ 00:00:12</span></div>
+            <div class="shots">
+              <div class="shot"><div class="sid">S-01</div><div class="tc">00:00:00.000</div></div>
+              <div class="shot"><div class="sid">S-02</div><div class="tc">00:00:03.000</div></div>
+              <div class="shot pick"><div class="sid">S-03</div><div class="tc">00:00:06.000</div></div>
+              <div class="shot"><div class="sid">S-04</div><div class="tc">00:00:09.000</div></div>
+            </div>
+          </div>
+          <div class="sheet-foot"><span>선택 S-03 &nbsp; / &nbsp; 이 샷만 수정</span><span>샘플 / 실제 생성 없음</span></div>
+        </div>
+        <aside class="insp">
+          <h4>검상 패널</h4>
+          <div class="kv"><span>샷</span><b>S-03</b></div>
+          <div class="kv"><span>타임코드</span><b>00:00:06.000</b></div>
+          <div class="kv"><span>소스 모드</span><b>변환</b></div>
+          <div class="kv"><span>제작 모드</span><b>선택 안 함</b></div>
+          <div class="kv"><span>게이트</span><b>G3 검수</b></div>
+          <div class="kv"><span>권리</span><b class="red">미확인</b></div>
+          <div class="kv"><span>비용</span><b>0원</b></div>
+          <div class="stampbox" style="border-color:var(--amber);color:var(--amber)">권리 확인 필요</div>
+        </aside>
+      </div>
+    </div>
+
+    <div style="font:500 12px var(--mono);color:var(--mark);margin:48px 0 12px">S9 / SEO &amp; SEARCH GROWTH</div>
+    <div class="mock">
+      <div class="bar"><span><b>작업표</b> &nbsp; 프로젝트: AIMW &nbsp; / &nbsp; Provider: 수동 입력 &nbsp; / &nbsp; 예상 비용 0원</span><span class="rt">모듈 링크 0</span></div>
+      <div class="layout">
+        <div class="rail">
+          <span>S0</span><span>S1</span><span>S2</span><span>S3</span><span>S5</span><span>S6</span><span>S7</span><span>S8</span><span style="color:var(--mark);border-left-color:var(--mark);background:var(--paper)">S9</span>
+        </div>
+        <div class="main">
+          <h3 class="ptitle">SEO &amp; Search Growth</h3>
+          <p class="pdesc">시뮬레이션입니다. 실제 집행 없음. 소유 계정만 표시합니다.</p>
+          <div class="mini-tabs"><span>진단</span><span>키워드·콘텐츠</span><span class="on">예산·예측</span><span>취합·개선</span></div>
+          <div class="forecast">
+            <div class="fcard"><div class="fk">예상 유입</div><div class="fv">+12.4%</div></div>
+            <div class="fcard"><div class="fk">신뢰도</div><div class="fv">보통</div></div>
+            <div class="fcard"><div class="fk">예상 비용</div><div class="fv">0원</div></div>
+            <div class="fcard"><div class="fk">기간</div><div class="fv">90일</div></div>
+          </div>
+          <div class="budget">
+            <div class="brow"><span>모델</span><b>룰 기반 시뮬레이션</b></div>
+            <div class="brow"><span>우선순위</span><b>Google 1순위 / 네이버 2순위</b></div>
+            <div class="brow"><span>보유기간</span><b>Phase A 90일 / Phase B 12개월</b></div>
+          </div>
+          <div class="badges">
+            <span class="st amber">예측</span><span class="st ghost">신뢰도 보통</span><span class="st ghost">모델 룰</span><span class="st amber">기간 90일</span><span class="st amber">샘플</span>
+          </div>
+          <div class="sheet-foot"><span>실제 집행 없음 / 순위 보장 없음</span><span>개선안 전송은 클릭 시 ModuleLink</span></div>
+        </div>
+        <aside class="insp">
+          <h4>검상 패널</h4>
+          <div class="kv"><span>탭</span><b>예산·예측</b></div>
+          <div class="kv"><span>데이터 출처</span><b>수동 입력</b></div>
+          <div class="kv"><span>계정</span><b>소유 계정만</b></div>
+          <div class="kv"><span>집행</span><b>없음</b></div>
+          <div class="kv"><span>비용</span><b>0원</b></div>
+          <div class="kv"><span>모듈 링크</span><b>0</b></div>
+          <div class="stampbox" style="border-color:var(--amber);color:var(--amber)">시뮬레이션</div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 STATES & FLOWS -->
+  <section>
+    <div class="sec-head"><span class="n">06</span><h2>상태와 흐름</h2><span class="en">STATES &amp; FLOWS</span></div>
+    <div class="comp-grid">
+      <div class="comp">
+        <div class="cap">비동기 상태 4종</div>
+        <div class="body">
+          <div class="stamp-row"><span class="st ghost">대기</span><span class="st amber">진행</span><span class="st">완료</span><span class="st red">실패</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:16px">상태는 이 네 종류로 제한. 진행은 예상 비용과 함께 표시.</div>
+        </div>
+      </div>
+      <div class="comp">
+        <div class="cap red">명시적 링크 플로우</div>
+        <div class="body" style="font:400 12px/2 var(--mono);color:var(--ink2)">
+          S0 프레임 선택 → 검상 → "S1 References로 이동"<br>
+          S8 권리 확인 → G3 검수 → "이 샷만 수정"<br>
+          S9 개선안 검토 → 클릭 시 ModuleLink(s9→s2|s5)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 FIGMA -->
+  <section>
+    <div class="sec-head"><span class="n">07</span><h2>피그마 핸드오프</h2><span class="en">FIGMA HANDOFF</span></div>
+    <div class="figma">
+      <div>
+        <h3>프레임 구조를 그대로 옮길 수 있게 이름을 고정했습니다</h3>
+        <p>이 세션에는 Figma 쓰기 연결이 없습니다. 연결 후 <span class="mono">Brand / Color / Type / Components / S0 / S8</span> 순서로 프레임을 만들고, 컴포넌트 이름과 토큰 값을 그대로 매핑하면 됩니다. 컴포넌트는 <span class="mono">Frame · Selection mark · Status stamp · Gate step · Job ticket · Inspect panel · Ruled tab · Ink button · Field · Empty frame</span> 10개입니다.</p>
+      </div>
+      <div class="pill">MCP 연결 대기</div>
+    </div>
+  </section>
+
+  <footer>
+    <span>AIMW · 라이트테이블 · DESIGN v2 &nbsp; <b>단일 진실 확정</b></span>
+    <span>기존 앱 수정 없음 · 별도 디자인 산출물 · 직접 코드 재사용 0</span>
+  </footer>
+
+</div>
+</body>
+</html>

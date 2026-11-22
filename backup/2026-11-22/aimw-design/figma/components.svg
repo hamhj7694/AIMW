@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="980" viewBox="0 0 1200 980">
+  <rect width="1200" height="980" fill="#EFF0F2"/>
+  <g font-family="Pretendard, sans-serif" fill="#14171C">
+    <text x="40" y="52" font-size="28" font-weight="600">컴포넌트 시트</text>
+    <text x="40" y="76" font-family="JetBrains Mono, monospace" font-size="11" fill="#646C77">COMPONENTS · 10 TOKENS · FIGMA IMPORT</text>
+  </g>
+  <line x1="40" y1="94" x2="1160" y2="94" stroke="#14171C" stroke-width="2"/>
+
+  <!-- 01 BRAND MARK -->
+  <g transform="translate(40,120)">
+    <rect width="340" height="220" fill="#F8F8F7" stroke="#A8AEB7"/>
+    <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">01 BRAND MARK</text>
+    <rect x="110" y="42" width="120" height="150" fill="none" stroke="#14171C"/>
+    <ellipse cx="170" cy="112" rx="75" ry="48" fill="none" stroke="#BC3B2B" stroke-width="2" transform="rotate(-8 170 112)"/>
+    <text x="122" y="184" font-family="JetBrains Mono, monospace" font-size="10" fill="#646C77">F-014</text>
+    <rect x="226" y="150" width="56" height="30" fill="#F8F8F7" stroke="#14171C" stroke-width="2" transform="rotate(-4 254 165)"/>
+    <text x="236" y="170" font-size="13" font-weight="600" transform="rotate(-4 254 165)">승인</text>
+  </g>
+
+  <!-- 02 COLOR -->
+  <g transform="translate(400,120)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">02 COLOR</text>
+    <g>
+      <rect x="0" y="12" width="110" height="58" fill="#EFF0F2" stroke="#A8AEB7"/><rect x="110" y="12" width="110" height="58" fill="#F8F8F7" stroke="#A8AEB7"/><rect x="220" y="12" width="110" height="58" fill="#14171C"/>
+      <rect x="330" y="12" width="110" height="58" fill="#3A4048"/><rect x="440" y="12" width="110" height="58" fill="#646C77"/><rect x="550" y="12" width="110" height="58" fill="#D3D6DB"/>
+      <rect x="0" y="70" width="110" height="58" fill="#A8AEB7"/><rect x="110" y="70" width="110" height="58" fill="#BC3B2B"/><rect x="220" y="70" width="110" height="58" fill="#A9761B"/>
+    </g>
+    <g font-family="JetBrains Mono, monospace" font-size="10" fill="#3A4048">
+      <text x="0" y="146">paper #EFF0F2</text><text x="220" y="146">ink #14171C</text><text x="440" y="146">muted #646C77</text>
+      <text x="0" y="162">sheet #F8F8F7</text><text x="220" y="162">ink-2 #3A4048</text><text x="440" y="162">rule #D3D6DB</text>
+      <text x="0" y="178">rule-strong #A8AEB7</text><text x="220" y="178">mark #BC3B2B</text><text x="440" y="178">amber #A9761B</text>
+    </g>
+  </g>
+
+  <!-- 03 FRAME + SELECTION -->
+  <g transform="translate(40,370)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">03 FRAME + SELECTION MARK</text>
+    <g transform="translate(0,12)">
+      <rect width="120" height="150" fill="#FFFFFF" stroke="#A8AEB7"/><rect x="30" y="45" width="60" height="60" fill="none" stroke="#A8AEB7"/>
+      <text x="8" y="16" font-family="JetBrains Mono, monospace" font-size="10" fill="#646C77">F-011</text>
+
+      <rect x="132" width="120" height="150" fill="#FFFFFF" stroke="#A8AEB7"/><circle cx="192" cy="75" r="30" fill="none" stroke="#A8AEB7"/>
+      <text x="140" y="16" font-family="JetBrains Mono, monospace" font-size="10" fill="#646C77">F-012</text>
+      <ellipse cx="192" cy="75" rx="64" ry="79" fill="none" stroke="#BC3B2B" stroke-width="2" transform="rotate(-4 192 75)"/>
+
+      <rect x="264" width="120" height="150" fill="#FFFFFF" stroke="#A8AEB7"/><line x1="291" y1="75" x2="357" y2="75" stroke="#A8AEB7"/>
+      <text x="272" y="16" font-family="JetBrains Mono, monospace" font-size="10" fill="#646C77">F-013</text>
+    </g>
+  </g>
+
+  <!-- 04 STAMPS -->
+  <g transform="translate(440,370)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">04 STATUS STAMP</text>
+    <g transform="translate(0,14)" font-size="13" font-weight="600">
+      <rect width="52" height="30" fill="none" stroke="#14171C" stroke-width="1.5"/><text x="10" y="20">초안</text>
+      <rect x="60" width="52" height="30" fill="none" stroke="#14171C" stroke-width="1.5"/><text x="70" y="20">검수</text>
+      <g transform="rotate(-3 146 15)"><rect x="120" width="52" height="30" fill="none" stroke="#BC3B2B" stroke-width="1.5"/><text x="130" y="20" fill="#BC3B2B">승인</text></g>
+      <rect x="180" width="52" height="30" fill="none" stroke="#A8AEB7"/><text x="190" y="20" fill="#646C77">보류</text>
+      <rect x="240" width="60" height="30" fill="none" stroke="#A9761B"/><text x="250" y="20" fill="#A9761B">샘플</text>
+      <rect x="308" width="52" height="30" fill="#14171C"/><text x="318" y="20" fill="#F8F8F7">발행</text>
+    </g>
+  </g>
+
+  <!-- 05 GATE -->
+  <g transform="translate(40,570)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">05 GATE STEP · G1~G4</text>
+    <g transform="translate(0,14)">
+      <rect width="120" height="56" fill="#14171C"/><text x="12" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#A8AEB7">G1</text><text x="12" y="42" font-size="13" fill="#F8F8F7">소스 확인</text>
+      <rect x="120" width="120" height="56" fill="#14171C"/><text x="132" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#A8AEB7">G2</text><text x="132" y="42" font-size="13" fill="#F8F8F7">초안 생성</text>
+      <rect x="240" width="120" height="56" fill="#F8F8F7" stroke="#A8AEB7"/><rect x="240" y="53" width="120" height="3" fill="#BC3B2B"/><text x="252" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">G3</text><text x="252" y="42" font-size="13" fill="#BC3B2B">검수</text>
+      <rect x="360" width="120" height="56" fill="#F8F8F7" stroke="#A8AEB7"/><text x="372" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#A8AEB7">G4</text><text x="372" y="42" font-size="13" fill="#646C77">승인</text>
+    </g>
+  </g>
+
+  <!-- 06 TABS -->
+  <g transform="translate(560,570)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">06 RULED TAB</text>
+    <g transform="translate(0,14)">
+      <line x1="0" y1="38" x2="440" y2="38" stroke="#A8AEB7"/>
+      <text x="0" y="28" font-size="14" font-weight="600">전체</text><rect x="0" y="36" width="36" height="2" fill="#BC3B2B"/>
+      <text x="80" y="28" font-size="14" fill="#646C77">영상</text>
+      <text x="150" y="28" font-size="14" fill="#646C77">이미지</text>
+      <text x="230" y="28" font-size="14" fill="#646C77">블로그</text>
+      <text x="310" y="28" font-size="14" fill="#646C77">뉴스</text>
+    </g>
+  </g>
+
+  <!-- 07 BUTTONS -->
+  <g transform="translate(40,690)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">07 INK BUTTON / RED ACTION</text>
+    <g transform="translate(0,14)">
+      <rect width="112" height="40" fill="#14171C"/><text x="20" y="26" font-size="14" font-weight="600" fill="#F8F8F7">수집하기</text>
+      <text x="140" y="26" font-size="14" font-weight="600" fill="#BC3B2B">이 샷만 수정</text><line x1="140" y1="32" x2="228" y2="32" stroke="#BC3B2B"/>
+      <rect x="250" width="80" height="40" fill="none" stroke="#A8AEB7"/><text x="270" y="26" font-size="14" fill="#3A4048">보류</text>
+    </g>
+  </g>
+
+  <!-- 08 FIELD / TICKET -->
+  <g transform="translate(440,690)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">08 FIELD / JOB TICKET</text>
+    <g transform="translate(0,14)">
+      <text x="0" y="20" font-size="14" fill="#14171C">분야 또는 키워드</text><line x1="0" y1="28" x2="240" y2="28" stroke="#14171C"/>
+      <text x="0" y="52" font-size="14" fill="#646C77">입력 후 Enter</text><line x1="0" y1="60" x2="240" y2="60" stroke="#14171C"/>
+      <g transform="translate(0,76)">
+        <rect width="420" height="34" fill="#F8F8F7" stroke="#A8AEB7"/>
+        <line x1="140" y1="0" x2="140" y2="34" stroke="#D3D6DB"/><line x1="280" y1="0" x2="280" y2="34" stroke="#D3D6DB"/>
+        <text x="10" y="22" font-family="JetBrains Mono, monospace" font-size="11" fill="#646C77">제작 모드 <tspan fill="#14171C">선택 안 함</tspan></text>
+        <text x="150" y="22" font-family="JetBrains Mono, monospace" font-size="11" fill="#646C77">예상 비용 <tspan fill="#14171C">0원</tspan></text>
+        <text x="290" y="22" font-family="JetBrains Mono, monospace" font-size="11" fill="#646C77">게이트 <tspan fill="#14171C">G3</tspan></text>
+      </g>
+    </g>
+  </g>
+
+  <!-- 09 INSPECT -->
+  <g transform="translate(40,830)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">09 INSPECT PANEL</text>
+    <g transform="translate(0,14)">
+      <rect width="420" height="126" fill="#F8F8F7" stroke="#A8AEB7"/>
+      <g font-size="12">
+        <text x="12" y="22" fill="#646C77">프레임</text><text x="408" y="22" text-anchor="end" font-family="JetBrains Mono, monospace" fill="#14171C">F-014</text>
+        <line x1="12" y1="30" x2="408" y2="30" stroke="#D3D6DB"/>
+        <text x="12" y="48" fill="#646C77">타임코드</text><text x="408" y="48" text-anchor="end" font-family="JetBrains Mono, monospace" fill="#14171C">00:00:03.000</text>
+        <line x1="12" y1="56" x2="408" y2="56" stroke="#D3D6DB"/>
+        <text x="12" y="74" fill="#646C77">출처</text><text x="408" y="74" text-anchor="end" font-family="JetBrains Mono, monospace" fill="#14171C">S03 / 공개</text>
+        <line x1="12" y1="82" x2="408" y2="82" stroke="#D3D6DB"/>
+        <text x="12" y="100" fill="#646C77">권리</text><text x="408" y="100" text-anchor="end" font-family="JetBrains Mono, monospace" fill="#BC3B2B">RIGHTS_FLAG</text>
+        <line x1="12" y1="108" x2="408" y2="108" stroke="#D3D6DB"/>
+        <text x="12" y="124" fill="#646C77">비용</text><text x="408" y="124" text-anchor="end" font-family="JetBrains Mono, monospace" fill="#14171C">0원</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- 10 EMPTY -->
+  <g transform="translate(500,830)">
+    <text font-family="JetBrains Mono, monospace" font-size="10" fill="#BC3B2B">10 EMPTY FRAME</text>
+    <g transform="translate(0,14)">
+      <rect width="420" height="126" fill="none" stroke="#A8AEB7" stroke-dasharray="5 4"/>
+      <text x="210" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#646C77">F — ——</text>
+      <text x="210" y="86" text-anchor="middle" font-size="14" fill="#646C77">첫 프레임을 올리세요.</text>
+    </g>
+  </g>
+
+  <text x="40" y="966" font-family="JetBrains Mono, monospace" font-size="10" fill="#646C77">AIMW · LIGHT TABLE · DESIGN v2 · FIGMA IMPORT SHEET · 승인 대기</text>
+</svg>
