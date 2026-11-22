@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, type SyntheticEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Badge, Kpi, LinkButton, LinkChips, PageHeader, Panel, ProgressLine } from '../components/ui'
 import { BarChart, CalendarStrip, DocumentLines, MediaThumb, ShotFrame } from '../components/Visuals'
 import { flowItems } from '../data/sample'
@@ -134,14 +135,72 @@ const copyVariants = [
 ]
 
 export function S2Studio() {
-  const [section, setSection] = useState<keyof typeof draftSections>('F3')
-  const [draft, setDraft] = useState<string>(draftSections.F3.text)
+  const [params] = useSearchParams()
+  const requestedTab = params.get('tab')
+  const initialSection: keyof typeof draftSections =
+    requestedTab && requestedTab in draftSections ? (requestedTab as keyof typeof draftSections) : 'F3'
+  const [section, setSection] = useState<keyof typeof draftSections>(initialSection)
+  const [draft, setDraft] = useState<string>(draftSections[initialSection].text)
   const [checks, setChecks] = useState([true, false, false])
+  const [selectedText, setSelectedText] = useState(params.get('selection') ?? '')
+  const [selectedRange, setSelectedRange] = useState<{ start: number; end: number } | null>(null)
+  const [selectedLines, setSelectedLines] = useState<number[]>([])
+  const [revisionInstruction, setRevisionInstruction] = useState(params.get('request') ?? '')
+  const [revisionRequests, setRevisionRequests] = useState<
+    { id: number; source: string; target: string; quote: string; instruction: string }[]
+  >([])
 
   function selectSection(next: keyof typeof draftSections) {
     setSection(next)
     setDraft(draftSections[next].text)
+    setSelectedRange(null)
+    setSelectedLines([])
   }
+
+  function captureSelection(event: SyntheticEvent<HTMLTextAreaElement>) {
+    const element = event.currentTarget
+    if (element.selectionEnd > element.selectionStart) {
+      setSelectedText(element.value.slice(element.selectionStart, element.selectionEnd))
+      setSelectedRange({ start: element.selectionStart, end: element.selectionEnd })
+      setSelectedLines([])
+    }
+  }
+
+  function toggleLine(index: number) {
+    setSelectedLines((previous) =>
+      previous.includes(index) ? previous.filter((item) => item !== index) : [...previous, index].sort((a, b) => a - b),
+    )
+    setSelectedRange(null)
+  }
+
+  function addRevision(source: 'drag' | 'cell' | 'request') {
+    const instruction = revisionInstruction.trim()
+    if (!instruction) return
+
+    let quote = selectedText
+    let target = '선택 구간'
+    let sourceLabel = '요청 선택'
+
+    if (source === 'drag' && selectedRange) {
+      quote = draft.slice(selectedRange.start, selectedRange.end)
+      target = `문자 ${selectedRange.start}~${selectedRange.end}`
+      sourceLabel = '드래그 선택'
+    } else if (source === 'cell' && selectedLines.length > 0) {
+      const lines = draft.split('\n')
+      quote = selectedLines.map((index) => lines[index]).join('\n')
+      target = `줄 ${selectedLines.map((index) => index + 1).join(', ')}`
+      sourceLabel = '셀 선택'
+    }
+    if (!quote.trim()) return
+
+    setRevisionRequests((previous) => [
+      ...previous,
+      { id: Date.now(), source: sourceLabel, target, quote, instruction },
+    ])
+    setRevisionInstruction('')
+  }
+
+  const draftLines = draft.split('\n')
 
   return (
     <>
@@ -186,6 +245,10 @@ export function S2Studio() {
               aria-label={`${draftSections[section].label} 본문`}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
+              onSelect={captureSelection}
+              onMouseUp={captureSelection}
+              onKeyUp={captureSelection}
+              onTouchEnd={captureSelection}
             />
             <p className="hint">입력은 현재 화면에만 유지되며 서버 저장이나 외부 전송을 하지 않습니다.</p>
           </div>
@@ -204,6 +267,76 @@ export function S2Studio() {
             <div className="review-stamp">F5 검수 대기</div>
           </div>
         </div>
+      </Panel>
+
+      <Panel title="부분 수정 요청" aside={<Badge tone="dry">드래그 선택 + 셀 선택</Badge>}>
+        <div className="selection-desk">
+          <div className="selection-preview">
+            <span className="desk-label">선택 영역</span>
+            <div className="marked-preview">
+              {selectedRange ? (
+                <>
+                  {draft.slice(Math.max(0, selectedRange.start - 36), selectedRange.start)}
+                  <mark>{draft.slice(selectedRange.start, selectedRange.end)}</mark>
+                  {draft.slice(selectedRange.end, Math.min(draft.length, selectedRange.end + 36))}
+                </>
+              ) : (
+                selectedText || '원고에서 문장을 드래그하면 여기에 표시됩니다.'
+              )}
+            </div>
+            <p className="hint">드래그로 고른 문장이나 아래 줄 셀을 수정 대상으로 삼습니다.</p>
+          </div>
+          <div className="selection-cells">
+            <span className="desk-label">줄 셀 선택</span>
+            {draftLines.map((line, index) => (
+              <button
+                key={index}
+                type="button"
+                aria-pressed={selectedLines.includes(index)}
+                className={selectedLines.includes(index) ? 'is-active' : ''}
+                onClick={() => toggleLine(index)}
+              >
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <em>{line || '(빈 줄)'}</em>
+              </button>
+            ))}
+          </div>
+        </div>
+        <label className="field field--wide">
+          수정 요청 내용
+          <input
+            value={revisionInstruction}
+            onChange={(event) => setRevisionInstruction(event.target.value)}
+            placeholder="예: 이 문장을 더 짧고 쉽게 바꿔줘"
+          />
+        </label>
+        <div className="row selection-actions">
+          <button type="button" className="button button--primary" disabled={!selectedRange || !revisionInstruction.trim()} onClick={() => addRevision('drag')}>
+            드래그 영역 수정 요청
+          </button>
+          <button type="button" className="button" disabled={selectedLines.length === 0 || !revisionInstruction.trim()} onClick={() => addRevision('cell')}>
+            선택 줄 수정 요청
+          </button>
+          {selectedText && !selectedRange && (
+            <button type="button" className="button" disabled={!revisionInstruction.trim()} onClick={() => addRevision('request')}>
+              요청 범위로 추가
+            </button>
+          )}
+        </div>
+        {revisionRequests.length > 0 && (
+          <ul className="revision-requests">
+            {revisionRequests.map((item) => (
+              <li key={item.id}>
+                <div className="row row--between">
+                  <strong>{item.source} / {item.target}</strong>
+                  <Badge tone="dry">검수 대기</Badge>
+                </div>
+                <blockquote>{item.quote}</blockquote>
+                <p className="hint">요청: {item.instruction}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </Panel>
 
       <Panel title="카피 변형 후보" aside={<Badge tone="dry">룰 기반 / 실제 생성 아님</Badge>}>

@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { CommandDock } from '../components/CommandDock'
 import { useModuleLinks } from './useModuleLinks'
 
 const modules = [
@@ -33,6 +34,8 @@ export function AppShell() {
           <span>지출 상한 <b>0원</b></span>
         </div>
       </header>
+
+      <CommandDock />
 
       <nav className="module-band" aria-label="모듈 선택">
         {modules.map((item) => (
