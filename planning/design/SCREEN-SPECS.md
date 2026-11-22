@@ -2,11 +2,12 @@
 
 작성일: 2026-11-22  
 기준 뷰포트: 1440×900 (보조 1280 / 768). 한국어 UI.  
-관련: `DESIGN-PLAN.md`, `COMPONENT-SPECS.md`, `ARCHITECTURE.md`, `planning/design/PRODUCTION-MODE-SPECS.md`(별도 작성중, 경로 참조만)
+관련: `DESIGN-PLAN.md`, `COMPONENT-SPECS.md`, `ARCHITECTURE.md`, 제작 유형 명세(별도 문서 작성중)
 
 > 표기: 각 화면은 **목적 / 레이아웃 / 주요 요소 / 상태 / 근거 레퍼런스**를 갖는다. 근거는 실제 캡처 경로이며, 출처 불일치(Motion) 및 이미지 직접 판독 불가는 `REFERENCE-AUDIT.md`에 명시된 한계를 따른다.  
-> **2026-11-22 개정**: 캡처는 참고용이고, 수집·검색·분석 파이프라인은 이 프로젝트용으로 자체 설계한다. S0 Collector를 신설하고 S1~S4와 연결했다. Motion은 `creatify-ai/capture/routes/features-agent/**`가 진본으로 확인되어 그룹화/태깅/모멘텀 카드 패턴만 참고한다(`motionapp-com/capture/**`는 Creatify라 제외). 추가로 **S5 우리 콘텐츠 허브 / S6 성과·예측 / S7 오디언스 세그먼트**를 독립 모듈로 기획한다.  
+> **2026-11-22 개정**: 캡처는 참고용이고, 수집·검색·분석 파이프라인은 이 프로젝트용으로 자체 설계한다. S0 Collector를 신설하고 S1~S4와 연결했다. Motion은 로컬 캡처 분석 결과(저장소 미포함)에서 진본 출처가 확인되어 그룹화/태깅/모멘텀 카드 패턴만 참고한다(출처 불일치 자료는 Creatify라 제외). 추가로 **S5 우리 콘텐츠 허브 / S6 성과·예측 / S7 오디언스 세그먼트**를 독립 모듈로 기획한다.  
 > **2026-11-22 S8 추가**: **S8 Video Workbench**를 S2 서브탭이 아닌 독립 모듈로 기획한다. 분석/제작/수정 3탭 상태 분리, 제작 유형 명시 선택, 4게이트, 샷 단위 수정, DryRender만 MVP 범위다.
+> **2026-11-22 S8 소스 확장**: S8에 소스 모드(신규 생성/기존 미디어 변환·수정/여러 소스 합성), 미디어 소스 선택, 변환·합성 워크스페이스, 권리 확인 게이트를 추가한다. 서드파티 레퍼런스는 메타데이터 전용이고, 모든 결과는 동일 4게이트를 통과한다. 화면 수는 10개이며 S9 SEO & Search Growth는 별도 문서로 작성중이다. 새 설계 근거는 공개적으로 관찰된 패턴을 자체 원칙으로 재서술하거나 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한다.
 
 ---
 
@@ -15,7 +16,7 @@
 - **목적**: 프로젝트 컨텍스트 고정, 전역 탐색, AI 작업 상태 상시 노출.
 - **레이아웃**: Sidebar 240px | Main 1fr | DetailPanel 380px(조건부). 상단 Topbar 56px.
 - **Topbar**: CampaignSwitcher(장기렌트 캠페인), 전역 검색 `Ctrl/Cmd+K`, ProviderBadge(Ollama), CostBadge("로컬 · 무과금"), 알림, 사용자.
-- **Sidebar**: Collector / **Own Content** / References / Studio / Publishing / Insights / **Performance** / **Segments** / **Video Workbench** + 하단 설정·연결. 그룹 라벨: `[수집·자산]` / `[작업(S8 포함)]` / `[분석]`.
+- **Sidebar**: Collector / **Own Content** / References / Studio / Publishing / Insights / **Performance** / **Segments** / **Video Workbench** / **SEO & Search Growth**(별도 문서 작성중, 항목만 표시) + 하단 설정·연결. 10개 화면. 그룹 라벨: `[수집·자산]` / `[작업(S8 포함)]` / `[분석]`.
 - **전역 오버레이**: JobDrawer(작업 큐), DetailPanel(선택 항목), CommandPalette.
 - **상태**: 연결 끊김 시 ProviderBadge 경고, 진행 중 작업 수 배지(수집 Job 포함).
 - **근거**: Buffer PUBLISH 좌측 사이드바 + Postiz 상단 내비 + Snipit 전역 셸.
@@ -52,7 +53,7 @@
 | 블로그 | 제목, 본문 요약, 발행일, 작성자, RSS/사이트맵, 원문 URL | RSS / 사이트맵 / 공개 글 | 제목 + 요약 + 발행일 |
 | 뉴스 | 헤드라인, 요약, 언론사, 발행일, 원문 URL | 공개 뉴스 RSS / 공개 데이터셋 | 헤드라인 + 언론사 + 시각 |
 
-- **근거**: **자체 설계**. UI 패턴만 `snipit-im/capture/routes/features-boards`(보드/개수 배지), `foreplay-co/capture/routes/discovery`(필터·탭), `buffer-com/capture/routes/community`(상태 목록) 참고.
+- **근거**: **자체 설계**. 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리해 보드/개수 배지, 필터·탭, 상태 목록 패턴만 참고.
 
 ---
 
@@ -69,7 +70,7 @@
   - Empty: "첫 레퍼런스를 저장하세요" + URL 입력 버튼.
   - Loading: 카드 스켈레톤 + "분석 중 n/5".
   - Error: 분석 실패 시 재시도 + Provider 전환 링크.
-- **근거**: `snipit-im/capture/routes/features-search`, `features-boards`, `features-brand-archive`의 검색 모드·보드·위닝 배지; `foreplay-co/capture/routes/discovery`, `swipe-file`의 AI Search·필터·스와이프 파일.
+- **근거**: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 검색 모드·보드·위닝 배지·AI 검색·필터·스와이프 파일 패턴.
 
 ---
 
@@ -89,7 +90,7 @@
   - Streaming: 타이핑 + "생성 중 · 중지".
   - Partial failure: 실패 카드만 재시도 배지.
   - Approval: 초안/검수중/승인됨 배지, 승인자·시각.
-- **근거**: `snipit-im/capture/routes/features-ad-creation`의 4단계 흐름·빈 상태·크레딧 안내; `monov-ai-com/capture/routes/*`의 제품사진→4장→편집/히스토리; `creatify-ai/capture`의 Research/Create/Analyze 스티커리와 "Review before approving"; `foreplay-co/capture`의 Briefs 링크.
+- **근거**: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 4단계 흐름·빈 상태·크레딧 안내, 결과 그리드→편집/히스토리, 리서치·제작·분석 스티커리와 승인 전 검토 문구, 브리프 링크 패턴.
 
 ---
 
@@ -103,7 +104,7 @@
   - ChannelPreview: 원문 → 채널별 변환 텍스트, 해시태그, 미디어 슬롯.
   - DryRunBadge: "시연 · 외부 전송 없음" 상시.
 - **상태**: Scheduled(예약 시각/시간대), Published(시연), 취소, 연결 필요.
-- **근거**: `buffer-com/capture/routes/publish`의 주간 캘린더·Seoul·Draft·컴포저·예약 모드; `postiz-com/capture`의 비주얼 캘린더·채널 아이콘 행; `creatify-ai` 커넥터 로고 구름(패턴만).
+- **근거**: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 주간 캘린더·시간대·초안·컴포저·예약 모드, 비주얼 캘린더·채널 아이콘 행·커넥터 배치(패턴만).
 
 ---
 
@@ -118,7 +119,7 @@
   - TopContentTable: 콘텐츠별 성과, 정렬 가능.
   - ImprovementCard: AI 개선안 + **"이 개선안으로 새 브리프"** 버튼(F7→F2).
 - **상태**: Empty("CSV를 업로드하세요"), 매핑 오류, 계산 중 스켈레톤, 개선안 생성 중.
-- **근거**: `buffer-com/capture/routes/insights`의 기간 칩·지표 카드·Top 5 Posts·WEEKLY TAKEAWAYS; `foreplay-co/capture/routes/lens-creative-analytics`의 벤치마크·세그먼트.
+- **근거**: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 기간 칩·지표 카드·인기 콘텐츠·주간 요약·벤치마크·세그먼트 패턴.
 
 ---
 
@@ -137,7 +138,7 @@
   - `이 아이디어로 기획` 버튼: S2 BriefForm에 제목/타깃/참고를 채워 이동(사용자 클릭).
 - **상태**: Empty("우리 콘텐츠를 등록하세요" + CSV 템플릿) / Importing / Imported / DuplicateWarning / SeriesLinked / IdeaCreated / LinkRemoved.
 - **안전장치**: S0와 자동 공유 금지. `ModuleLink`는 `s0.collected_item → s5.idea_backlog` 형태로만 기록. 미디어 재호스팅 금지.
-- **근거**: **자체 설계**. 그룹화/AI 태깅/모멘텀 카드 패턴만 `creatify-ai/capture/routes/features-agent/**`(Motion 진본) 참고, 보드는 Snipit features-boards 참고.
+- **근거**: **자체 설계**. 로컬 캡처 분석 결과(저장소 미포함)에서 확인한 그룹화/AI 태깅/모멘텀 카드·보드 패턴만 참고.
 
 ---
 
@@ -155,7 +156,7 @@
   - ScenarioNote: "예측은 참고용, 실제 성과 아님" 상시 문구.
 - **상태**: NoData / SampleData(`샘플` 배지) / Uploaded / Forecasting / Result / LowConfidence(신뢰도 낮음 경고) / ModelUnavailable.
 - **안전장치**: S4와 데이터를 복제하지 않음. S6 전용 `MetricSeries`를 두고, 연결은 `ModuleLink`로만 표현.
-- **근거**: **자체 설계**. 지표 카드/기간 칩은 Buffer insights, 시각적 리포트/모멘텀은 Motion 진본(`creatify-ai/capture/routes/features-agent/**`) 패턴 참고.
+- **근거**: **자체 설계**. 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 지표 카드·기간 칩·시각적 리포트·모멘텀 패턴 참고.
 
 ---
 
@@ -182,11 +183,11 @@
 
 > S2가 "기획·카피·이미지·영상 프롬프트 생성"이라면 S8은 "영상을 분석하고, 자연어 의도를 확인된 `VideoIntent`로 바꾸고, 게이트별로 만들고, 샷 단위로 수정하는 화면"이다. S2의 서브탭이 아니며 다른 모듈과 자동으로 데이터를 주고받지 않는다.
 
-- **라우트**: `/s8`. 내부 탭은 `?tab=analysis|production|revision`, 레퍼런스 서치는 `?step=reference-search`, 용어사전은 `/s8/settings?view=terms`. 제작 유형(`productionMode`)은 프로젝트 단위 값(기본 미선택).
+- **라우트**: `/s8`. 내부 탭은 `?tab=analysis|production|revision`, 레퍼런스 서치는 `?step=reference-search`, 미디어 소스·변환·합성 워크스페이스는 `?step=media-source`(내부 `?workspace=transform|composite`), 용어사전은 `/s8/settings?view=terms`. 제작 유형(`productionMode`)은 프로젝트 단위 값(기본 미선택), 소스 모드(`inputMode`)는 분석 전 단계 값(기본 `generate_new`).
 - **목적**: 영상 분석 결과(내용/기술)를 근거로 제작 의도를 확정하고, 사용자 승인 게이트를 거쳐 샷 단위 결과물을 만들고, 지정 샷만 수정한다.
 - **진입 단계 1 — 제작 유형 선택**: `ProductionModePicker`로 **실사 / 숏폼 / 영화 / 영상 / 애니메이션 / 모션그래픽** 중 하나를 프로젝트 단위로 **명시 선택**(기본값 미선택). 자동 감지·자동 변경 금지. 미선택 시 분석·레퍼런스 서치·3탭 진입을 막고 안내한다. 유형은 분석 차원, 구도 규칙, 게이트 산출물, 사용 가능 템플릿, 비용/시간 프로파일, 세이프존 규칙을 결정한다.
   - 유형 변경 시 확인 다이얼로그로 영향 받는 분석·콘티·구도 스키마·애니매틱·샷/버전·템플릿·예상 비용 목록을 안내한다. 확정 전 기존 결과를 유지하고, 확정 후에도 덮어쓰지 않고 새 버전으로 남긴다. 3탭의 독립 상태는 유지된다.
-  - 상세 스펙: `planning/design/PRODUCTION-MODE-SPECS.md`, 숏폼 `planning/knowledge/10-shortform-composition.md`, 모션그래픽·애니메이션 `planning/knowledge/11-motion-graphics-and-animation.md` (경로 참조만).
+  - 상세 스펙은 제작 유형 별도 문서, 숏폼·모션그래픽·애니메이션 기준은 자체 지식베이스에 위임(이 문서에서는 내용을 다루지 않음).
 
   | 제작 유형 | 상시 안내 문구(예) | 사용 가능 템플릿(예) | 유형 반영 포인트 |
   |---|---|---|---|
@@ -214,19 +215,31 @@
     | 모션그래픽 | 이징 · 타이포 · 브랜드 모션 |
 
   - **수동 입력 폼 필드**: 원문 URL(필수), 메모(자유 입력), 타임코드 시작/끝, 출처 등급(공식 API/공개 피드/공개 메타데이터/수동), 권리 배지(공개 범위 확인 여부), 검색 축 태그(제작 유형별 기본값), 선택 시 근거 메모.
-  - **근거**: `planning/knowledge/12-reference-search-playbook.md` (별도 작성중, 경로 참조만).
+  - **근거**: 공개 범위·출처 등급·타임코드 기준을 자체 원칙으로 정리한 레퍼런스 서치 지침(별도 문서 작성중).
+
+- **진입 단계 3 — 소스 모드와 미디어 소스**(분석 전, 3탭과 별개 단계):
+  - **소스 모드(`inputMode`)**: `generate_new`(신규 생성, 기본 표시) / `transform_source`(기존 미디어 변환·수정) / `composite`(여러 소스 합성). 사용자가 명시적으로 전환하며 자동 감지·자동 전환 금지.
+  - **모드 변경 안전장치**: 기존 소스·콘티·샷·버전이 있으면 확인 다이얼로그로 영향 목록을 안내한다. 확정 전 기존 결과를 유지하고, 확정 후에도 이전 버전을 보존한다.
+  - **미디어 소스**: 사용자 업로드(자기 콘텐츠), 사용자 제공 URL, S5 기존 자산은 사용자가 "S8에서 소스로 사용"을 클릭할 때만 `ModuleLink(s5→s8)`로 참조한다.
+  - **레퍼런스 경계**: 서드파티 레퍼런스 미디어는 원문 URL·썸네일 URL·타임코드 등 메타데이터만 유지한다. 프레임 다운로드와 프레임 분석은 하지 않는다.
+  - **권리 게이트**: 변환·합성 모드에서는 `rights_flag`와 `rights_confirmed_by`를 확인해야 작업 버튼이 활성화된다. 미확인·거부 상태에서는 진행을 차단하고 재확인 경로를 안내한다.
+  - **탭 격리**: 소스와 변환 결과는 분석·제작·수정 탭에 자동 주입되지 않는다. 사용자가 샷 또는 레이어로 명시 지정할 때만 반영되며 3탭 독립 상태는 유지된다.
 
 - **모드(내부 탭 3종)**: 분석 / 제작 / 수정. 탭별로 독립 상태(선택 샷, 입력 원문, 확정된 `VideoIntent`, 게이트 진행도, 수정 이력, 버전 선택)를 가진다. 전환 시 한 탭의 값이 다른 탭으로 주입되지 않으며, 레퍼런스 서치 결과도 자동으로 탭에 삽입되지 않는다(사용자가 명시적으로 선택·첨부할 때만 반영).
-- **레이아웃**: PageHeader(제작 유형 칩 + DryRunBadge + 레퍼런스 서치 재진입 버튼) → 3탭(분석/제작/수정) → 탭별 본문. 분석은 2레이어 카드, 제작은 용어 매핑 + 4게이트, 수정은 샷 타임라인 + 수정 패널.
+- **레이아웃**: PageHeader(제작 유형 칩 + DryRunBadge + 레퍼런스 서치 재진입 버튼) → 소스 모드 선택 + 미디어 소스 단계(`?step=media-source`) → (변환·합성 시) 작업 워크스페이스 → 3탭(분석/제작/수정) → 탭별 본문. 분석은 2레이어 카드, 제작은 용어 매핑 + 4게이트, 수정은 샷 타임라인 + 수정 패널.
 - **주요 요소**:
   - AnalysisCard(내용/기술 2종): 내용 = 훅/구조/메시지/CTA/타깃/감정곡선 + timecode, 기술 = 카메라앵글·기법·전환·조명·구도·편집 + confidence. 타임코드 클릭 시 해당 구간만 미리보기.
-  - TermMappingPreview: 비전문가 자연어 → 표준 용어 4열(원문/표준용어/근거/신뢰도). 사용자가 확인해야 `VideoIntent` 생성. 도메인 용어는 `planning/knowledge/` 기반.
+  - TermMappingPreview: 비전문가 자연어 → 표준 용어 4열(원문/표준용어/근거/신뢰도). 사용자가 확인해야 `VideoIntent` 생성. 도메인 용어는 별도 전문가 지식베이스 기반.
   - ClarificationCard + ConfidenceBadge: 신뢰도 낮음 항목 되묻기. 답변 전에는 다음 단계 잠김.
   - GateStepper: 4게이트 진행·잠금·승인 상태.
   - StoryboardGrid / Composition3DSchemaView / AnimaticTimeline / ShotTimeline / ShotVersionChip: 게이트 산출물과 샷·버전 관리.
   - RevisionPanel + CostTimeGauge: 영향 범위·예상비용·예상시간 미리보기 후 "이 샷만 수정".
   - SafeZoneOverlay: 제작 유형별 세이프존 규칙을 9:16 / 1:1 / 16:9 가이드로 표시.
   - VideoTemplatePicker: 제작 유형에 따라 사용 가능 템플릿 목록이 달라진다.
+  - InputModePicker / MediaSourcePicker: 소스 모드 3종과 업로드·URL·S5 자산 소스를 선택한다. 전환 시 확인 다이얼로그와 이전 버전 보존을 적용한다.
+  - TransformOperationPicker: 이미지/영상/합성 작업 그룹별 칩을 제공한다. 선택 작업에 따라 예상 비용·시간이 갱신된다.
+  - CompositeLayerPanel / MaskingCanvasStub: 레이어 순서·보임·잠금과 마스크 가이드 오버레이(Phase A 스텁)를 제공한다.
+  - BeforeAfterCompare / RightsConfirmationDialog / TransformCostPreview: 원본·결과 비교, 권리 확인, 작업별 예상 비용·시간을 표시한다.
 
 - **제작 4게이트(사용자 승인 없음 → 다음 단계 비활성)**:
 
@@ -245,14 +258,85 @@
   - DuplicateReference: 중복 후보는 합치기/유지 선택지 제공, 자동 삭제 없음.
   - LowSourceConfidence: 출처 신뢰도 낮음 → 근거 확인 배지 + 수동 검증 요구.
   - Empty("레퍼런스를 검색하거나 직접 입력하세요") / Loading(검색·분석 단계 텍스트) / LowConfidence → Clarification / PartialFailure(일부 샷만 실패 배지) / GateBlocked(미승인 게이트 사유) / Result / Revised.
-- **샘플·드라이런 배지**: `샘플 데이터`, `시연 · 실제 렌더 없음`, `시뮬레이션`(3D 구도), `저해상도 스텁`(애니매틱) 상시. Phase A는 텍스트·스키마·샘플 미리보기와 DryRenderAdapter 플레이스홀더만, Phase B/C에서 실제 렌더 어댑터·실제 3D 프리뷰·diff-only 재렌더로 교체.
-- **설정 · 용어사전 화면** (`/s8/settings?view=terms`): 도메인 표준 용어(원문 예시/표준용어/근거/신뢰도/출처)를 관리한다. `planning/knowledge/`의 전문가 지식베이스에서 가져오되 추가·수정·비활성화는 사람이 확정한다. 용어 변경은 이후 제작 탭의 매핑 미리보기에만 반영되고 기존 `VideoIntent`·샷을 자동 수정하지 않는다.
+  - SourceEmpty: 소스 없음 → 업로드·URL 입력·S5 자산 연결 중 다음 행동 제시.
+  - SourceLoading: 소스 등록·미리보기 생성 중 스켈레톤 + 단계 텍스트. 전체 화면 스피너 없음.
+  - SourceModeChangeConfirm: 모드 전환 시 영향 받는 소스·작업·버전 목록 안내, 이전 버전 보존.
+  - RightsDenied: 권리 미확인·거부 → 변환·합성 버튼 비활성 + 사유·재확인 경로 표시. 소스 자동 삭제 없음.
+  - TransformLowConfidence: 작업 추천·매핑 신뢰도 낮음 → 되묻기/수동 선택 요구, 확인 전 적용 금지.
+  - TransformPartialFailure: 일부 소스·레이어 실패 → 성공 항목 유지, 실패 항목에 재시도 배지. 전체 재실행 버튼 없음.
+  - MaskStub: Phase A 마스킹은 가이드 오버레이만, 실제 브러시 연산 없음을 명시.
+  - CompositeGateBlocked: 합성 레이어가 게이트 미승인이면 다음 단계 비활성 + 누락 사유 표시.
+- **샘플·드라이런 배지**: `샘플 데이터`, `시연 · 실제 렌더 없음`, `시뮬레이션`(3D 구도), `저해상도 스텁`(애니매틱), 마스킹 가이드 스텁, 변환 미리보기 배지 상시. Phase A는 텍스트·스키마·샘플 미리보기와 DryRenderAdapter 플레이스홀더만, Phase B/C에서 실제 렌더 어댑터·실제 3D 프리뷰·diff-only 재렌더로 교체.
+- **설정 · 용어사전 화면** (`/s8/settings?view=terms`): 도메인 표준 용어(원문 예시/표준용어/근거/신뢰도/출처)를 관리한다. 별도 전문가 지식베이스에서 가져오되 추가·수정·비활성화는 사람이 확정한다. 용어 변경은 이후 제작 탭의 매핑 미리보기에만 반영되고 기존 `VideoIntent`·샷을 자동 수정하지 않는다.
 - **안전장치**:
   - **전체 영상 즉시 생성 없음.** 전체 일괄 렌더·전체 자동 재생성 버튼을 제공하지 않는다.
   - 레퍼런스는 사용자 트리거 검색/수동 입력/`ModuleLink(s0→s8)` 클릭으로만 들어온다. 미디어 바이트 미저장.
   - 게이트 미승인 시 다음 단계 잠김. 신뢰도 낮음 시 되묻기 후 사용자 확인 필요.
   - 수정은 shot_id/timecode 지정 + 영향 범위·예상비용 미리보기 후 "이 샷만 수정"만 허용.
+  - 소스 모드는 명시 전환만 허용하고, 변환·합성은 권리 확인 후에만 진행한다. 서드파티 레퍼런스는 메타데이터 전용(프레임 다운로드·분석 없음)이다.
+  - 변환된 샷과 합성 레이어는 동일 4게이트를 통과한다. 게이트 우회, 전체 영상 자동 재렌더, 모듈 자동 동기화는 없다.
+  - 실제 변환 어댑터는 공식·라이선스 확인된 공급자 또는 검증된 로컬 도구만 사용하며 예산·라이선스 승인 후 Phase B/C에서 도입한다. ComfyUI/Blender 웹 서비스는 제외한다.
 - **근거**: **자체 설계**. S0 수집/검색 파이프라인과 동일한 공개 범위·compliance 규칙을 따르되 데이터를 복제하지 않는다. UI 패턴만 기존 레퍼런스의 인터랙션 단위 참고, 코드·자산 복제 없음.
+
+---
+
+## S8-미디어. Video Workbench — 미디어 소스·변환·합성 워크스페이스 (S8 동일 라우트)
+
+> S8 내부의 분석/제작/수정 3탭과 상태를 섞지 않는 **분석 전 소스 단계 + 변환·합성 작업 공간**이다. 신규 생성만이 아니라 실제 보유한 이미지·영상을 변환하거나 여러 소스를 합성해 제작 입력으로 만들 수 있다.
+
+- **라우트**: `/s8?step=media-source`. 변환 작업은 `?workspace=transform`, 합성 작업은 `?workspace=composite`. 제작 유형(`productionMode`)과 소스 모드(`inputMode`)는 별개 값이며 각각 명시 선택한다.
+- **목적**: 자기 콘텐츠·사용자 URL·명시적으로 연결한 S5 자산을 소스로 삼아, 권리 확인을 거쳐 변환·합성 작업을 정의하고 그 결과를 동일한 4게이트의 샷·구도 스키마로 투입한다.
+- **레이아웃**: PageHeader(제작 유형 칩 + 소스 모드 칩 + 드라이런 배지) → 좌측 소스 목록(280) + 중앙 작업 캔버스 + 우측 레이어·권리·비용 패널(340). 상단에 전·후 비교 토글, 하단에 작업별 예상 비용·시간이 붙는다.
+
+- **주요 요소**:
+
+  **소스 모드 선택기** (`InputModePicker`)
+  - `generate_new`(신규 생성, 기본 표시) / `transform_source`(기존 미디어 변환·수정) / `composite`(여러 소스 합성) 3종. 자동 감지·자동 전환 금지.
+  - 기존 아티팩트가 있으면 확인 다이얼로그로 영향 목록(소스·작업·버전)을 안내하고, 확정 후에도 이전 버전을 보존한다.
+
+  **소스 목록** (`MediaSourcePicker`)
+  - 사용자 업로드(자기 콘텐츠), 사용자 제공 URL, S5 기존 자산. S5 자산은 "S8에서 소스로 사용" 클릭 시에만 `ModuleLink(s5→s8)`로 참조한다.
+  - 소스 카드에는 출처 종류, 파일/URL 식별 라벨, 타임코드(영상), 권리 상태를 표시한다. 서드파티 레퍼런스 카드는 원문 URL·썸네일 URL·타임코드만 보여주는 메타데이터 전용이며 프레임을 내려받거나 분석하지 않는다.
+
+  **작업 그룹** (`TransformOperationPicker`)
+  - 이미지: 리사이즈/크롭, 색보정·그레이딩, 배경 제거·교체, 객체 편집(inpaint/outpaint), 업스케일, 스타일 변환.
+  - 영상: 트리밍·리타이밍, 색그레이딩, 배경 교체, 객체 제거, 스타일 변환, 프레임 보간.
+  - 합성: 레이어(배경/인물/제품/텍스트/로고/이펙트), 마스킹, 블렌딩, 레이어 타이밍.
+  - 그룹 헤더와 칩 라벨을 텍스트로 병기하고, 선택 조합에 따라 예상 비용·시간을 갱신한다.
+
+  **레이어 패널** (`CompositeLayerPanel`)
+  - 레이어 순서, 보임/잠금, 블렌드 방식, 시작·끝 타임코드를 행 단위로 편집한다.
+  - 레이어 변경은 미리보기에만 반영되고, 게이트 승인 전에는 최종 산출물로 확정되지 않는다.
+
+  **마스킹 캔버스** (`MaskingCanvasStub`)
+  - Phase A는 경계 가이드와 제외 영역 오버레이만 제공하는 스텁이다. 실제 브러시 연산·프레임 단위 처리 없음을 배지와 텍스트로 명시한다.
+
+  **전·후 비교** (`BeforeAfterCompare`)
+  - 원본과 변환 결과를 구분선 슬라이더로 나란히 비교한다. Phase A는 샘플 프레임/샘플 이미지만 사용하고 실제 렌더 결과가 아님을 배지로 표시한다.
+
+  **권리 게이트** (`RightsConfirmationDialog`)
+  - `rights_flag`, `rights_confirmed_by`, 확인 시각, 사용 범위를 확인한다. 미확인 또는 거부 상태에서는 변환·합성 실행 버튼이 비활성이다.
+  - 확인 다이얼로그는 취소 가능하며, 취소해도 소스는 삭제되지 않는다.
+
+  **비용·시간 미리보기** (`TransformCostPreview`)
+  - 작업별 예상 비용·예상 시간과 산출 근거(소스 길이, 해상도, 작업 조합, 레이어 수, 드라이런 여부)를 `font.mono`로 표시한다. "예상" 라벨과 실제 과금·실행 아님 배지를 상시 노출하고, 임계치 초과 시 경고하되 자동 실행하지 않는다.
+
+- **상태**: SourceEmpty / SourceLoading / SourceModeChangeConfirm / RightsDenied(권리 미확인·거부) / TransformLowConfidence(되묻기) / TransformPartialFailure(일부 소스·레이어 실패) / MaskStub / CompositeGateBlocked / Result / VersionPreserved. 공통 Empty·Loading·Partial failure 규칙을 따르며 전체 실패로 일괄 처리하지 않는다.
+
+- **설정**: 기본 소스 모드(`generate_new`) 표시, 업로드 허용 형식·크기 안내, URL 소스 유효 기간, S5 연결 해제, 권리 확인 기본 템플릿, 작업별 예산 임계치, 드라이런/샘플 배지 노출을 관리한다. 설정 변경은 기존 소스·버전을 자동 수정하지 않는다.
+
+- **단계별 배지**:
+  - Phase A: 소스 카드·작업 칩·레이어 행·전·후 비교는 샘플/스텁, 마스킹은 가이드 오버레이, 결과는 DryRenderAdapter 플레이스홀더. 실제 렌더·실제 3D·실제 과금 없음.
+  - Phase B: 공식·라이선스 확인된 공급자 또는 검증된 로컬 도구로 저해상도 변환·합성 미리보기, 3D 경량 프리뷰, 샷 단위 diff 재렌더. 예산·라이선스 승인 필요.
+  - Phase C: 고품질 변환·합성 어댑터와 정교한 마스킹·블렌딩. 승인된 소스에 한하며 자동 전체 재생성은 없음.
+
+- **안전장치**:
+  - **전체 영상 즉시 생성 없음.** 전체 변환·전체 합성·전체 일괄 렌더 버튼을 제공하지 않는다.
+  - 변환 결과는 `Shot`으로, 합성 레이어는 `Composition3D` 스키마로 들어가 콘티 → 3D 구도 스키마 → 애니매틱 → 단계 렌더 4게이트를 그대로 통과한다.
+  - 권리 미확인 소스, 서드파티 프레임 분석, 게이트 우회, 모듈 자동 동기화, 무단 웹 서비스 기반 코드 실행은 모두 금지한다.
+  - 3탭 독립 상태를 유지한다. 소스·변환 결과는 사용자가 명시 지정할 때만 각 탭에 반영된다.
+
+- **근거**: 공개적으로 관찰된 패턴을 자체 원칙으로 재서술하고, 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한다. 소스·권리·게이트 규칙은 이 프로젝트의 모듈 독립 원칙에서 직접 도출한다.
 
 ---
 
@@ -271,7 +355,7 @@
 | 1440×900 | Sidebar 240 + Main + DetailPanel 380 |
 | 1280 | DetailPanel 오버레이 전환 |
 | 1024 이하 | Sidebar 접힘(아이콘 레일), 카드 2열 |
-| 768 | 9개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments·Video Workbench) 세로 스택, VerticalTabs 가로 스크롤 허용(의도된 예외) |
+| 768 | 10개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments·Video Workbench·SEO & Search Growth) 세로 스택, VerticalTabs 가로 스크롤 허용(의도된 예외) |
 
 > Foreplay의 390px 가로 오버플로(435px)는 **재현하지 않는다.** 모바일은 MVP 범위 밖이나, 최소한 가로 스크롤이 없도록 설계한다.
 
@@ -296,3 +380,7 @@
 - [ ] S8 4게이트가 사용자 승인 후에만 진행되고 "전체 영상 즉시 생성" 버튼이 없다.
 - [ ] S8 샷 단위 수정이 영향·예상비용 미리보기 후에만 실행되고 샘플/시연/시뮬레이션/스텁 배지가 표시된다.
 - [ ] 토큰/컴포넌트 이름이 DESIGN-PLAN/COMPONENT-SPECS와 일치한다.
+- [ ] S8 미디어 소스 화면이 3개 소스 모드(기본 `generate_new`)와 업로드·URL·`ModuleLink(s5→s8)` 소스를 제공한다.
+- [ ] 서드파티 레퍼런스는 메타데이터 전용이고, 변환·합성은 권리 확인 후에만 실행된다.
+- [ ] 변환·합성 워크스페이스에 작업 그룹, 레이어 패널, 마스킹 스텁, 전·후 비교, 작업별 비용·시간이 표시된다.
+- [ ] 변환 결과가 동일 4게이트를 통과하고 "전체 영상 즉시 생성" 버튼이 없으며 Phase A/B/C 배지가 구분된다.

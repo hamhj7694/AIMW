@@ -26,10 +26,14 @@
 | S20 | Adobe — *Understanding the 12 principles of animation* / NYFA — *12 Principles Of Animation* / Clip Studio — *12 Principles* | https://www.adobe.com/creativecloud/animation/discover/principles-of-animation.html / https://www.nyfa.edu/student-resources/12-principles-of-animation/ / https://www.clipstudio.net/en/animation/12-principles/ | B | 2026-11-22 | 애니메이션 원칙 개념 확인. 시연 클립·이미지 재사용 금지. |
 | S21 | School of Motion — *Kinetic Typography in After Effects* / Creative Bloq — *best kinetic typography examples* | https://schoolofmotion.com/blog/kinetic-typography-after-effects-part-1 / https://www.creativebloq.com/typography/examples-kinetic-typography-11121304 | C | 2026-11-22 | 키네틱 타이포 기법 참고. 작품 이미지·예시 복제 금지. |
 | S22 | PixFit — *TikTok ad safe zones 2026* 및 유사 제3자 픽셀 해설 | https://pixfit.ai/ad-sizes/tiktok-safe-zones | C | 2026-11-22 | 공식 템플릿을 측정한 **제3자 추정치**. 공식 수치로 단정 금지. |
+| S23 | Google Search Central — *SEO Starter Guide: The Basics* | https://developers.google.com/search/docs/fundamentals/seo-starter-guide | A | 2026-11-22 | 검색 엔진 기본·제목 링크·스니펫·메타 디스크립션·URL·이미지/영상·콘텐츠 원칙. 공식도 순위 보장을 약속하지 않음을 명시. 원문 복제 금지. |
+| S24 | Google Search Central — *Search Essentials / Documentation to Improve SEO* | https://developers.google.com/search/docs/essentials / https://developers.google.com/search/docs | A | 2026-11-22 | 색인·크롤러 가시성·공개 범위 진단 근거. 계정 연동은 Phase B, MVP는 수동 입력/샘플. |
+| S25 | Google Ads Help — *Use Keyword Planner* | https://support.google.com/google-ads/answer/7337243?hl=en | A | 2026-11-22 | 키워드 아이디어·예측 값(노출·클릭·비용·CTR·평균 CPC) 확인. 기본 기능에도 계정 설정(결제 정보) 필요할 수 있음. MVP에서 실제 호출·과금 없음. |
+| S26 | Google Ads Help — *About Keyword Planner forecasts* | https://support.google.com/google-ads/answer/3022575?hl=en | A | 2026-11-22 | 예측은 입찰가·예산·계절성·과거 품질 기반 추정. 과거 지표와 성격이 다르고 예측 불일치 원인이 공식 열거됨. |
 
 ## 출처 사용 원칙
 
 1. 답변에는 반드시 `Sxx`와 등급을 함께 표시한다. 등급 C만 있으면 "확인 필요"를 덧붙인다.
 2. 한 출처의 문장을 2문장 이상 연속으로 재현하지 않는다. 표·도식도 그대로 복제하지 않는다.
 3. 출처가 유료화·삭제되면 이 표의 상태를 갱신하고 해당 항목 등급을 낮춘다.
-4. `reference/**` 캡처는 이 표에 올리지 않는다(라이선스 미확인).
+4. 저장소에 포함되지 않는 로컬 캡처 자료는 이 표에 올리지 않는다(라이선스 미확인 + 경로 의존 배제). 이 등록부의 모든 근거는 공개 URL로 환경 독립적으로 확인 가능하다.

@@ -8,7 +8,7 @@
 
 ## 1. 아키텍처 원칙
 
-1. **캡처 자산은 참고만, 코드는 클린룸에서 재작성한다.** 7개 서비스의 `capture/**` HTML/CSS/이미지는 라이선스 미확인이므로 복제하지 않는다.
+1. **캡처 자산은 참고만, 코드는 클린룸에서 재작성한다.** 7개 공개 서비스의 렌더링 산출물(HTML/CSS/이미지)은 라이선스 미확인이므로 복제하지 않는다. 이 저장소는 그 경로에 의존하지 않는다.
 2. **AI 추론은 서버사이드 프록시 경유.** 브라우저에 API 키를 노출하지 않는다. 기본 Provider는 이미 설치·검증된 로컬 Ollama(`qwen3.8-local:latest`, `127.0.0.1:11434`)다.
 3. **외부 발행·과금은 MVP에서 Dry-run.** 실제 게시/API 호출/결제는 하지 않고, 상태와 UI만 재현한다.
 4. **상태를 화면에 노출한다.** 모든 AI 작업은 `Job` 엔티티로 추적하고, 프런트는 폴링으로 상태를 표시한다.
@@ -30,7 +30,8 @@
   ├─ App Shell (Sidebar / Topbar / DetailPanel / JobDrawer)
   ├─ S0 Collector  S5 Own Content  S1 References  S2 Studio
   ├─ S3 Publishing  S4 Insights  S6 Forecast  S7 Segments
-  ├─ S8 Video Workbench  (분석 / 제작 / 수정 3탭 + 제작유형 6종, 독립 라우트)
+  ├─ S8 Video Workbench  (분석 / 제작 / 수정 3탭 + 제작유형 6종 + 소스모드 3종, 독립 라우트)
+  ├─ S9 SEO & Search Growth (진단/키워드·콘텐츠/집행·예측/취합·개선 4탭, 독립 라우트)
   └─ 공통: Token 기반 UI, TanStack Table, Recharts, React Flow(후속)
             │
             │ HTTPS / JSON (same-origin)
@@ -52,6 +53,12 @@
   ├─ /api/v1/video/revisions      S8: 타겟 수정 요청·영향 범위·적용
   ├─ /api/v1/knowledge/search     S8: 전문가 KB 청크 검색(KB-ID·등급·제작유형 필터)
   ├─ /api/v1/knowledge/sources    S8: 출처 등록부 조회(권리·등급·확인일)
+  ├─ /api/v1/video/sources        S8: 미디어 소스 등록·권한 확인(메타데이터 전용 참조 포함)
+  ├─ /api/v1/video/transforms     S8: 변환·합성 운영 미리보기(Phase A 스텁/샘플), 버전·before/after
+  ├─ /api/v1/seo/diagnose         S9: 기술·온페이지·콘텐츠 진단(룰 엔진/수동 입력)
+  ├─ /api/v1/seo/keywords         S9: 키워드 갭·검색 의도 매핑(공식/공개 데이터 한정)
+  ├─ /api/v1/seo/forecast         S9: 투자비용↔성과 추정·예산 배분 추천(예측 배지)
+  ├─ /api/v1/seo/rounds           S9: 취합·개선 라운드(actual/delta/improvements)
   ├─ /api/v1/module-links         명시적 연결 생성/해제/목록 (자동 연결 없음)
   ├─ /api/v1/projects, /brands, /references, /boards
   ├─ /api/v1/jobs                 AI 작업 생성·상태·취소
@@ -73,9 +80,10 @@
     ├─ [OwnContentService]  S5: 자산/중복/시리즈/백로그 (독립)
     ├─ [ForecastService]    S6: 시계열+baseline → statsmodels → ML/DL (독립)
     ├─ [SegmentService]     S7: 전처리 → KMeans → 프로필 (독립)
-    ├─ [VideoWorkbench]     S8: 유형선택→레퍼런스→분석→해석→콘티→3D→애니매틱→단계렌더→타겟수정 (독립)
-    └─ [KnowledgeService]   S8: planning/knowledge/** 읽기 전용 청크 검색·인용 조립
-             (다섯 서비스는 DB 테이블을 공유하지 않고 ModuleLink로만 참조)
+    ├─ [VideoWorkbench]     S8: 소스선택·권한→유형선택→레퍼런스→분석→해석→콘티→3D→애니매틱→단계렌더→타겟수정 (독립)
+    ├─ [SeoGrowthService]   S9: 진단→키워드/의도→개선안→예측/예산→취합→개선 (독립)
+    └─ [KnowledgeService]   S8/S9: planning/knowledge/** 읽기 전용 청크 검색·인용 조립
+             (여섯 서비스는 DB 테이블을 공유하지 않고 ModuleLink로만 참조)
             │
    [JobRunner] — 백그라운드 스레드/Queue, 단계별 진행률·재시도
                  (수집 Job도 동일 프레임워크 사용)
@@ -143,14 +151,14 @@
 ### 4-1. 프런트엔드 (SPA)
 
 - **App Shell**: 프로젝트 컨텍스트, 전역 검색(Ctrl/Cmd+K), Provider 상태 배지, JobDrawer.
-- **화면 9개**: S0 Collector / S5 Own Content / S1 References / S2 Studio / S3 Publishing / S4 Insights / S6 Forecast / S7 Segments / **S8 Video Workbench**. 설정은 모달/라우트. **모듈별 독립 라우트이며, 진입 시 서로의 데이터를 자동 로드하지 않는다.** S8 내부는 분석/제작/수정 3탭으로 다시 분리되며, 탭 전환 시에도 상태가 섞이지 않는다.
+- **화면 10개**: S0 Collector / S5 Own Content / S1 References / S2 Studio / S3 Publishing / S4 Insights / S6 Forecast / S7 Segments / **S8 Video Workbench** / **S9 SEO & Search Growth**(`design/SEO-GROWTH-SPECS.md`). 설정은 모달/라우트. **모듈별 독립 라우트이며, 진입 시 서로의 데이터를 자동 로드하지 않는다.** S8 내부는 분석/제작/수정 3탭으로 다시 분리되며, 탭 전환 시에도 상태가 섞이지 않는다. 미디어 소스·권한 확인 단계는 `?step=media-source`로 진입하고(`design/SCREEN-SPECS.md`), 이 단계의 결과가 분석 탭으로 자동 이동하지 않는다. S9 내부는 진단/키워드·콘텐츠/집행·예측/취합·개선 4탭으로 분리된다.
 - **상태 관리**: 서버 상태는 TanStack Query(또는 경량 fetch 캐시), UI 상태는 Zustand 또는 React state. MVP에서는 단순화 가능.
 - **금지**: 원본 사이트의 추적 스크립트(GA/GTM/Meta/Amplitude/Channel.io/HubSpot/OptinMonster 등) 이식, 원본 CDN 폰트·이미지 직접 참조, 인라인 스타일 난립.
 
 ### 4-2. 백엔드 (FastAPI)
 
-- **도메인 서비스**: CollectorService, ReferenceService, BriefService, GenerationService, ReviewService, PublishingService, InsightsService, **OwnContentService, ForecastService, SegmentService, ModuleLinkService, VideoWorkbench(유형/레퍼런스/분석/해석/콘티/렌더/수정 7개 서브서비스), KnowledgeService**.
-- **모듈 경계 규칙**: OwnContentService/ForecastService/SegmentService/**VideoWorkbench**/**KnowledgeService**는 서로를 import하지 않고, 공통은 `JobRunner`·`InferenceGateway`(선택)·`ProviderConnection`·디자인 토큰 뿐이다. 모듈 간 참조는 `ModuleLinkService.link(source, source_id, target, target_id, created_by)`로 사용자 액션 시에만 생성하고 `unlink()`로 해제한다. 자동 링크 API는 제공하지 않는다. S8 내부의 분석/제작/수정 탭도 각자 상태를 가지며 서로 자동으로 값을 채우지 않는다. 제작 유형 변경도 사용자 확인 없이 기존 산출물을 덮어쓰지 않는다.
+- **도메인 서비스**: CollectorService, ReferenceService, BriefService, GenerationService, ReviewService, PublishingService, InsightsService, **OwnContentService, ForecastService, SegmentService, ModuleLinkService, VideoWorkbench(소스/권한/유형/레퍼런스/분석/해석/콘티/렌더/수정 9개 서브서비스), SeoGrowthService(진단/키워드/개선안/예측/취합 5개 서브서비스), KnowledgeService**.
+- **모듈 경계 규칙**: OwnContentService/ForecastService/SegmentService/**VideoWorkbench**/**SeoGrowthService**/**KnowledgeService**는 서로를 import하지 않고, 공통은 `JobRunner`·`InferenceGateway`(선택)·`ProviderConnection`·디자인 토큰 뿐이다. 모듈 간 참조는 `ModuleLinkService.link(source, source_id, target, target_id, created_by)`로 사용자 액션 시에만 생성하고 `unlink()`로 해제한다. 자동 링크 API는 제공하지 않는다. S8 내부의 분석/제작/수정 탭도 각자 상태를 가지며 서로 자동으로 값을 채우지 않는다. 제작 유형 변경도 사용자 확인 없이 기존 산출물을 덮어쓰지 않는다.
 - **CollectorService**: `register_target(...)`, `start_job(verticals, sources)`, `list_items(vertical)`, `promote_to_references(item_ids)`. 어댑터는 `CollectAdapter` 인터페이스(`fetch`, `normalize`, `compliance_check`)로 분리한다. 구현체: `ManualAdapter`, `YouTubeAdapter`, `NaverSearchAdapter`, `RssAdapter`, `GdeltAdapter`; `AdLibraryMetaAdapter`는 연동 대기 스텁.
 - **정규화 파이프라인**: URL 정규화 → `external_id` 부여 → 본문/메타 추출(trafilatura) → **중복 제거(URL + external_id + 콘텐츠 해시)** → 파트(영상/이미지/블로그/뉴스) 분류 → `CollectedItem` 저장. 미디어 바이트는 저장하지 않고 원문/썸네일 URL만 보존한다.
 - **컴플라이언스 게이트**: 모든 어댑터는 요청 전 `robots.txt`·ToS 플래그·SSRF 화이트리스트·레이트리밋(지수 백오프)·ETag 캐시를 통과해야 한다. 차단 시 아이템을 저장하지 않고 `blocked` 사유를 Job 로그에 남긴다.
@@ -162,10 +170,11 @@
 - **SegmentService**: `select_features(...)`, `set_k(3~6)`, `cluster()`(Phase B scikit-learn KMeans + silhouette), `profile()`. MVP는 샘플 좌표와 프로필 UI만. 식별자 컬럼은 입력 단계에서 제거하고 원본 고객정보는 저장하지 않는다.
 - **VideoAnalysisService** (S8): `analyze_content(ref)` → 훅/구조/메시지/CTA/타깃/감정 곡선(타임코드 매핑). `analyze_craft(ref)` → 샷 사이즈/앵글/무브먼트/렌즈·FOV/조명/전환/구도/색보정/속도/사운드 + `confidence`. 타사 영상은 메타·스냅샷 URL·타임코드만 입력으로 받고, 프레임 분석은 사용자가 업로드한 자기 콘텐츠에 한정한다.
 - **VideoTermService** (S8): `interpret(text)` → `TermMapping[] {source_phrase, standard_term, category, rationale, confidence, confirmed}`. 신뢰도 임계값 미달 시 `ClarificationQuestion`을 반환해 되묻는다. `confirm(mapping_ids)`를 호출해야 `VideoIntent`가 확정된다(자동 확정 금지). `VideoTermDictionary`는 자체 구축 + 사람 검수(설정에서 수정 가능).
-- **KnowledgeService** (S8): `planning/knowledge/**`를 **읽기 전용**으로 청크 단위(`### KB-…`) 검색. `search(query, mode, evidence_tier)` → `KnowledgeChunk[] {chunk_id, domain, production_mode, source_ids, evidence_tier, path}` + `KnowledgeCitation[]`. `sources()`는 출처 등록부(`SOURCES.md`)의 URL·발행자·권리 메모·확인일을 반환. 원문 복제·번역·각색을 하지 않고 **요약과 인용만** 프롬프트에 조립한다(`RAG-USAGE.md` 4장 템플릿). 등급 C는 "비공식 추정, 확인 필요" 배지를 강제. 렌더·외부 전송·모듈 간 데이터 복사를 실행하지 않는다. 인덱싱은 Phase A 로컬 키워드 → Phase B 로컬 임베딩(라이선스 재확인 후) → Phase C 재랭킹 순.
+- **KnowledgeService** (S8·S9): `planning/knowledge/**`를 **읽기 전용**으로 청크 단위(`### KB-…`) 검색. `search(query, mode, evidence_tier)` → `KnowledgeChunk[] {chunk_id, domain, production_mode, source_ids, evidence_tier, path}` + `KnowledgeCitation[]`. `sources()`는 출처 등록부(`SOURCES.md`)의 URL·발행자·권리 메모·확인일을 반환. 원문 복제·번역·각색을 하지 않고 **요약과 인용만** 프롬프트에 조립한다(`RAG-USAGE.md` 4장 템플릿). 등급 C는 "비공식 추정, 확인 필요" 배지를 강제. 렌더·외부 전송·모듈 간 데이터 복사를 실행하지 않는다. 인덱싱은 Phase A 로컬 키워드 → Phase B 로컬 임베딩(라이선스 재확인 후) → Phase C 재랭킹 순.
 - **StoryboardService** (S8): `build_intent(confirmed_mappings)` → `VideoIntent{shots[], timing, tone, platform}`. `generate_storyboard(intent)` → `Storyboard{shots[{shot_id, timecode, visual, copy, audio, transition, camera, lighting}]}`. `generate_composition3d(storyboard)` → `Composition3D` **스키마**(카메라 위치·FOV·피사체 배치·조명 리그·모션 경로). MVP는 SVG/와이어프레임 시뮬레이션이며 실제 3D 렌더가 아님을 배지로 명시. `generate_animatic(storyboard)` → 저해상도 타임라인 미리보기(스텁).
 - **ShotRenderService** (S8): `estimate(stage)` → 예상 시간/비용. `advance_stage(project_id, stage, approved_by)` → **사용자 승인 시에만** 다음 단계 실행. `render_shot(shot_id, quality)` → 샷 단위 산출물 + `ShotVersion`. MVP는 `DryRenderAdapter`(플레이스홀더/샘플), Phase B에서 저해상도→최종 렌더 어댑터 교체. 부분 실패 시 성공 샷은 유지하고 실패 샷만 재시도.
 - **RevisionService** (S8): `plan(target)` → `{shot_ids[], elements[], estimated_cost, affected_scopes}` 미리보기. `apply(revision_id)` → 승인된 범위에만 패치(Phase A는 요청·미리보기 UI, Phase B 실제 diff 재렌더). 자동 전체 재생성 경로 없음.
+- **SeoGrowthService** (S9): `diagnose(url_or_manual)` → `SeoDiagnosis{findings[]}`(기술/온페이지/콘텐츠, Phase A 룰 엔진 + 수동 입력). `find_keyword_gaps(...)` → `KeywordGap[]` + `SearchIntentMap[]`. `optimize_content(...)` → `ContentOptimization{title_proposal, meta_description_proposal, structural_notes, rationale}`(기존 문구는 `source_phrase`로 보존, 자동 덮어쓰기 금지). `forecast(budget, options)` → `SeoInvestment{forecast[], method, confidence, model, is_forecast=true}`. `recommend_budget(...)` → `BudgetRecommendation[]`. Phase B에서 소유 확인 계정의 공식 데이터와 공개 검색 API를 연동하고, 회귀 모형으로 예측을 교체한다. SERP 스크래핑·로그인 우회·유료벽 우회 경로는 제공하지 않는다. 순위 보장을 표현하는 응답 문구를 golden test로 차단한다.
 - **보안**: API 키는 서버 환경변수/`.env`에 보관, `/connections` 응답은 마스킹(`sk-****abcd`)만 반환. S7 업로드 파일은 처리 후 즉시 삭제 정책(Phase B) 적용. S8 업로드 영상은 자기 콘텐츠로 한정, 얼굴·번호판 블러 권고, 보유기간 명시.
 
 ### 4-3. 데이터 계층
@@ -198,6 +207,9 @@ MetricSeries(*) ──< Forecast(*)    # S6 전용, S4 Insight와 데이터 복�
 AudienceDataset(1) ──< Segment(*) ──< SegmentMember(*)   # S7, 식별자 미저장
 
 # 영상 워크벤치 (S8, 독립. 아래 4단계 게이트를 강제)
+MediaSource(*) ──< TransformOperation(*) ──< TransformVersion(*)
+MediaSource(*) ──< CompositeLayer(*)     # 레이어/마스크/블렌딩/타이밍, 권한 확인 필수
+TransformVersion(*) ──> Shot(*)          # 변환 결과는 4게이트를 우회하지 않음
 VideoAnalysis(1) ──< TermMapping(*)      # 원문→표준용어, 신뢰도·확정여부
 TermMapping(*) ──> VideoIntent(1)        # 확정된 매핑으로만 생성
 VideoIntent(1) ──< Storyboard(*) ──< Shot(*)
@@ -207,6 +219,14 @@ Shot(1) ──< RenderStage(*) ──< ShotVersion(*)
 Shot(*) ──< Revision(*)                 # shot_id/timecode/element 타겟 패치
 Campaign(1) ──< VideoTemplate(*)        # 반복 포맷(예: 장기렌트 15초 세로)
 # S8 ↔ S1/S2/S5는 FK 없이 ModuleLink로만 참조 (사용자 클릭)
+
+# SEO 성장 (S9, 독립. S6 지표를 복제하지 않음)
+SeoRound(1) ──< SeoDiagnosis(*) ──< Finding(*)
+SeoRound(1) ──< KeywordGap(*) ──> SearchIntentMap(*)
+SeoRound(1) ──< ContentOptimization(*)   # 제안은 source_phrase와 별도 보존
+SeoRound(1) ──< SeoInvestment(*) ──< BudgetRecommendation(*)
+SeoInvestment(*) ──< SerpObservation(*)  # 공식 출처만, 예측/신뢰도/모델 배지
+# 개선안 → S2/S5 전달은 ModuleLink(s9→s2|s5) 클릭 시에만
 
 # 유일한 모듈 간 연결 경로 (사용자 클릭만)
 ModuleLink(source_module, source_id, target_module, target_id, created_by, created_at)
@@ -289,7 +309,9 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 
 **영상 워크벤치 흐름(S8, 게이트 강제)**
 
-사전 단계(유형 선택·레퍼런스 서치):
+사전 단계(소스·권한 → 유형 선택 → 레퍼런스 서치):
+- S8 진입 → **입력 소스 모드 명시 선택**(`generate_new` 기본 / `transform_source` / `composite`). 기존 산출물이 있으면 변경 확인 모달 후 이전 버전 `archived` 보존(덮어쓰기 금지).
+- 소스 등록: 자기 업로드·사용자 제공 URL·S5 자산("S8로 가져오기" 클릭 시에만 `ModuleLink(s5→s8)`). 변환·합성 전 `rights_flag`/`rights_confirmed_by` 확인. 타사 레퍼런스는 메타데이터(URL·썸네일 URL·타임코드)만 저장하고 프레임 다운로드·분석을 하지 않는다. Phase A는 운영 미리보기·스키마·드라이런만.
 - S8 진입 → **제작 유형 6종 중 사용자 명시 선택**(기본 미선택, 자동 감지·자동 변경 금지). 유형이 분석 차원·구도 스키마·게이트 산출물·템플릿 필터·비용 프로파일을 결정한다(`design/PRODUCTION-MODE-SPECS.md`). 미선택 시 G1 이후 잠금. 변경 시 재확인 후 기존 산출물 `archived` 보존.
 - 레퍼런스 서치: 사용자가 검색 버튼을 누를 때만 공개 소스 어댑터(Phase A 스텁/샘플) 조회, 또는 URL·메모·타임코드 수동 입력. S0 항목은 "S8로 가져오기" 클릭 시에만 `ModuleLink(s0→s8)` 생성. 로그인·유료벽·스크래핑 우회 제외, 미디어 바이트 미저장(`knowledge/12-reference-search-playbook.md`).
 
@@ -305,6 +327,16 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 > 각 게이트는 `RenderStage.approved_by`가 없으면 다음 단계를 생성하지 않는다. 이는 S8의 비용·시간 절약을 위한 핵심 안전장치다(NFR-17).
 
 > 지식 베이스(`planning/knowledge/**`)는 **읽기 전용 참고**다. 등급 C만 근거인 항목은 "비공식 추정, 확인 필요" 배지를 붙이고 사용자 확인 없이 `VideoIntent`를 확정하지 않는다. KB가 렌더·외부 전송·모듈 간 데이터 복사를 실행하지 않는다(NFR-21·22).
+
+**SEO 성장 흐름(S9, 클릭 기반 개선 루프)**
+
+1. S9 진입 → 진단 탭에서 URL 또는 수동 입력을 받아 `SeoDiagnosis` 표시(Phase A 룰 엔진 + 샘플). 소유 확인 계정 연동은 Phase B, 여기서는 실제 계정 호출·과금 없음.
+2. 키워드·콘텐츠 탭에서 `KeywordGap[]`·`SearchIntentMap[]`·`ContentOptimization` 제안을 표시. 기존 문구는 `source_phrase`로 보존하고 제안을 별도 필드에 저장(자동 덮어쓰기 금지).
+3. 집행·예측 탭에서 예산·입력값으로 `SeoInvestment.forecast[]`와 `BudgetRecommendation[]` 계산. 모든 값에 `예측/신뢰도/모델/기간` 배지, `is_forecast=true` 유지. 공식 Keyword Planner 예측도 추정치임을 UI에 명시(`knowledge/13-seo-and-search-growth.md`).
+4. 취합·개선 탭에서 실제값(`actual`)과 예측값(`delta`)을 라운드 단위로 취합하고 개선안을 만든다. 개선안을 S2 브리프/S5 콘텐츠로 보내려면 "브리프로 보내기" 클릭 시에만 `ModuleLink(s9→s2|s5)` 생성 — 자동 반영·자동 동기화 없음.
+5. 데이터 출처는 소유 확인 계정의 공식 API·공개 검색 API·수동 입력으로 제한. 스크래핑·로그인/유료벽 우회 경로는 존재하지 않는다. 순위 보장 문구는 응답 템플릿에서 차단한다.
+
+> S6 Forecast와 S9는 지표를 복제하지 않는다. S9가 자체 `SeoInvestment`를 갖고, S6의 `MetricSeries`가 필요하면 사용자가 명시적으로 연결한다.
 
 ---
 
@@ -348,7 +380,7 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 | 규정 준수 | 원본 자산 미복제, Dry-run 명시 | 클린룸 재작성, 배지/문구 |
 | 수집 준수 | robots/ToS/레이트리밋 100% 통과, 차단 건 0건 저장 | 4-4 체크리스트, CollectAdapter 게이트, provenance 로그 |
 | 수집 성능 | 파트별 1회 수집 30초 내(공식 API 기준) | 비동기 Job, 캐시, 동시성 제한 |
-| 모듈 격리 | S0/S5/S6/S7/S8·KnowledgeService 간 자동 데이터 로드 0건 | 9개 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
+| 모듈 격리 | S0/S5/S6/S7/S8/S9·KnowledgeService 간 자동 데이터 로드 0건 | 10개 독립 라우트·독립 테이블, `ModuleLink`만 사용 |
 | 연결 감사 | 모든 모듈 링크에 `created_by` 기록 | `ModuleLinkService.link()`만 생성 경로 |
 | 예측 투명성 | S6 결과 100%에 `예측/신뢰도/모델` 배지 | `Forecast` 렌더링 규칙 |
 | 개인정보 | S7 원본 식별자 저장 0건 | 업로드 시 제거, 보유기간 명시, 삭제 요청 정책 |
@@ -362,12 +394,14 @@ Job(*) / CostRecord(*)                # 전역 작업·비용 추적
 - 로컬 Qwen(27B UD-Q4_K_M)은 VRAM 7.6GB/8GB를 사용해 **동시 추론 1개**만 안전. ctx 4096 유지, GPU 레이어 제한 필요.
 - npm/bun 미설치 → 구현 착수 전 환경 세팅 필요.
 - Postiz(AGPL), n8n(SUL), ComfyUI(GPL)는 배포 형태에 따라 소스공개/라이선스 의무 발생 → 법률 검토 필요.
-- Motion은 재캡처로 진본 위치가 확인되어(`creatify-ai/capture/routes/features-agent/**`) **그룹화·AI 태깅·모멘텀 카드 패턴만 구조 설계에 참고**한다. `motionapp-com/capture/**`(Creatify)는 계속 제외, 실제 리포트 동작은 `api_operations: []`라 단정하지 않는다.
+- Motion은 참고 자료의 출처 불일치를 재분석해 진본 여부를 확정했고, **그룹화·AI 태깅·모멘텀 카드 패턴만 구조 설계에 참고**한다. 출처가 뒤바뀐 자료군은 계속 제외하며, 실제 내부 리포트 동작은 관찰 증거가 없어 단정하지 않는다.
 - 실제 발행/과금은 MVP 범위 밖. **수집은 MVP에 포함되되 공식 API·공개 피드·수동 입력에 한정**하고, 광고 라이브러리 심사/토큰이 필요한 경로는 "연동 대기"로 둔다.
 - Meta/TikTok은 공개 페이지라도 자동 수집이 ToS상 명시 금지 → 스크래퍼를 붙이지 않는다. SNS 발행과 마찬가지로 Dry-run/메타데이터 참조만 허용한다.
 - YouTube `search.list` 100/day 버킷, 네이버 25,000/day 등 외부 할당량은 변동 가능 → Job에 quota 게이지를 두고 초과 시 대기 상태로 전환한다.
-- **모듈 엉킴 리스크**: S5~S8·KnowledgeService를 핵심 흐름(F1~F7)에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
-- **지식베이스 저작권 리스크**: ASC·StudioBinder·Rosco·CreativeHut 등은 저작권 보호 문서이며 CreativeHut는 복제·번역·각색에 서면 허가를 요구 → 개념 자체 서술 + 출처 ID만 저장. `reference/**` 캡처는 라이선스 미확인으로 KB 근거에서 제외. 플랫폼 픽셀 수치는 공식 원칙(A)과 제3자 추정(C)을 분리해 단정 금지.
+- **모듈 엉킴 리스크**: S5~S9·KnowledgeService를 핵심 흐름(F1~F7)에 자동 편입시키려는 유혹 → NFR 모듈 격리/연결 감사로 차단. 연결은 사용자 클릭만 허용.
+- **SEO 오인 리스크**: 예측치를 실제 순위·성과로 오해하거나 "최상위 노출 보장"으로 과장 → `예측/신뢰도/모델` 배지, 공식 가이드 근거(S23/A), 순위 보장 문구 차단 테스트.
+- **S9 계정·권리 리스크**: 소유 확인되지 않은 계정·SERP 스크래핑·유료벽 우회 → 공식 API/공개 데이터/수동 입력만 허용, 계정 연결은 Phase B 이후 사용자 승인.
+- **지식베이스 저작권 리스크**: ASC·StudioBinder·Rosco·CreativeHut 등은 저작권 보호 문서이며 CreativeHut는 복제·번역·각색에 서면 허가를 요구 → 개념 자체 서술 + 출처 ID만 저장. 저장소에 포함되지 않는 로컬 캡처 자료는 라이선스 미확인이자 경로 의존으로 KB 근거에서 제외. 플랫폼 픽셀 수치는 공식 원칙(A)과 제3자 추정(C)을 분리해 단정 금지.
 - **예측 오인 리스크**: 이동평균 결과를 실제 성과로 오해 → 예측 배지·신뢰도·샘플 배지 상시 노출.
 - **개인정보 리스크**: S7 고객데이터 과수집 → 식별자 제거, 최소 변수, 보유기간·삭제 정책. 법률 검토 전 실제 CRM 연동 금지.
 

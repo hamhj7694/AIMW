@@ -11,7 +11,9 @@
 chunk_id: KB-CAM-002
 domain: camera_movement | composition | lighting | editing | production_design
         | ad_structure | term_mapping | short_form | motion | animation | reference_search
+        | seo_growth
 production_mode: any | live_action | short_form | film | general_video | animation | motion_graphics
+service_module: s8 | s9   # seo_growth 청크는 s9에서만 검색
 source_ids: [S01]
 evidence_tier: A | B | C
 updated: 2026-11-22
@@ -28,7 +30,7 @@ path: planning/knowledge/01-camera-movement.md
 | Phase B | 동일 청크에 로컬 임베딩 추가 | 임베딩 라이브러리 **라이선스 재확인 후** 도입. 외부 임베딩 API 미사용. |
 | Phase C | 재랭킹 + 개인화(사용자 승인 용어 사전 가중치) | 프라이버시 게이트 후에만 |
 
-> `reference/**` 캡처는 인덱싱하지 않는다. 라이선스 미확인.
+> 저장소에 포함되지 않는 로컬 캡처 자료는 인덱싱하지 않는다. 라이선스 미확인 + 경로 의존 배제. 인덱싱 대상은 `planning/knowledge/**`의 자체 저작 문서뿐이다.
 
 ## 3. 검색 파이프라인
 

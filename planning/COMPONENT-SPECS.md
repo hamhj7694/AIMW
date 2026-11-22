@@ -23,7 +23,9 @@ domain/         (프로젝트 도메인)
   AnalysisCard, TermMappingPreview, ClarificationCard, ConfidenceBadge,
   GateStepper, StoryboardGrid, Composition3DSchemaView, AnimaticTimeline,
   ShotTimeline, ShotVersionChip, RevisionPanel, CostTimeGauge,
-  SafeZoneOverlay, VideoTemplatePicker
+  SafeZoneOverlay, VideoTemplatePicker,
+  InputModePicker, MediaSourcePicker, TransformOperationPicker, CompositeLayerPanel,
+  MaskingCanvasStub, BeforeAfterCompare, RightsConfirmationDialog, TransformCostPreview
 layout/
   AppShell, Sidebar, Topbar, DetailPanel, JobDrawer, PageHeader
 composite/
@@ -58,7 +60,7 @@ composite/
 | 항목 | 정의 |
 |---|---|
 | AppShell | `sidebar 240px + main 1fr + (detail 380px 조건부)`. 1280 이하 detail은 오버레이, 1024 이하 sidebar 접힘 |
-| Sidebar | 9개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
+| Sidebar | 10개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench/SEO & Search Growth — 별도 문서 작성중, 항목만 표시) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
 | Topbar | CampaignSwitcher, 전역 검색(Ctrl/Cmd+K), ProviderBadge, 사용량/비용, 사용자 메뉴 |
 | CampaignSwitcher | 장기렌트 캠페인 컨텍스트. 전환 시 모든 화면 데이터 재바인딩 |
 | ProviderBadge | 현재 추론 Provider(Ollama 기본). 연결 상태 점 + 모델명 툴팁 |
@@ -158,7 +160,7 @@ composite/
 
 ### 3-10. S8 Video Workbench (독립 모듈, S2 서브탭 아님)
 
-> S8 3탭(분석/제작/수정)은 상태를 섞지 않는다. 이 절의 `mode`는 **제작 유형(`productionMode`: 실사/숏폼/영화/영상/애니메이션/모션그래픽)**을 뜻하며, `SCREEN-SPECS.md`의 내부 탭 쿼리(`?tab=analysis|production|revision`)와는 별개다. `mode`는 프로젝트 단위 명시 선택값(기본 미선택)이며 모든 S8 컴포넌트의 공통 입력이다. 자동 감지·자동 변경 금지, 변경 시 확인 모달을 거치고 기존 결과를 덮어쓰지 않는다. `planning/design/PRODUCTION-MODE-SPECS.md`, `planning/knowledge/10-shortform-composition.md`, `planning/knowledge/11-motion-graphics-and-animation.md`, `planning/knowledge/12-reference-search-playbook.md`는 경로 참조만 한다.
+> S8 3탭(분석/제작/수정)은 상태를 섞지 않는다. 이 절의 `mode`는 **제작 유형(`productionMode`: 실사/숏폼/영화/영상/애니메이션/모션그래픽)**을 뜻하며, `SCREEN-SPECS.md`의 내부 탭 쿼리(`?tab=analysis|production|revision`)와는 별개다. `mode`는 프로젝트 단위 명시 선택값(기본 미선택)이며 모든 S8 컴포넌트의 공통 입력이다. 자동 감지·자동 변경 금지, 변경 시 확인 모달을 거치고 기존 결과를 덮어쓰지 않는다. 제작 유형·숏폼·모션그래픽·레퍼런스 서치 기준은 별도 문서로 작성중이며 이 문서에서는 내용을 다루지 않는다.
 
 | 컴포넌트 | 목적 | 입력(props) | 출력/상태 | mode 의존 | 토큰 | a11y·인터랙션 |
 |---|---|---|---|---|---|---|
@@ -184,6 +186,46 @@ composite/
 > S8 모듈 분리·안전 규칙: 분석/제작/수정 탭은 상태를 공유하지 않고, 레퍼런스 서치도 탭에 자동 삽입되지 않는다. 레퍼런스는 사용자 트리거 자동 검색·수동 입력·`ModuleLink(s0→s8)` 클릭으로만 들어오며 공개 범위(공식 API·공개 피드·공개 메타데이터·수동 입력)만 사용한다. 로그인/유료벽/스크래핑 우회 제외, 미디어 바이트 미저장(원문 URL·썸네일 URL·타임코드만). Phase A는 텍스트·스키마·샘플 미리보기 + DryRenderAdapter 플레이스홀더만, Phase B/C에서 실제 렌더·3D 프리뷰·diff-only 재렌더로 교체한다. 전체 영상 즉시 생성/일괄 렌더 버튼은 없다.
 >
 > 이름 주의: `ReferenceCard (S8)`는 3-3의 S1 `ReferenceCard`와 이름이 같지만 **모듈 내부 컴포넌트 재사용 금지** 원칙에 따라 S8 전용 별도 컴포넌트로 정의한다.
+
+#### 3-10-1. 기존 S8 컴포넌트의 소스 모드(`inputMode`) 의존 매트릭스
+
+> `mode`(제작 유형)와 `inputMode`(소스 모드)는 별개 축이다. 아래 표는 위 18개 기존 정의를 유지하면서 소스 모드 관점을 추가 표시한 것이다. 소스 모드가 바뀌어도 3탭 독립 상태와 4게이트 승인 규칙은 그대로 유지된다.
+
+| 기존 컴포넌트 | 기존 `mode` 의존(요약) | `inputMode` 의존 표시 |
+|---|---|---|
+| ProductionModePicker | 없음(값 자체가 mode) | 독립. 제작 유형과 소스 모드는 별개 선택 |
+| ReferenceSearchPanel | 높음(검색 축) | 독립. 레퍼런스는 메타데이터 전용, 소스로 자동 전환 없음 |
+| ReferenceCard (S8) | 중간(유형별 근거 라벨) | 독립. 변환 소스 아님, 프레임 미분석 |
+| ManualReferenceInput | 중간(검색 축 태그) | 독립. URL 참조만, 업로드 소스 아님 |
+| AnalysisCard | 높음(분석 차원) | 있음. 소스 출처 라벨(신규=레퍼런스·샘플, 변환·합성=자기 소스) |
+| TermMappingPreview | 중간 | 있음. 변환 작업을 표준 용어로 매핑 |
+| ClarificationCard | 낮음 | 있음. 권리·출처 모호 시 되묻기 |
+| ConfidenceBadge | 없음 | 독립. 신뢰도 표시는 소스 모드와 무관 |
+| GateStepper | 중간(산출물 라벨) | 독립. 모든 소스 모드가 동일 4게이트 경유 |
+| StoryboardGrid | 높음(콘티 서식·길이) | 있음. 변환 결과를 `Shot`으로 표시 |
+| Composition3DSchemaView | 높음(구도 규칙) | 있음. 합성 레이어를 스키마로 반영 |
+| AnimaticTimeline | 중간 | 있음. 변환 샷의 저해상도 스텁 |
+| ShotTimeline | 중간(샷 길이 프로파일) | 있음. 변환·합성 버전 선택 |
+| ShotVersionChip | 낮음 | 있음. 변환·합성 버전 보존, 자동 덮어쓰기 없음 |
+| RevisionPanel | 중간(영향 범위 계산) | 있음. 대상 샷만 diff 수정, 전체 자동 재렌더 없음 |
+| CostTimeGauge | 높음(비용/시간 프로파일) | 있음. 변환·합성 작업별 비용 프로파일 반영 |
+| SafeZoneOverlay | 높음(세이프존 규칙) | 있음. 리사이즈·재구도 결과에 가이드 적용 |
+| VideoTemplatePicker | 높음(사용 가능 템플릿) | 있음. 변환·합성에 맞는 템플릿 필터 |
+
+#### 3-10-2. 신규 소스·변환·합성 컴포넌트
+
+| 컴포넌트 | 목적 | 입력(props) | 출력/상태 | mode 의존 | 토큰 | a11y·인터랙션 |
+|---|---|---|---|---|---|---|
+| InputModePicker | 소스 모드 3종 명시 선택 | `generate_new`(기본 표시)/`transform_source`/`composite`, 현재 값, 프로젝트 컨텍스트 | 전환 요청 → 확인 모달(영향 목록) → 이전 버전 보존. 자동 감지·자동 전환 없음 | 없음(값 자체가 inputMode), 제작 유형 mode와 독립 | `s8.mode.picker` 패턴, `radius.md`, `primary.50`, `text.muted`, Lucide 선형 아이콘 + 한글 라벨 | `role=radiogroup`, 기본값 텍스트 명시, 모달 focus trap + ESC + 포커스 복귀 |
+| MediaSourcePicker | 업로드·사용자 URL·S5 자산 소스 선택 | `inputMode`, 소스 목록(업로드/URL/S5), `ModuleLink(s5→s8)` 생성 버튼, 권리 상태, 타임코드 | 소스 카드 생성·선택, S5는 클릭 시에만 참조, 서드파티는 메타데이터만, 권리 미확인 시 변환 차단 | 높음(모드별 선택 가능 소스와 안내가 다름) | `s8.source.card`, `s8.rights.badge`, `s8.dryRun.badge`, `font.mono` | 소스 종류·권리 상태 텍스트 병기, `aria-label`, S5 링크 라벨 명시, 업로드 오류 `aria-describedby` |
+| TransformOperationPicker | 이미지·영상·합성 작업 그룹 선택 | `inputMode`, 그룹(이미지/영상/합성), 작업 목록, 상충 작업 규칙 | 작업 칩 선택→`TransformOperation` 저장, 조합 변경 시 비용 미리보기 갱신 | 높음(모드에 따라 기본 그룹이 다름) | `s8.operation.chip`, `radius.pill`, `primary.50`, `surface.subtle`, `text.muted` | `role=group`, 그룹 헤더 텍스트, 선택 상태 `aria-pressed`, 비활성 사유 제공 |
+| CompositeLayerPanel | 합성 레이어 순서·보임·잠금·타이밍 편집 | 레이어 목록(배경/인물/제품/텍스트/로고/이펙트), 순서, 보임, 잠금, 블렌드, 시작·끝 타임코드 | 레이어 행 추가·정렬·삭제(확인 필요), 미리보기 반영, 게이트 승인 전 확정 없음 | 높음(`composite` 전용, 다른 모드에서는 비활성) | `s8.layer.row`, `surface.subtle`, `primary.50`, `font.mono` | 키보드 순서 이동, 보임·잠금 `aria-pressed`, 타임코드 병기, 삭제 확인 다이얼로그 |
+| MaskingCanvasStub | 마스크 가이드 오버레이(Phase A 스텁) | 소스 미리보기, 마스크 경계 가이드, 제외 영역, `inputMode` | 경계·제외 영역 시각화만 제공, 실제 브러시 연산 없음, 스텁 배지 상시 | 중간(변환·합성에서만 노출) | `s8.mask.overlay`, `border.strong`, `surface.inverse`, `s8.dryRun.badge` | `role=img` + 대체 설명, 조작 불가 이유 텍스트, reduced-motion 시 애니메이션 없음 |
+| BeforeAfterCompare | 원본·변환 결과 전·후 비교 | 원본 미리보기, 결과 미리보기, 비교 위치, 샘플 여부 | 구분선 슬라이더, 좌우 라벨, Phase A는 샘플만 표시 | 중간(변환·합성 결과일 때 표시) | `s8.beforeAfter.split`, `border.strong`, `surface.subtle`, `s8.dryRun.badge` | 슬라이더 `role=slider` + 키보드 이동, 좌우 라벨 텍스트, 실제 렌더 아님 배지 |
+| RightsConfirmationDialog | 변환·합성 전 권리 확인 | `rights_flag`, `rights_confirmed_by`, 확인 시각, 사용 범위, 소스 목록 | 확인 시 권리 상태 갱신 후 작업 활성, 취소 시 소스 유지, 거부 시 진행 차단 | 높음(`generate_new`에서는 표시하지 않음) | `s8.rights.badge`, `Dialog`, `warning.50`, `danger.50` | focus trap, ESC 취소, 포커스 복귀, 거부 사유 텍스트, 색만 의존 금지 |
+| TransformCostPreview | 작업별 예상 비용·시간 표시 | 작업 조합, 소스 길이·해상도, 레이어 수, 드라이런 여부, 임계치, `inputMode` | "예상 비용 n · 예상 시간 n" + 산출 근거, 임계치 경고, 자동 실행 없음 | 높음(비용 프로파일이 모드에 따라 다름) | `s8.transformCost.preview`, `s8.cost.gauge`, `font.mono`, `warning.500` | 단위 병기("원", "분"), 변경 시 `aria-live=polite`, 실제 과금 아님 배지 |
+
+> 소스 모드 안전 규칙: 소스는 사용자 업로드·사용자 URL·`ModuleLink(s5→s8)` 클릭으로만 들어온다. 서드파티 레퍼런스는 메타데이터 전용이며 프레임을 다운로드하거나 분석하지 않는다. 변환 결과는 `Shot`으로, 합성 레이어는 `Composition3D` 스키마로 들어가 동일 4게이트를 통과한다. 3탭 독립 상태, 전체 자동 재렌더 금지, 모듈 자동 동기화 금지, 무단 웹 서비스 코드 실행 금지가 적용된다. 실제 어댑터는 공식·라이선스 확인된 공급자 또는 검증된 로컬 도구만 Phase B/C에서 예산·라이선스 승인 후 사용한다.
 
 ### 3-11. 공통 상태·피드백
 
@@ -212,12 +254,12 @@ composite/
 
 | 항목 | 이유 |
 |---|---|
-| `capture/page.html` 및 `_astro/*`, Webflow CDN 자산 | 표현 저작권·트레이드드레스·ToS 미확인 |
-| MONOV `app/src`, `app/dist` 코드 | Craft Anything 생성물, 품질 58%·라이선스 불명 → 패턴만 참고 |
+| 참고 대상 사이트의 원본 HTML·정적 자산·CDN 리소스 | 표현 저작권·트레이드드레스·ToS 미확인 |
+| 생성 재구성 코드·빌드 산출물 | 품질 58%·라이선스 불명 → 패턴만 참고 |
 | 레퍼런스 로고/브랜드 이미지 | 타사 자산, 권한 확인 전 사용 금지 |
 | 추적 스크립트(GA/GTM/Meta/Amplitude/Channel.io/HubSpot/OptinMonster 등) | 오류 유발 + 프라이버시 리스크 |
-| `motionapp-com/capture/**` | 출처 불일치(Creatify 캡처) → 근거로 사용 금지 |
-| `creatify-ai/capture/routes/features-agent/**` | Motion 진본으로 재분류. 패턴 참고만, UI/자산 복제 금지 |
+| 출처 불일치가 확인된 자료군 | 오귀속 근거로 사용 금지 |
+| 진본으로 재분류된 자료군 | 패턴 참고만 허용, UI/자산 복제 금지 |
 | 캡타차 해결·지문 위조·프록시 회전·로그인 쿠키 공유 스크래퍼 | Meta/TikTok ToS의 명시적 자동 수집 금지 조항과 충돌 → 사용 금지 |
 | Firecrawl 코어 self-host/수정 | AGPL-3.0 카피레프트 → MCP 클라이언트만 사용, 코어 내장 금지 |
 
@@ -230,8 +272,11 @@ composite/
 - [ ] shadcn primitives와 도메인 컴포넌트가 분리되어 있다.
 - [ ] 각 상태 컴포넌트(Empty/Loading/Error/Approval/DryRun)가 정의되어 있다.
 - [ ] 접근성 규칙이 모든 컴포넌트에 적용된다.
-- [ ] S8 컴포넌트 18개가 이름·목적·props/상태·토큰·a11y 규칙으로 정의되어 있다.
+- [ ] S8 컴포넌트 26개(기존 18개 + 소스·변환·합성 8개)가 이름·목적·props/상태·토큰·a11y 규칙으로 정의되어 있다.
 - [ ] S8 모든 컴포넌트에 제작 유형(`mode`) 의존성이 표시되어 있고, 기본 미선택·자동 변경 금지·변경 확인 모달이 적용된다.
 - [ ] S8 레퍼런스 서치 컴포넌트가 권리 배지·provenance·타임코드·출처 등급·자동/수동 구분을 다루고 미디어 바이트를 저장하지 않는다.
 - [ ] S8 3탭 상태 분리, 4게이트 승인, 샷 단위 수정, Dry-run·시뮬레이션·스텁 배지가 컴포넌트 수준에서 보장된다.
 - [ ] 재사용 금지 목록이 명시되어 있다.
+- [ ] 기존 S8 컴포넌트에 제작 유형(`mode`)과 별개인 소스 모드(`inputMode`) 의존성이 표시되어 있다.
+- [ ] 소스 모드 전환 시 확인 다이얼로그와 이전 버전 보존이 적용되고, 서드파티 레퍼런스는 메타데이터 전용이다.
+- [ ] 변환·합성 결과가 `Shot` / `Composition3D`로 동일 4게이트에 투입되고 전체 자동 재렌더·모듈 자동 동기화가 없다.
