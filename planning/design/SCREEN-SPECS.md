@@ -2,12 +2,12 @@
 
 작성일: 2026-11-22  
 기준 뷰포트: 1440×900 (보조 1280 / 768). 한국어 UI.  
-관련: `DESIGN-PLAN.md`, `COMPONENT-SPECS.md`, `ARCHITECTURE.md`, 제작 유형 명세(별도 문서 작성중)
+관련: `DESIGN-PLAN.md`, `COMPONENT-SPECS.md`, `ARCHITECTURE.md`, `PRODUCTION-MODE-SPECS.md`, `SEO-GROWTH-SPECS.md`, `DESIGN-GOVERNANCE.md`
 
 > 표기: 각 화면은 **목적 / 레이아웃 / 주요 요소 / 상태 / 근거 레퍼런스**를 갖는다. 근거는 실제 캡처 경로이며, 출처 불일치(Motion) 및 이미지 직접 판독 불가는 `REFERENCE-AUDIT.md`에 명시된 한계를 따른다.  
 > **2026-11-22 개정**: 캡처는 참고용이고, 수집·검색·분석 파이프라인은 이 프로젝트용으로 자체 설계한다. S0 Collector를 신설하고 S1~S4와 연결했다. Motion은 로컬 캡처 분석 결과(저장소 미포함)에서 진본 출처가 확인되어 그룹화/태깅/모멘텀 카드 패턴만 참고한다(출처 불일치 자료는 Creatify라 제외). 추가로 **S5 우리 콘텐츠 허브 / S6 성과·예측 / S7 오디언스 세그먼트**를 독립 모듈로 기획한다.  
 > **2026-11-22 S8 추가**: **S8 Video Workbench**를 S2 서브탭이 아닌 독립 모듈로 기획한다. 분석/제작/수정 3탭 상태 분리, 제작 유형 명시 선택, 4게이트, 샷 단위 수정, DryRender만 MVP 범위다.
-> **2026-11-22 S8 소스 확장**: S8에 소스 모드(신규 생성/기존 미디어 변환·수정/여러 소스 합성), 미디어 소스 선택, 변환·합성 워크스페이스, 권리 확인 게이트를 추가한다. 서드파티 레퍼런스는 메타데이터 전용이고, 모든 결과는 동일 4게이트를 통과한다. 화면 수는 10개이며 S9 SEO & Search Growth는 별도 문서로 작성중이다. 새 설계 근거는 공개적으로 관찰된 패턴을 자체 원칙으로 재서술하거나 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한다.
+> **2026-11-22 S8 소스 확장**: S8에 소스 모드(신규 생성/기존 미디어 변환·수정/여러 소스 합성), 미디어 소스 선택, 변환·합성 워크스페이스, 권리 확인 게이트를 추가한다. 서드파티 레퍼런스는 메타데이터 전용이고, 모든 결과는 동일 4게이트를 통과한다. 화면 수는 10개이며 S9 SEO & Search Growth의 상세 명세는 `SEO-GROWTH-SPECS.md`에 있다. 새 설계 근거는 공개적으로 관찰된 패턴을 자체 원칙으로 재서술하거나 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한다.
 
 ---
 
@@ -16,7 +16,7 @@
 - **목적**: 프로젝트 컨텍스트 고정, 전역 탐색, AI 작업 상태 상시 노출.
 - **레이아웃**: Sidebar 240px | Main 1fr | DetailPanel 380px(조건부). 상단 Topbar 56px.
 - **Topbar**: CampaignSwitcher(장기렌트 캠페인), 전역 검색 `Ctrl/Cmd+K`, ProviderBadge(Ollama), CostBadge("로컬 · 무과금"), 알림, 사용자.
-- **Sidebar**: Collector / **Own Content** / References / Studio / Publishing / Insights / **Performance** / **Segments** / **Video Workbench** / **SEO & Search Growth**(별도 문서 작성중, 항목만 표시) + 하단 설정·연결. 10개 화면. 그룹 라벨: `[수집·자산]` / `[작업(S8 포함)]` / `[분석]`.
+- **Sidebar**: Collector / **Own Content** / References / Studio / Publishing / Insights / **Performance** / **Segments** / **Video Workbench** / **SEO & Search Growth**(`SEO-GROWTH-SPECS.md` 참조) + 하단 설정·연결. 10개 화면. 그룹 라벨: `[수집·자산]` / `[작업(S8 포함)]` / `[분석]`.
 - **전역 오버레이**: JobDrawer(작업 큐), DetailPanel(선택 항목), CommandPalette.
 - **상태**: 연결 끊김 시 ProviderBadge 경고, 진행 중 작업 수 배지(수집 Job 포함).
 - **근거**: Buffer PUBLISH 좌측 사이드바 + Postiz 상단 내비 + Snipit 전역 셸.
@@ -215,7 +215,7 @@
     | 모션그래픽 | 이징 · 타이포 · 브랜드 모션 |
 
   - **수동 입력 폼 필드**: 원문 URL(필수), 메모(자유 입력), 타임코드 시작/끝, 출처 등급(공식 API/공개 피드/공개 메타데이터/수동), 권리 배지(공개 범위 확인 여부), 검색 축 태그(제작 유형별 기본값), 선택 시 근거 메모.
-  - **근거**: 공개 범위·출처 등급·타임코드 기준을 자체 원칙으로 정리한 레퍼런스 서치 지침(별도 문서 작성중).
+  - **근거**: 공개 범위·출처 등급·타임코드 기준을 자체 원칙으로 정리한 레퍼런스 서치 지침(`../knowledge/12-reference-search-playbook.md`).
 
 - **진입 단계 3 — 소스 모드와 미디어 소스**(분석 전, 3탭과 별개 단계):
   - **소스 모드(`inputMode`)**: `generate_new`(신규 생성, 기본 표시) / `transform_source`(기존 미디어 변환·수정) / `composite`(여러 소스 합성). 사용자가 명시적으로 전환하며 자동 감지·자동 전환 금지.

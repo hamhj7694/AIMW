@@ -60,7 +60,7 @@ composite/
 | 항목 | 정의 |
 |---|---|
 | AppShell | `sidebar 240px + main 1fr + (detail 380px 조건부)`. 1280 이하 detail은 오버레이, 1024 이하 sidebar 접힘 |
-| Sidebar | 10개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench/SEO & Search Growth — 별도 문서 작성중, 항목만 표시) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
+| Sidebar | 10개 메뉴(Collector/Own Content/References/Studio/Publishing/Insights/Performance/Segments/Video Workbench/SEO & Search Growth — `SEO-GROWTH-SPECS.md` 참조) + 하단 설정·연결. 그룹 라벨 `[수집·자산]/[작업(S8 포함)]/[분석]`. 활성 아이템 `primary.50` 배경 + `primary.500` 텍스트 |
 | Topbar | CampaignSwitcher, 전역 검색(Ctrl/Cmd+K), ProviderBadge, 사용량/비용, 사용자 메뉴 |
 | CampaignSwitcher | 장기렌트 캠페인 컨텍스트. 전환 시 모든 화면 데이터 재바인딩 |
 | ProviderBadge | 현재 추론 Provider(Ollama 기본). 연결 상태 점 + 모델명 툴팁 |
@@ -160,7 +160,7 @@ composite/
 
 ### 3-10. S8 Video Workbench (독립 모듈, S2 서브탭 아님)
 
-> S8 3탭(분석/제작/수정)은 상태를 섞지 않는다. 이 절의 `mode`는 **제작 유형(`productionMode`: 실사/숏폼/영화/영상/애니메이션/모션그래픽)**을 뜻하며, `SCREEN-SPECS.md`의 내부 탭 쿼리(`?tab=analysis|production|revision`)와는 별개다. `mode`는 프로젝트 단위 명시 선택값(기본 미선택)이며 모든 S8 컴포넌트의 공통 입력이다. 자동 감지·자동 변경 금지, 변경 시 확인 모달을 거치고 기존 결과를 덮어쓰지 않는다. 제작 유형·숏폼·모션그래픽·레퍼런스 서치 기준은 별도 문서로 작성중이며 이 문서에서는 내용을 다루지 않는다.
+> S8 3탭(분석/제작/수정)은 상태를 섞지 않는다. 이 절의 `mode`는 **제작 유형(`productionMode`: 실사/숏폼/영화/영상/애니메이션/모션그래픽)**을 뜻하며, `SCREEN-SPECS.md`의 내부 탭 쿼리(`?tab=analysis|production|revision`)와는 별개다. `mode`는 프로젝트 단위 명시 선택값(기본 미선택)이며 모든 S8 컴포넌트의 공통 입력이다. 자동 감지·자동 변경 금지, 변경 시 확인 모달을 거치고 기존 결과를 덮어쓰지 않는다. 제작 유형·숏폼·모션그래픽 기준은 `design/PRODUCTION-MODE-SPECS.md`에, 레퍼런스 서치 기준은 `knowledge/12-reference-search-playbook.md`에 있으며 이 문서에서는 내용을 다루지 않는다.
 
 | 컴포넌트 | 목적 | 입력(props) | 출력/상태 | mode 의존 | 토큰 | a11y·인터랙션 |
 |---|---|---|---|---|---|---|

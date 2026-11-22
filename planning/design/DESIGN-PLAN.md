@@ -2,7 +2,7 @@
 
 작성일: 2026-11-22  
 대상: 데스크톱 1440×900 우선, React + TypeScript + Tailwind + shadcn/ui 즉시 구현 가능한 명세 지향  
-관련 문서: `SOURCE-INVENTORY.md`, `REFERENCE-AUDIT.md`, `FEATURE-MATRIX.md`, `COMPOSITION-PLAN.md`, `SCREEN-SPECS.md`, `COMPONENT-SPECS.md`, 제작 유형 명세(별도 문서 작성중)
+관련 문서: `SOURCE-INVENTORY.md`, `REFERENCE-AUDIT.md`, `FEATURE-MATRIX.md`, `COMPOSITION-PLAN.md`, `SCREEN-SPECS.md`, `COMPONENT-SPECS.md`, `PRODUCTION-MODE-SPECS.md`, `SEO-GROWTH-SPECS.md`, `DESIGN-GOVERNANCE.md`, `../research/UIUX-RULES-FROM-REFERENCES.md`
 
 ---
 
@@ -201,7 +201,7 @@ AI Marketing AX Workspace
 │   │   ├── 유형별 검색 축 — 실사=카메라/조명 기법, 숏폼=훅·세이프존·길이, 영화=구도·조명·색, 영상=브랜드·정보전달, 애니메이션=타이밍·스타일, 모션그래픽=이징·타이포·브랜드 모션
 │   │   ├── S0 연결은 "S8 참고로 가져오기" 클릭 시에만 `ModuleLink(s0→s8)` 생성. 자동 로드·복제 금지
 │   │   ├── 공개 범위만(로그인/유료벽/스크래핑 우회 제외), 미디어 바이트 저장 금지 — 원문 URL·썸네일 URL·타임코드만 보관
-│   │   └── 근거: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 레퍼런스 서치 지침(별도 문서 작성중)
+│   │   └── 근거: 로컬 캡처 분석 결과(저장소 미포함)를 일반 원칙으로 정리한 레퍼런스 서치 지침(`../knowledge/12-reference-search-playbook.md`)
 │   ├── 진입 단계 3: 소스 모드(InputMode) + 미디어 소스 선택(분석 전, 3탭과 별개 단계)
 │   │   ├── 소스 모드: `generate_new`(신규 생성, 기본 표시) / `transform_source`(기존 미디어 변환·수정) / `composite`(여러 소스 합성). 사용자 명시 전환만
 │   │   ├── 기존 아티팩트가 있는 상태에서 모드 변경 시 확인 다이얼로그 → 이전 버전 보존(덮어쓰기·삭제 없음)
@@ -375,7 +375,7 @@ S4 CSV 성과 업로드 → 지표 비교 → AI 개선안 → 새 브리프로 
 - 모든 인터랙션은 키보드로 도달 가능, 포커스 링은 `border.strong` 2px.
 - 표는 `<table>` 의미 구조 유지, 숫자는 `font.mono` + 우측 정렬.
 - 이미지/카드에는 대체 텍스트 또는 `aria-label` 제공.
-- 1440×900 기준. 1280 이하에서 우측 패널은 오버레이로 전환, 1024 이하에서 사이드바는 접힘, 768 이하에서는 10개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments·Video Workbench·SEO & Search Growth)을 세로 스택으로 재배치(단, MVP는 데스크톱 우선). S9 SEO & Search Growth는 별도 문서로 작성중이며 이 문서에서는 화면 수에만 포함하고 내용은 다루지 않는다.
+- 1440×900 기준. 1280 이하에서 우측 패널은 오버레이로 전환, 1024 이하에서 사이드바는 접힘, 768 이하에서는 10개 화면(Collector·Own Content·References·Studio·Publishing·Insights·Performance·Segments·Video Workbench·SEO & Search Growth)을 세로 스택으로 재배치(단, MVP는 데스크톱 우선). S9 SEO & Search Growth의 상세 명세는 `SEO-GROWTH-SPECS.md`에 있고 이 문서에서는 화면 수에만 포함한다.
 
 ---
 
@@ -418,7 +418,7 @@ Figma는 필수가 아니다. 대신 `browser.screenshot` + `browser.preview`, `
 - [ ] AI 생성 작업은 항상 Provider·모델·비용·상태를 노출한다.
 - [ ] 이모지 아이콘, 그라데이션, 글래스모피즘이 없다.
 - [ ] React/Tailwind/shadcn/ui 구조로 그대로 매핑 가능한 컴포넌트 이름이 `COMPONENT-SPECS.md`에 정의되어 있다.
-- [ ] S8이 10개 화면의 독립 라우트로 진입하고, S2 서브탭이 아니다. S9 SEO & Search Growth는 별도 문서로 작성중이며 여기서는 라우트 수에만 포함하고 내용은 다루지 않는다.
+- [ ] S8이 10개 화면의 독립 라우트로 진입하고, S2 서브탭이 아니다. S9 SEO & Search Growth의 상세 명세는 `SEO-GROWTH-SPECS.md`에 있고 여기서는 라우트 수에만 포함한다.
 - [ ] S8 제작 유형(실사/숏폼/영화/영상/애니메이션/모션그래픽)이 프로젝트 단위 명시 선택(기본 미선택)이고 자동 감지·자동 변경이 없다.
 - [ ] S8 유형 변경 시 확인 다이얼로그가 기존 결과를 자동 덮어쓰지 않는다.
 - [ ] S8 3탭(분석/제작/수정)의 상태가 섞이지 않고, 4게이트는 사용자 승인 후에만 진행된다.

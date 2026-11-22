@@ -3,7 +3,7 @@
 버전: 0.5 (MVP + 독립 모듈 + 영상 분석·단계 제작·실미디어 변환/합성 + 제작 유형·레퍼런스 서치·전문 RAG 지식베이스 + S9 SEO 성장 반영)  
 작성일: 2026-11-22  
 상태: 분석·설계 완료 / 구현 착수 전 (실제 웹앱 코드 없음)  
-관련: `research/*`, `design/*`, `design/PRODUCTION-MODE-SPECS.md`, `design/SEO-GROWTH-SPECS.md`, `knowledge/*`, `ARCHITECTURE.md`, `IMPLEMENTATION-PLAN.md`, `DECISION-LOG.md`
+관련: `research/*`, `design/*`, `design/PRODUCTION-MODE-SPECS.md`, `design/SEO-GROWTH-SPECS.md`, `design/DESIGN-GOVERNANCE.md`, `research/UIUX-RULES-FROM-REFERENCES.md`, `knowledge/*`, `ARCHITECTURE.md`, `IMPLEMENTATION-PLAN.md`, `DECISION-LOG.md`
 
 > **0.2 변경**: ① Motion 참고 자료의 출처 불일치를 재분석해 진본 여부를 확정하고 점수를 재평가(3.70). ② **S5 우리 콘텐츠 허브 / S6 성과·예측 / S7 오디언스 세그먼트**를 독립 모듈로 추가. 각 모듈은 기본적으로 분리되어 작동하며, 사용자 명시적 선택 시에만 ID 기반으로 연결된다(엉킴 방지).
 >
@@ -232,12 +232,14 @@ SEO 엔티티: **`SeoRound`**, **`SeoDiagnosis`**, **`KeywordGap`**, **`SearchIn
 | AI 생성 | 로컬 Ollama로 브리프/카피 실제 생성 성공 |
 | 상태 커버리지 | 모든 화면에 Empty/Loading/Error/성공 상태 존재 |
 | Dry-run 명확성 | 발행 화면에 외부 전송 없음 배지 상시 |
-| 모듈 독립성 | S5/S6/S7 각각 단독 진입 가능, 빈 데이터여도 다른 모듈 사용 가능 |
+| 모듈 독립성 | S5/S6/S7/S8/S9 각각 단독 진입 가능, 빈 데이터여도 다른 모듈 사용 가능 |
 | 연결 명시성 | 모듈 간 이동은 사용자 클릭만. 자동 연결 0건 |
 | 예측 투명성 | S6 예측에 "예측/신뢰도/모델" 배지 표시 |
 | 영상 단계 게이트 | S8에서 콘티→3D→애니매틱→렌더가 사용자의 "진행" 클릭 없이 자동 전환 0건 |
 | 영상 해석 투명성 | 자연어→용어 변환 100%에 `원문/표준용어/신뢰도/확정여부` 표시, 미확정 상태로 제작 진행 불가 |
 | 타겟 수정 정확성 | 수정 요청 시 영향 샷 목록을 먼저 보여주고, 승인 전에는 다른 샷 변경 0건 |
+| 미디어 권한 게이트 | `rights_flag`/`rights_confirmed_by` 미확인 소스의 변환·합성 0건, 타사 프레임 다운로드 0건 |
+| SEO 투명성 | S9 예측 100%에 `예측/신뢰도/모델/기간` 배지, 순위 보장 문구 0건 |
 | 레퍼런스 정합 | 원본 코드/오귀속 자산 0건 사용 |
 | 접근성 | console 오류 0, 이름 없는 컨트롤 0(browser 검수) |
 
@@ -251,7 +253,7 @@ SEO 엔티티: **`SeoRound`**, **`SeoDiagnosis`**, **`KeywordGap`**, **`SearchIn
 | 의존 | Ollama `:11434`, FastAPI, SQLite, shadcn/TanStack/Recharts, `feedparser`/`trafilatura>=1.8` |
 | 리스크 | Qwen VRAM 포화 → 직렬화; npm 미설치 → Day0 세팅; 수집 할당량/차단 → 대기 상태; 원본 복제 유혹 → 클린룸 원칙; **모듈 엉킴 → NFR-12/13으로 차단**; **예측 오인 → NFR-14 배지**; **고객정보 과수집 → NFR-15 최소화** |
 | 법률 | Postiz(AGPL)/n8n(SUL)/ComfyUI(GPL)/Firecrawl(AGPL)/캡처 저작권, Meta·TikTok 자동수집 금지, Google News RSS 비상업 제한, S7 고객정보 개인정보보호법 — 배포 전 검토 |
-| 미확인 | Snipit/Foreplay/Creatify/MONOV의 API/MCP 사양, Motion 내부 리포트(진본 랜딩만 확보), YouTube/네이버 할당량 변동, 한국어 본문 추출 품질(trafilatura/readability-lxml 검증 필요), **S8 3D 구도 프리뷰 수준(경량 스키마 vs 실제 3D 렌더), 실제 영상 렌더 Provider/예산** |
+| 미확인 | Snipit/Foreplay/Creatify/MONOV의 API/MCP 사양, Motion 내부 리포트(진본 랜딩만 확보), YouTube/네이버 할당량 변동, 한국어 본문 추출 품질(trafilatura/readability-lxml 검증 필요), **S8 3D 구도 프리뷰 수준(경량 스키마 vs 실제 3D 렌더), 실제 영상 렌더 Provider/예산**. S8/S9 관련 확정 대기 22건은 `DECISION-LOG.md` J장에 별도 정리(구현 착수 전 우선순위 확정 필요) |
 
 ---
 
